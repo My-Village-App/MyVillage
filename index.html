@@ -27,7 +27,6 @@
         <h1 class="text-3xl font-bold text-blue-800 mb-2">మన ఊరి సేవలు</h1>
         <p class="text-gray-500 mb-2">Local Workers Directory</p>
         
-        <!-- Live User Count Badge (Login Screen) -->
         <div class="bg-green-100 text-green-700 px-4 py-1 rounded-full text-sm font-bold mb-8 shadow-sm flex items-center gap-2">
             <span class="relative flex h-3 w-3">
               <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
@@ -44,7 +43,6 @@
             <p class="text-xs text-gray-400 mt-4">యాప్ వాడాలంటే లాగిన్ తప్పనిసరి.</p>
         </div>
         
-        <!-- Error Area -->
         <div id="loginErrorMsg" class="hidden mt-4 w-full max-w-xs bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded text-xs text-left">
             <strong class="font-bold">Error:</strong> <span id="loginErrorText"></span>
         </div>
@@ -62,7 +60,6 @@
                     <h1 class="text-lg font-bold tracking-wide flex items-center gap-2">
                         <i class="fas fa-city text-yellow-300"></i> మన ఊరి సేవలు
                     </h1>
-                    <!-- User Count in Header -->
                     <p class="text-[10px] text-blue-200 flex items-center gap-1 ml-1">
                         <i class="fas fa-users"></i> <span id="appUserCount">0</span> Active Members
                     </p>
@@ -80,33 +77,36 @@
         <div class="max-w-3xl mx-auto p-4">
             <!-- Info Strip -->
             <div class="bg-indigo-50 text-indigo-700 text-xs text-center py-2 rounded-lg mb-4 border border-indigo-100 font-medium">
-                <i class="fas fa-info-circle mr-1"></i> డిలీట్ చేయడానికి కార్డుని 2.5 సెకండ్లు నొక్కి పట్టుకోండి
+                <i class="fas fa-info-circle mr-1"></i> ఎడిట్/డిలీట్ కోసం కార్డుని 2.5 సెకండ్లు నొక్కి పట్టుకోండి
             </div>
 
             <!-- Error Box -->
             <div id="errorBox" class="hidden bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 rounded shadow-sm"></div>
 
-            <!-- ADD FORM MODAL -->
+            <!-- ADD/EDIT FORM MODAL -->
             <div id="addForm" class="hidden fixed inset-0 bg-black/60 z-[60] flex items-center justify-center p-4 fade-in backdrop-blur-sm">
                 <div class="bg-white p-6 rounded-2xl shadow-2xl w-full max-w-md relative max-h-[90vh] overflow-y-auto">
                     <button onclick="toggleForm()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 p-2">
                         <i class="fas fa-times text-xl"></i>
                     </button>
                     <h2 class="text-xl font-bold mb-6 text-gray-800 flex items-center gap-2">
-                        <i class="fas fa-user-plus text-blue-600"></i> కొత్త వివరాలు
+                        <i class="fas fa-user-edit text-blue-600"></i> <span id="formTitle">కొత్త వివరాలు</span>
                     </h2>
                     
                     <p class="text-xs text-orange-600 bg-orange-50 p-2 rounded mb-4 border border-orange-200">
-                        <i class="fas fa-exclamation-triangle"></i> గమనిక: ఒక్కసారి సబ్మిట్ చేస్తే, మళ్ళీ యాడ్ చేయడానికి అడ్మిన్ పర్మిషన్ కావాలి.
+                        <i class="fas fa-exclamation-triangle"></i> దయచేసి సరైన సమాచారం మాత్రమే ఇవ్వండి.
                     </p>
 
                     <form id="workerForm" class="space-y-4">
+                        <input type="hidden" id="editDocId"> <!-- Hidden ID for Edit -->
+                        
                         <input type="text" id="wName" placeholder="పేరు (Name)" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500" required>
                         <input type="text" id="wJob" placeholder="పని (Job - Ex: Auto)" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500" required>
                         <input type="text" id="wArea" placeholder="ఏరియా (Area)" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
                         <input type="tel" id="wPhone" placeholder="ఫోన్ నంబర్" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500" required>
                         <textarea id="wBio" rows="2" placeholder="బయోడేటా (Details)..." class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500"></textarea>
-                        <button type="submit" class="w-full bg-blue-600 text-white py-3.5 rounded-xl font-bold hover:bg-blue-700 shadow-lg mt-2">సేవ్ చేయి</button>
+                        
+                        <button type="submit" id="submitBtn" class="w-full bg-blue-600 text-white py-3.5 rounded-xl font-bold hover:bg-blue-700 shadow-lg mt-2">సేవ్ చేయి</button>
                     </form>
                 </div>
             </div>
@@ -132,7 +132,7 @@
     <!-- FIREBASE SCRIPT -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, query, where, getDocs, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, query, where, getDocs, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         
         // --- KEYS ---
@@ -153,6 +153,7 @@
 
         let currentUser = null;
         let allWorkers = [];
+        let editingId = null;
 
         // --- AUTH & LOGIN LOGIC ---
         const loginScreen = document.getElementById('loginScreen');
@@ -161,25 +162,20 @@
         const loginErrorMsg = document.getElementById('loginErrorMsg');
         const loginErrorText = document.getElementById('loginErrorText');
 
-        // TRACK USER COUNT (New Feature)
-        // We listen to a 'users' collection to count total docs
         function trackUserCount() {
             const usersRef = collection(db, "users");
             onSnapshot(usersRef, (snap) => {
-                const count = snap.size; // Total users
-                // Update UI in both screens
+                const count = snap.size; 
                 document.getElementById('loginUserCount').innerText = count;
                 document.getElementById('appUserCount').innerText = count;
             });
         }
-        trackUserCount(); // Start tracking immediately
+        trackUserCount();
 
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 currentUser = user;
                 document.getElementById('userAvatar').src = user.photoURL || 'https://via.placeholder.com/40';
-                
-                // --- SAVE NEW USER TO DB (To count them) ---
                 try {
                     const userDocRef = doc(db, "users", user.uid);
                     await setDoc(userDocRef, {
@@ -203,7 +199,6 @@
         window.handleLogin = () => {
             loginLoader.classList.remove('hidden');
             loginErrorMsg.classList.add('hidden');
-            
             signInWithPopup(auth, provider).catch((error) => {
                 loginLoader.classList.add('hidden');
                 loginErrorText.innerText = error.message;
@@ -213,9 +208,16 @@
 
         window.handleLogout = () => { if(confirm("Logout?")) signOut(auth); }
 
-        // --- CHECK LIMIT LOGIC ---
+        // --- ADD/EDIT TOGGLE ---
         window.checkLimitAndToggle = async () => {
             if (!currentUser) return;
+            // Reset for Adding
+            editingId = null; 
+            document.getElementById('workerForm').reset();
+            document.getElementById('formTitle').innerText = "కొత్త వివరాలు";
+            document.getElementById('submitBtn').innerText = "సేవ్ చేయి";
+
+            // Limit Check for New Additions
             const addBtn = document.querySelector('button[onclick="checkLimitAndToggle()"]');
             const originalIcon = addBtn.innerHTML;
             addBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
@@ -228,20 +230,47 @@
 
                 if (count >= 1) {
                     const password = prompt("⚠️ మీరు ఇప్పటికే ఒక నంబర్ యాడ్ చేశారు.\nఇంకొకటి యాడ్ చేయాలంటే అడ్మిన్ పాస్‌వర్డ్ ఎంటర్ చేయండి:");
-                    if (password === "admin123") {
-                        toggleForm();
-                    } else if (password !== null) {
-                        alert("❌ తప్పు పాస్‌వర్డ్!");
-                    }
+                    if (password === "admin123") toggleForm();
+                    else if (password !== null) alert("❌ తప్పు పాస్‌వర్డ్!");
                 } else {
                     toggleForm();
                 }
-            } catch (error) {
-                alert("Checking Failed: " + error.message);
-            } finally {
-                addBtn.innerHTML = originalIcon;
-                addBtn.disabled = false;
+            } catch (error) { alert("Checking Failed: " + error.message); } 
+            finally { addBtn.innerHTML = originalIcon; addBtn.disabled = false; }
+        }
+
+        // --- EDIT WORKER LOGIC ---
+        window.handleEdit = (e, id) => {
+            e.stopPropagation(); // Stop overlay from closing or triggering delete
+            
+            const worker = allWorkers.find(w => w.id === id);
+            if(!worker) return;
+
+            // Permission Check: Owner or Admin
+            let isOwner = currentUser && currentUser.uid === worker.addedByUid;
+            if (!isOwner) {
+                const pass = prompt("🔐 మీరు దీని ఓనర్ కాదు.\nఎడిట్ చేయడానికి అడ్మిన్ పాస్‌వర్డ్ ఎంటర్ చేయండి:");
+                if (pass !== "admin123") {
+                    if(pass !== null) alert("❌ తప్పు పాస్‌వర్డ్!");
+                    return;
+                }
             }
+
+            // Populate Form
+            document.getElementById('wName').value = worker.name;
+            document.getElementById('wJob').value = worker.job;
+            document.getElementById('wArea').value = worker.area || '';
+            document.getElementById('wPhone').value = worker.phone;
+            document.getElementById('wBio').value = worker.bio || '';
+            
+            // Set Edit Mode
+            editingId = id;
+            document.getElementById('formTitle').innerText = "వివరాలు మార్చండి";
+            document.getElementById('submitBtn').innerText = "Update";
+            
+            // Hide Overlay and Show Form
+            document.getElementById(`overlay-${id}`).classList.add('hidden');
+            toggleForm();
         }
 
         // --- DATA LOGIC ---
@@ -252,9 +281,6 @@
                 allWorkers.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
                 renderWorkers(allWorkers);
                 document.getElementById('loader').classList.add('hidden');
-            }, (error) => {
-                showError("Database Error: " + error.message);
-                document.getElementById('loader').classList.add('hidden');
             });
         }
 
@@ -262,8 +288,7 @@
             const list = document.getElementById('workersList');
             list.innerHTML = '';
             if (data.length === 0) {
-                document.getElementById('noDataMsg').classList.remove('hidden');
-                return;
+                document.getElementById('noDataMsg').classList.remove('hidden'); return;
             }
             document.getElementById('noDataMsg').classList.add('hidden');
 
@@ -277,17 +302,22 @@
                          onmousedown="handleMouseDown('${worker.id}')"
                          onmouseup="handleMouseUp()"
                     >
-                         <!-- DELETE OVERLAY -->
+                         <!-- OPTIONS OVERLAY -->
                         <div id="overlay-${worker.id}" 
                              class="hidden absolute inset-0 bg-slate-900/95 z-30 flex flex-col items-center justify-center gap-3 backdrop-blur-sm fade-in"
                              ontouchstart="stopProp(event)"
                              onmousedown="stopProp(event)"
                         >
-                            <p class="text-white text-xs font-bold uppercase tracking-widest">Admin Options</p>
-                            <button onclick="confirmDelete(event, '${worker.id}')" class="bg-red-500 text-white px-6 py-2 rounded-lg font-bold shadow-lg flex items-center gap-2">
-                                <i class="fas fa-trash-alt"></i> Delete
-                            </button>
-                            <button onclick="closeOverlay(event, '${worker.id}')" class="text-gray-400 text-sm mt-2 underline">Cancel</button>
+                            <p class="text-white text-xs font-bold uppercase tracking-widest mb-1">Select Action</p>
+                            <div class="flex gap-4">
+                                <button onclick="handleEdit(event, '${worker.id}')" class="bg-blue-600 text-white px-5 py-2 rounded-lg font-bold shadow-lg flex items-center gap-2 active:scale-95 transition">
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
+                                <button onclick="confirmDelete(event, '${worker.id}')" class="bg-red-500 text-white px-5 py-2 rounded-lg font-bold shadow-lg flex items-center gap-2 active:scale-95 transition">
+                                    <i class="fas fa-trash-alt"></i> Delete
+                                </button>
+                            </div>
+                            <button onclick="closeOverlay(event, '${worker.id}')" class="text-gray-400 text-sm mt-3 underline">Cancel</button>
                         </div>
 
                         <div class="w-14 h-14 rounded-2xl ${style.color} flex items-center justify-center text-2xl shrink-0 shadow-inner">
@@ -307,7 +337,7 @@
             });
         }
 
-        // --- LONG PRESS (2500ms) ---
+        // --- LONG PRESS (2.5s) ---
         let pressTimer;
         
         window.handleTouchStart = (id) => {
@@ -318,49 +348,55 @@
         }
         window.handleTouchEnd = () => clearTimeout(pressTimer);
         window.handleMouseDown = (id) => {
-             pressTimer = setTimeout(() => {
-                document.getElementById(`overlay-${id}`).classList.remove('hidden');
-             }, 2500);
+             pressTimer = setTimeout(() => { document.getElementById(`overlay-${id}`).classList.remove('hidden'); }, 2500);
         }
         window.handleMouseUp = () => clearTimeout(pressTimer);
         window.closeOverlay = (e, id) => { e.stopPropagation(); document.getElementById(`overlay-${id}`).classList.add('hidden'); }
         window.stopProp = (e) => e.stopPropagation();
         
+        // --- DELETE LOGIC ---
         window.confirmDelete = async (e, id) => {
             e.stopPropagation();
             setTimeout(async () => {
-                const password = prompt("ADMIN PASSWORD:");
+                const password = prompt("🔐 ADMIN PASSWORD:");
                 if (password === "admin123") {
-                    if(confirm("Delete?")) await deleteDoc(doc(db, "workers", id));
+                    if(confirm("Delete Permanently?")) await deleteDoc(doc(db, "workers", id));
                 } else if(password) alert("Wrong Password");
             }, 50);
         }
 
-        // --- SUBMIT FORM ---
+        // --- FORM SUBMIT (ADD OR EDIT) ---
         document.getElementById('workerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const btn = e.target.querySelector('button[type="submit"]');
-            const original = btn.innerHTML;
-            btn.innerHTML = 'Saving...';
+            const btn = document.getElementById('submitBtn');
+            const original = btn.innerText;
+            btn.innerText = 'Processing...';
             btn.disabled = true;
 
-            const newWorker = {
+            const data = {
                 name: document.getElementById('wName').value.trim(),
                 job: document.getElementById('wJob').value.trim(),
                 area: document.getElementById('wArea').value.trim(),
                 phone: document.getElementById('wPhone').value.trim(),
                 bio: document.getElementById('wBio').value.trim(),
-                addedBy: currentUser.displayName,
-                addedByUid: currentUser.uid,
-                createdAt: new Date().toISOString()
             };
 
             try {
-                await addDoc(collection(db, "workers"), newWorker);
-                e.target.reset();
+                if (editingId) {
+                    // UPDATE EXISTING
+                    await updateDoc(doc(db, "workers", editingId), data);
+                    // alert("వివరాలు అప్‌డేట్ అయ్యాయి!");
+                } else {
+                    // ADD NEW
+                    data.addedBy = currentUser.displayName;
+                    data.addedByUid = currentUser.uid;
+                    data.createdAt = new Date().toISOString();
+                    await addDoc(collection(db, "workers"), data);
+                }
                 toggleForm();
+                document.getElementById('workerForm').reset();
             } catch (err) { alert("Error: " + err.message); } 
-            finally { btn.innerHTML = original; btn.disabled = false; }
+            finally { btn.innerText = original; btn.disabled = false; editingId = null; }
         });
 
         function getIconByJob(job) {
@@ -377,7 +413,6 @@
              const filtered = allWorkers.filter(w => w.name.toLowerCase().includes(term) || w.job.toLowerCase().includes(term));
              renderWorkers(filtered);
         }
-        function showError(msg) { document.getElementById('errorBox').innerText = msg; document.getElementById('errorBox').classList.remove('hidden'); }
     </script>
 </body>
 </html>
