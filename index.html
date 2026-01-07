@@ -371,7 +371,7 @@
                 document.getElementById(`overlay-${id}`).classList.remove('hidden');
                 isLongPressTriggered = true;
                 if (navigator.vibrate) navigator.vibrate(50);
-            }, 600);
+            }, 1000);
         }
         window.handleTouchEnd = () => clearTimeout(pressTimer);
         window.handleMouseDown = (id) => {
@@ -379,7 +379,7 @@
              pressTimer = setTimeout(() => {
                 document.getElementById(`overlay-${id}`).classList.remove('hidden');
                 isLongPressTriggered = true;
-             }, 600);
+             }, 1000);
         }
         window.handleMouseUp = () => clearTimeout(pressTimer);
 
