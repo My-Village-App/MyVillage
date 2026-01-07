@@ -13,7 +13,6 @@
         .no-select { -webkit-user-select: none; user-select: none; }
         .fade-in { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        /* Spinner */
         .loader { border-top-color: #3b82f6; animation: spinner 1s linear infinite; }
         @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
@@ -26,11 +25,15 @@
             <i class="fas fa-hands-helping text-6xl text-blue-600"></i>
         </div>
         <h1 class="text-3xl font-bold text-blue-800 mb-2">మన ఊరి సేవలు</h1>
-        <p class="text-gray-500 mb-10">Local Workers Directory</p>
+        <p class="text-gray-500 mb-2">Local Workers Directory</p>
         
-        <!-- Error Display -->
-        <div id="loginErrorMsg" class="hidden w-full max-w-xs bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4 text-xs text-left">
-            <strong class="font-bold">Error:</strong> <span id="loginErrorText">Error text</span>
+        <!-- Live User Count Badge (Login Screen) -->
+        <div class="bg-green-100 text-green-700 px-4 py-1 rounded-full text-sm font-bold mb-8 shadow-sm flex items-center gap-2">
+            <span class="relative flex h-3 w-3">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+            </span>
+            <span id="loginUserCount">0</span> Users Joined
         </div>
 
         <div class="space-y-4 w-full max-w-xs">
@@ -41,9 +44,12 @@
             <p class="text-xs text-gray-400 mt-4">యాప్ వాడాలంటే లాగిన్ తప్పనిసరి.</p>
         </div>
         
+        <!-- Error Area -->
+        <div id="loginErrorMsg" class="hidden mt-4 w-full max-w-xs bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded text-xs text-left">
+            <strong class="font-bold">Error:</strong> <span id="loginErrorText"></span>
+        </div>
         <div id="loginLoader" class="hidden mt-6">
             <div class="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
-            <p class="text-xs text-gray-400 mt-2">Connecting...</p>
         </div>
     </div>
 
@@ -56,15 +62,16 @@
                     <h1 class="text-lg font-bold tracking-wide flex items-center gap-2">
                         <i class="fas fa-city text-yellow-300"></i> మన ఊరి సేవలు
                     </h1>
+                    <!-- User Count in Header -->
+                    <p class="text-[10px] text-blue-200 flex items-center gap-1 ml-1">
+                        <i class="fas fa-users"></i> <span id="appUserCount">0</span> Active Members
+                    </p>
                 </div>
                 <div class="flex items-center gap-3">
                     <img id="userAvatar" src="" class="w-8 h-8 rounded-full border-2 border-white bg-gray-200">
-                    
-                    <!-- ADD BUTTON with Logic Check -->
                     <button onclick="checkLimitAndToggle()" class="bg-white text-blue-700 px-3 py-1.5 rounded-full text-xs font-bold shadow hover:bg-blue-50 transition flex items-center gap-1 active:scale-95">
                         <i class="fas fa-plus"></i> Add
                     </button>
-                    
                     <button onclick="handleLogout()" class="text-white/80 hover:text-white text-xs ml-1"><i class="fas fa-sign-out-alt"></i></button>
                 </div>
             </div>
@@ -89,7 +96,6 @@
                         <i class="fas fa-user-plus text-blue-600"></i> కొత్త వివరాలు
                     </h2>
                     
-                    <!-- Limit Info -->
                     <p class="text-xs text-orange-600 bg-orange-50 p-2 rounded mb-4 border border-orange-200">
                         <i class="fas fa-exclamation-triangle"></i> గమనిక: ఒక్కసారి సబ్మిట్ చేస్తే, మళ్ళీ యాడ్ చేయడానికి అడ్మిన్ పర్మిషన్ కావాలి.
                     </p>
@@ -126,7 +132,7 @@
     <!-- FIREBASE SCRIPT -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, query, where, getDocs, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         
         // --- KEYS ---
@@ -148,17 +154,41 @@
         let currentUser = null;
         let allWorkers = [];
 
-        // --- AUTH LOGIC ---
+        // --- AUTH & LOGIN LOGIC ---
         const loginScreen = document.getElementById('loginScreen');
         const mainApp = document.getElementById('mainApp');
         const loginLoader = document.getElementById('loginLoader');
         const loginErrorMsg = document.getElementById('loginErrorMsg');
         const loginErrorText = document.getElementById('loginErrorText');
 
-        onAuthStateChanged(auth, (user) => {
+        // TRACK USER COUNT (New Feature)
+        // We listen to a 'users' collection to count total docs
+        function trackUserCount() {
+            const usersRef = collection(db, "users");
+            onSnapshot(usersRef, (snap) => {
+                const count = snap.size; // Total users
+                // Update UI in both screens
+                document.getElementById('loginUserCount').innerText = count;
+                document.getElementById('appUserCount').innerText = count;
+            });
+        }
+        trackUserCount(); // Start tracking immediately
+
+        onAuthStateChanged(auth, async (user) => {
             if (user) {
                 currentUser = user;
                 document.getElementById('userAvatar').src = user.photoURL || 'https://via.placeholder.com/40';
+                
+                // --- SAVE NEW USER TO DB (To count them) ---
+                try {
+                    const userDocRef = doc(db, "users", user.uid);
+                    await setDoc(userDocRef, {
+                        email: user.email,
+                        name: user.displayName,
+                        lastSeen: new Date().toISOString()
+                    }, { merge: true });
+                } catch(e) { console.log("User save error", e); }
+
                 loginScreen.classList.add('hidden');
                 mainApp.classList.remove('hidden');
                 loadData();
@@ -176,52 +206,37 @@
             
             signInWithPopup(auth, provider).catch((error) => {
                 loginLoader.classList.add('hidden');
-                console.error("Login Error:", error);
-                
                 loginErrorText.innerText = error.message;
-                if (error.code === 'auth/unauthorized-domain') {
-                    loginErrorText.innerText = "Domain Not Authorized! Firebase Console -> Auth -> Settings -> Authorized Domains లో లింక్ యాడ్ చెయ్.";
-                } else if (error.code === 'auth/operation-not-allowed') {
-                    loginErrorText.innerText = "Google Sign-In Disabled! Firebase Console -> Auth -> Sign-in method లో Google Enable చెయ్.";
-                }
                 loginErrorMsg.classList.remove('hidden');
             });
         }
 
         window.handleLogout = () => { if(confirm("Logout?")) signOut(auth); }
 
-        // --- CHECK LIMIT LOGIC (NEW FEATURE) ---
+        // --- CHECK LIMIT LOGIC ---
         window.checkLimitAndToggle = async () => {
             if (!currentUser) return;
-
-            // 1. Check Button Loading UI
             const addBtn = document.querySelector('button[onclick="checkLimitAndToggle()"]');
             const originalIcon = addBtn.innerHTML;
             addBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
             addBtn.disabled = true;
 
             try {
-                // 2. Query Database: How many workers added by this User ID?
                 const q = query(collection(db, "workers"), where("addedByUid", "==", currentUser.uid));
                 const querySnapshot = await getDocs(q);
                 const count = querySnapshot.size;
 
-                // 3. Logic Check
                 if (count >= 1) {
-                    // Already added one? Ask for Password
                     const password = prompt("⚠️ మీరు ఇప్పటికే ఒక నంబర్ యాడ్ చేశారు.\nఇంకొకటి యాడ్ చేయాలంటే అడ్మిన్ పాస్‌వర్డ్ ఎంటర్ చేయండి:");
-                    
                     if (password === "admin123") {
-                        toggleForm(); // Correct password -> Allow
+                        toggleForm();
                     } else if (password !== null) {
-                        alert("❌ తప్పు పాస్‌వర్డ్! ఒక్క నంబర్ మాత్రమే ఉచితం.");
+                        alert("❌ తప్పు పాస్‌వర్డ్!");
                     }
                 } else {
-                    // First time -> Allow directly
                     toggleForm();
                 }
             } catch (error) {
-                console.error("Limit Check Error", error);
                 alert("Checking Failed: " + error.message);
             } finally {
                 addBtn.innerHTML = originalIcon;
@@ -254,8 +269,6 @@
 
             data.forEach(worker => {
                 const style = getIconByJob(worker.job);
-                // Check if current user added this worker (to show special border or something? Optional)
-                
                 const html = `
                     <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4 relative group no-select active:scale-[0.98] transition cursor-pointer overflow-hidden"
                          oncontextmenu="return false;"
@@ -338,7 +351,7 @@
                 phone: document.getElementById('wPhone').value.trim(),
                 bio: document.getElementById('wBio').value.trim(),
                 addedBy: currentUser.displayName,
-                addedByUid: currentUser.uid, // Saving UID to check limit later
+                addedByUid: currentUser.uid,
                 createdAt: new Date().toISOString()
             };
 
@@ -346,7 +359,6 @@
                 await addDoc(collection(db, "workers"), newWorker);
                 e.target.reset();
                 toggleForm();
-                // alert("Success!");
             } catch (err) { alert("Error: " + err.message); } 
             finally { btn.innerHTML = original; btn.disabled = false; }
         });
@@ -368,4 +380,4 @@
         function showError(msg) { document.getElementById('errorBox').innerText = msg; document.getElementById('errorBox').classList.remove('hidden'); }
     </script>
 </body>
-    </html>
+</html>
