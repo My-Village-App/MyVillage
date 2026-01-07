@@ -11,8 +11,11 @@
         body { font-family: 'Roboto', sans-serif; background-color: #f0f4f8; -webkit-tap-highlight-color: transparent; }
         h1, h2, h3 { font-family: 'Ramabhadra', sans-serif; }
         .no-select { -webkit-user-select: none; user-select: none; }
-        .fade-in { animation: fadeIn 0.5s ease-out; }
+        .fade-in { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* Spinner */
+        .loader { border-top-color: #3b82f6; animation: spinner 1s linear infinite; }
+        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="text-slate-800 bg-slate-50">
@@ -25,10 +28,9 @@
         <h1 class="text-3xl font-bold text-blue-800 mb-2">మన ఊరి సేవలు</h1>
         <p class="text-gray-500 mb-10">Local Workers Directory</p>
         
-        <!-- Error Display Area -->
+        <!-- Error Display -->
         <div id="loginErrorMsg" class="hidden w-full max-w-xs bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4 text-xs text-left">
-            <strong class="font-bold">Error:</strong>
-            <span id="loginErrorText" class="block">Something went wrong.</span>
+            <strong class="font-bold">Error:</strong> <span id="loginErrorText">Error text</span>
         </div>
 
         <div class="space-y-4 w-full max-w-xs">
@@ -40,12 +42,12 @@
         </div>
         
         <div id="loginLoader" class="hidden mt-6">
-            <i class="fas fa-circle-notch fa-spin text-blue-500 text-2xl"></i>
-            <p class="text-xs text-gray-400 mt-2">Connecting to Google...</p>
+            <div class="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+            <p class="text-xs text-gray-400 mt-2">Connecting...</p>
         </div>
     </div>
 
-    <!-- 2. MAIN APP (Hidden Initially) -->
+    <!-- 2. MAIN APP -->
     <div id="mainApp" class="hidden min-h-screen pb-20">
         <!-- Header -->
         <div class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white p-4 sticky top-0 z-50 shadow-md">
@@ -57,9 +59,12 @@
                 </div>
                 <div class="flex items-center gap-3">
                     <img id="userAvatar" src="" class="w-8 h-8 rounded-full border-2 border-white bg-gray-200">
-                    <button onclick="toggleForm()" class="bg-white text-blue-700 px-3 py-1.5 rounded-full text-xs font-bold shadow hover:bg-blue-50 transition flex items-center gap-1">
+                    
+                    <!-- ADD BUTTON with Logic Check -->
+                    <button onclick="checkLimitAndToggle()" class="bg-white text-blue-700 px-3 py-1.5 rounded-full text-xs font-bold shadow hover:bg-blue-50 transition flex items-center gap-1 active:scale-95">
                         <i class="fas fa-plus"></i> Add
                     </button>
+                    
                     <button onclick="handleLogout()" class="text-white/80 hover:text-white text-xs ml-1"><i class="fas fa-sign-out-alt"></i></button>
                 </div>
             </div>
@@ -83,6 +88,12 @@
                     <h2 class="text-xl font-bold mb-6 text-gray-800 flex items-center gap-2">
                         <i class="fas fa-user-plus text-blue-600"></i> కొత్త వివరాలు
                     </h2>
+                    
+                    <!-- Limit Info -->
+                    <p class="text-xs text-orange-600 bg-orange-50 p-2 rounded mb-4 border border-orange-200">
+                        <i class="fas fa-exclamation-triangle"></i> గమనిక: ఒక్కసారి సబ్మిట్ చేస్తే, మళ్ళీ యాడ్ చేయడానికి అడ్మిన్ పర్మిషన్ కావాలి.
+                    </p>
+
                     <form id="workerForm" class="space-y-4">
                         <input type="text" id="wName" placeholder="పేరు (Name)" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500" required>
                         <input type="text" id="wJob" placeholder="పని (Job - Ex: Auto)" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500" required>
@@ -100,7 +111,7 @@
                 <input type="text" id="searchInput" onkeyup="filterWorkers()" placeholder="ఎవరు కావాలి? (Search...)" class="w-full pl-12 pr-5 py-3.5 rounded-full border border-gray-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
             </div>
 
-            <!-- List & Loader -->
+            <!-- Loader & List -->
             <div id="loader" class="flex flex-col items-center justify-center my-12">
                 <div class="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
             </div>
@@ -115,10 +126,10 @@
     <!-- FIREBASE SCRIPT -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         
-        // --- నీ KEYS ---
+        // --- KEYS ---
         const firebaseConfig = {
           apiKey: "AIzaSyBfonEUIssxYV5BFxOEsTIA9alYzISEOGU",
           authDomain: "myvillage-app-c3550.firebaseapp.com",
@@ -137,7 +148,7 @@
         let currentUser = null;
         let allWorkers = [];
 
-        // --- AUTH & LOGIN LOGIC ---
+        // --- AUTH LOGIC ---
         const loginScreen = document.getElementById('loginScreen');
         const mainApp = document.getElementById('mainApp');
         const loginLoader = document.getElementById('loginLoader');
@@ -167,22 +178,56 @@
                 loginLoader.classList.add('hidden');
                 console.error("Login Error:", error);
                 
-                // Show Error on Screen
                 loginErrorText.innerText = error.message;
-                
                 if (error.code === 'auth/unauthorized-domain') {
-                    loginErrorText.innerText = "Domain Not Authorized! Firebase Console -> Authentication -> Settings -> Authorized Domains లో నీ వెబ్‌సైట్ లింక్ ని యాడ్ చెయ్.";
-                } else if (error.code === 'auth/popup-closed-by-user') {
-                    loginErrorText.innerText = "Login చేయకుండానే Popup క్లోజ్ చేశారు.";
-                } else if (error.code === 'auth/cancelled-popup-request') {
-                     loginErrorText.innerText = "Too many popups opened.";
+                    loginErrorText.innerText = "Domain Not Authorized! Firebase Console -> Auth -> Settings -> Authorized Domains లో లింక్ యాడ్ చెయ్.";
+                } else if (error.code === 'auth/operation-not-allowed') {
+                    loginErrorText.innerText = "Google Sign-In Disabled! Firebase Console -> Auth -> Sign-in method లో Google Enable చెయ్.";
                 }
-
                 loginErrorMsg.classList.remove('hidden');
             });
         }
 
         window.handleLogout = () => { if(confirm("Logout?")) signOut(auth); }
+
+        // --- CHECK LIMIT LOGIC (NEW FEATURE) ---
+        window.checkLimitAndToggle = async () => {
+            if (!currentUser) return;
+
+            // 1. Check Button Loading UI
+            const addBtn = document.querySelector('button[onclick="checkLimitAndToggle()"]');
+            const originalIcon = addBtn.innerHTML;
+            addBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
+            addBtn.disabled = true;
+
+            try {
+                // 2. Query Database: How many workers added by this User ID?
+                const q = query(collection(db, "workers"), where("addedByUid", "==", currentUser.uid));
+                const querySnapshot = await getDocs(q);
+                const count = querySnapshot.size;
+
+                // 3. Logic Check
+                if (count >= 1) {
+                    // Already added one? Ask for Password
+                    const password = prompt("⚠️ మీరు ఇప్పటికే ఒక నంబర్ యాడ్ చేశారు.\nఇంకొకటి యాడ్ చేయాలంటే అడ్మిన్ పాస్‌వర్డ్ ఎంటర్ చేయండి:");
+                    
+                    if (password === "admin123") {
+                        toggleForm(); // Correct password -> Allow
+                    } else if (password !== null) {
+                        alert("❌ తప్పు పాస్‌వర్డ్! ఒక్క నంబర్ మాత్రమే ఉచితం.");
+                    }
+                } else {
+                    // First time -> Allow directly
+                    toggleForm();
+                }
+            } catch (error) {
+                console.error("Limit Check Error", error);
+                alert("Checking Failed: " + error.message);
+            } finally {
+                addBtn.innerHTML = originalIcon;
+                addBtn.disabled = false;
+            }
+        }
 
         // --- DATA LOGIC ---
         function loadData() {
@@ -209,6 +254,8 @@
 
             data.forEach(worker => {
                 const style = getIconByJob(worker.job);
+                // Check if current user added this worker (to show special border or something? Optional)
+                
                 const html = `
                     <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4 relative group no-select active:scale-[0.98] transition cursor-pointer overflow-hidden"
                          oncontextmenu="return false;"
@@ -276,12 +323,14 @@
             }, 50);
         }
 
+        // --- SUBMIT FORM ---
         document.getElementById('workerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = e.target.querySelector('button[type="submit"]');
             const original = btn.innerHTML;
             btn.innerHTML = 'Saving...';
             btn.disabled = true;
+
             const newWorker = {
                 name: document.getElementById('wName').value.trim(),
                 job: document.getElementById('wJob').value.trim(),
@@ -289,12 +338,15 @@
                 phone: document.getElementById('wPhone').value.trim(),
                 bio: document.getElementById('wBio').value.trim(),
                 addedBy: currentUser.displayName,
+                addedByUid: currentUser.uid, // Saving UID to check limit later
                 createdAt: new Date().toISOString()
             };
+
             try {
                 await addDoc(collection(db, "workers"), newWorker);
                 e.target.reset();
                 toggleForm();
+                // alert("Success!");
             } catch (err) { alert("Error: " + err.message); } 
             finally { btn.innerHTML = original; btn.disabled = false; }
         });
