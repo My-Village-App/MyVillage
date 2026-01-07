@@ -13,14 +13,11 @@
         .no-select { -webkit-user-select: none; user-select: none; }
         .fade-in { animation: fadeIn 0.5s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
-        /* Login Screen Animation */
-        #loginScreen { transition: opacity 0.5s ease-out; }
     </style>
 </head>
 <body class="text-slate-800 bg-slate-50">
 
-    <!-- 1. LOGIN SCREEN (First View) -->
+    <!-- 1. LOGIN SCREEN -->
     <div id="loginScreen" class="fixed inset-0 z-[100] bg-white flex flex-col items-center justify-center p-6 text-center">
         <div class="mb-8 p-6 bg-blue-50 rounded-full shadow-inner animate-bounce">
             <i class="fas fa-hands-helping text-6xl text-blue-600"></i>
@@ -28,23 +25,28 @@
         <h1 class="text-3xl font-bold text-blue-800 mb-2">మన ఊరి సేవలు</h1>
         <p class="text-gray-500 mb-10">Local Workers Directory</p>
         
+        <!-- Error Display Area -->
+        <div id="loginErrorMsg" class="hidden w-full max-w-xs bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4 text-xs text-left">
+            <strong class="font-bold">Error:</strong>
+            <span id="loginErrorText" class="block">Something went wrong.</span>
+        </div>
+
         <div class="space-y-4 w-full max-w-xs">
-            <button onclick="handleLogin()" class="w-full bg-white border border-gray-300 text-gray-700 font-bold py-3 px-4 rounded-xl shadow-md hover:bg-gray-50 active:scale-95 transition flex items-center justify-center gap-3">
+            <button onclick="handleLogin()" id="googleBtn" class="w-full bg-white border border-gray-300 text-gray-700 font-bold py-3 px-4 rounded-xl shadow-md hover:bg-gray-50 active:scale-95 transition flex items-center justify-center gap-3">
                 <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-6 h-6">
                 Login with Google
             </button>
             <p class="text-xs text-gray-400 mt-4">యాప్ వాడాలంటే లాగిన్ తప్పనిసరి.</p>
         </div>
         
-        <!-- Loading Indicator for Login -->
         <div id="loginLoader" class="hidden mt-6">
             <i class="fas fa-circle-notch fa-spin text-blue-500 text-2xl"></i>
+            <p class="text-xs text-gray-400 mt-2">Connecting to Google...</p>
         </div>
     </div>
 
     <!-- 2. MAIN APP (Hidden Initially) -->
     <div id="mainApp" class="hidden min-h-screen pb-20">
-        
         <!-- Header -->
         <div class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white p-4 sticky top-0 z-50 shadow-md">
             <div class="max-w-3xl mx-auto flex justify-between items-center">
@@ -53,8 +55,6 @@
                         <i class="fas fa-city text-yellow-300"></i> మన ఊరి సేవలు
                     </h1>
                 </div>
-                
-                <!-- User Profile & Add Button -->
                 <div class="flex items-center gap-3">
                     <img id="userAvatar" src="" class="w-8 h-8 rounded-full border-2 border-white bg-gray-200">
                     <button onclick="toggleForm()" class="bg-white text-blue-700 px-3 py-1.5 rounded-full text-xs font-bold shadow hover:bg-blue-50 transition flex items-center gap-1">
@@ -118,7 +118,7 @@
         import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         
-        // --- నీ KEYS ఇక్కడ ఉన్నాయి ---
+        // --- నీ KEYS ---
         const firebaseConfig = {
           apiKey: "AIzaSyBfonEUIssxYV5BFxOEsTIA9alYzISEOGU",
           authDomain: "myvillage-app-c3550.firebaseapp.com",
@@ -141,38 +141,48 @@
         const loginScreen = document.getElementById('loginScreen');
         const mainApp = document.getElementById('mainApp');
         const loginLoader = document.getElementById('loginLoader');
+        const loginErrorMsg = document.getElementById('loginErrorMsg');
+        const loginErrorText = document.getElementById('loginErrorText');
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                // Logged In -> Show App
                 currentUser = user;
                 document.getElementById('userAvatar').src = user.photoURL || 'https://via.placeholder.com/40';
-                
-                loginScreen.classList.add('hidden'); // Hide Login
-                mainApp.classList.remove('hidden');  // Show App
-                
-                // Load Data
+                loginScreen.classList.add('hidden');
+                mainApp.classList.remove('hidden');
                 loadData();
             } else {
-                // Logged Out -> Show Login
                 currentUser = null;
-                loginScreen.classList.remove('hidden'); // Show Login
-                mainApp.classList.add('hidden'); // Hide App
+                loginScreen.classList.remove('hidden');
+                mainApp.classList.add('hidden');
                 loginLoader.classList.add('hidden');
             }
         });
 
         window.handleLogin = () => {
             loginLoader.classList.remove('hidden');
+            loginErrorMsg.classList.add('hidden');
+            
             signInWithPopup(auth, provider).catch((error) => {
                 loginLoader.classList.add('hidden');
-                alert("Login Error: " + error.message + "\n\nTip: Did you add this domain in Firebase Console?");
+                console.error("Login Error:", error);
+                
+                // Show Error on Screen
+                loginErrorText.innerText = error.message;
+                
+                if (error.code === 'auth/unauthorized-domain') {
+                    loginErrorText.innerText = "Domain Not Authorized! Firebase Console -> Authentication -> Settings -> Authorized Domains లో నీ వెబ్‌సైట్ లింక్ ని యాడ్ చెయ్.";
+                } else if (error.code === 'auth/popup-closed-by-user') {
+                    loginErrorText.innerText = "Login చేయకుండానే Popup క్లోజ్ చేశారు.";
+                } else if (error.code === 'auth/cancelled-popup-request') {
+                     loginErrorText.innerText = "Too many popups opened.";
+                }
+
+                loginErrorMsg.classList.remove('hidden');
             });
         }
 
-        window.handleLogout = () => {
-            if(confirm("Logout?")) signOut(auth);
-        }
+        window.handleLogout = () => { if(confirm("Logout?")) signOut(auth); }
 
         // --- DATA LOGIC ---
         function loadData() {
@@ -241,21 +251,18 @@
         let pressTimer;
         
         window.handleTouchStart = (id) => {
-            // 2500 Milliseconds = 2.5 Seconds
             pressTimer = setTimeout(() => {
                 document.getElementById(`overlay-${id}`).classList.remove('hidden');
                 if (navigator.vibrate) navigator.vibrate(50);
             }, 2500); 
         }
         window.handleTouchEnd = () => clearTimeout(pressTimer);
-        
         window.handleMouseDown = (id) => {
              pressTimer = setTimeout(() => {
                 document.getElementById(`overlay-${id}`).classList.remove('hidden');
              }, 2500);
         }
         window.handleMouseUp = () => clearTimeout(pressTimer);
-
         window.closeOverlay = (e, id) => { e.stopPropagation(); document.getElementById(`overlay-${id}`).classList.add('hidden'); }
         window.stopProp = (e) => e.stopPropagation();
         
@@ -269,14 +276,12 @@
             }, 50);
         }
 
-        // Add Worker
         document.getElementById('workerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = e.target.querySelector('button[type="submit"]');
             const original = btn.innerHTML;
             btn.innerHTML = 'Saving...';
             btn.disabled = true;
-
             const newWorker = {
                 name: document.getElementById('wName').value.trim(),
                 job: document.getElementById('wJob').value.trim(),
@@ -286,7 +291,6 @@
                 addedBy: currentUser.displayName,
                 createdAt: new Date().toISOString()
             };
-
             try {
                 await addDoc(collection(db, "workers"), newWorker);
                 e.target.reset();
@@ -295,7 +299,6 @@
             finally { btn.innerHTML = original; btn.disabled = false; }
         });
 
-        // Helpers
         function getIconByJob(job) {
             const j = (job || '').toLowerCase();
             if (j.includes('auto') || j.includes('taxi')) return { icon: 'fa-taxi', color: 'bg-yellow-100 text-yellow-600' };
