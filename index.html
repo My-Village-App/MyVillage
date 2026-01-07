@@ -11,147 +11,114 @@
         body { font-family: 'Roboto', sans-serif; background-color: #f0f4f8; -webkit-tap-highlight-color: transparent; }
         h1, h2, h3 { font-family: 'Ramabhadra', sans-serif; }
         .no-select { -webkit-user-select: none; user-select: none; }
-        .fade-in { animation: fadeIn 0.4s ease-out; }
+        .fade-in { animation: fadeIn 0.5s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .loader { border-top-color: #3b82f6; animation: spinner 1s linear infinite; }
-        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        /* Login Screen Animation */
+        #loginScreen { transition: opacity 0.5s ease-out; }
     </style>
 </head>
-<body class="text-slate-800 pb-20">
+<body class="text-slate-800 bg-slate-50">
 
-    <!-- Header -->
-    <div class="bg-white p-4 sticky top-0 z-50 shadow-md border-b border-gray-100">
-        <div class="max-w-3xl mx-auto flex justify-between items-center">
-            <div>
-                <h1 class="text-xl font-bold text-blue-700 tracking-wide flex items-center gap-2">
-                    <i class="fas fa-city text-orange-500"></i> మన ఊరి సేవలు
-                </h1>
-                <p class="text-xs text-gray-500 pl-8">Verified Directory</p>
-            </div>
-            
-            <!-- Login/User Section -->
-            <div id="authSection">
-                <!-- చూపించడానికి బటన్ జావాస్క్రిప్ట్ ద్వారా వస్తుంది -->
-                <button id="loginBtn" class="bg-blue-600 text-white px-4 py-2 rounded-full text-xs font-bold shadow hover:bg-blue-700 transition flex items-center gap-2">
-                    <i class="fab fa-google"></i> Login
-                </button>
-            </div>
+    <!-- 1. LOGIN SCREEN (First View) -->
+    <div id="loginScreen" class="fixed inset-0 z-[100] bg-white flex flex-col items-center justify-center p-6 text-center">
+        <div class="mb-8 p-6 bg-blue-50 rounded-full shadow-inner animate-bounce">
+            <i class="fas fa-hands-helping text-6xl text-blue-600"></i>
         </div>
-    </div>
-
-    <div class="max-w-3xl mx-auto p-4">
-
-        <!-- Action Bar -->
-        <div class="flex justify-between items-center mb-4 mt-2">
-            <p class="text-xs text-gray-400 italic"><i class="fas fa-info-circle"></i> Long press to options</p>
-            
-            <!-- Add Button (Only works if logged in) -->
-            <button onclick="checkLoginAndToggle()" class="bg-blue-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg hover:bg-blue-700 active:scale-95 transition-all flex items-center gap-2">
-                <i class="fas fa-user-plus"></i> Add Worker
+        <h1 class="text-3xl font-bold text-blue-800 mb-2">మన ఊరి సేవలు</h1>
+        <p class="text-gray-500 mb-10">Local Workers Directory</p>
+        
+        <div class="space-y-4 w-full max-w-xs">
+            <button onclick="handleLogin()" class="w-full bg-white border border-gray-300 text-gray-700 font-bold py-3 px-4 rounded-xl shadow-md hover:bg-gray-50 active:scale-95 transition flex items-center justify-center gap-3">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-6 h-6">
+                Login with Google
             </button>
+            <p class="text-xs text-gray-400 mt-4">యాప్ వాడాలంటే లాగిన్ తప్పనిసరి.</p>
         </div>
-
-        <!-- Error Box -->
-        <div id="errorBox" class="hidden bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 rounded shadow-sm"></div>
-
-        <!-- ADD FORM (Modal) -->
-        <div id="addForm" class="hidden fixed inset-0 bg-black/60 z-[60] flex items-center justify-center p-4 fade-in backdrop-blur-sm">
-            <div class="bg-white p-6 rounded-2xl shadow-2xl w-full max-w-md relative max-h-[90vh] overflow-y-auto">
-                <button onclick="toggleForm()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 p-2">
-                    <i class="fas fa-times text-xl"></i>
-                </button>
-                <h2 class="text-xl font-bold mb-6 text-gray-800 flex items-center gap-2">
-                    <i class="fas fa-edit text-blue-600"></i> వివరాలు నమోదు
-                </h2>
-                
-                <!-- User Info Display inside Form -->
-                <div class="bg-blue-50 p-3 rounded-lg mb-4 flex items-center gap-3">
-                    <img id="formUserImg" src="" class="w-8 h-8 rounded-full border border-blue-200">
-                    <div>
-                        <p class="text-xs text-gray-500">Adding as:</p>
-                        <p id="formUserName" class="text-sm font-bold text-blue-800">User</p>
-                    </div>
-                </div>
-
-                <form id="workerForm" class="space-y-4">
-                    <div>
-                        <label class="text-xs font-bold text-gray-500 uppercase ml-1">పేరు (Name)</label>
-                        <input type="text" id="wName" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" required>
-                    </div>
-                    <div>
-                        <label class="text-xs font-bold text-gray-500 uppercase ml-1">పని (Job)</label>
-                        <input type="text" id="wJob" placeholder="Ex: Electrician" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" required>
-                    </div>
-                    <div>
-                        <label class="text-xs font-bold text-gray-500 uppercase ml-1">ఏరియా (Area)</label>
-                        <input type="text" id="wArea" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
-                    </div>
-                    <div>
-                        <label class="text-xs font-bold text-gray-500 uppercase ml-1">ఫోన్ (Phone)</label>
-                        <input type="tel" id="wPhone" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" required>
-                    </div>
-                    <div>
-                        <label class="text-xs font-bold text-gray-500 uppercase ml-1">బయోడేటా (Details)</label>
-                        <textarea id="wBio" rows="2" placeholder="అనుభవం గురించి రాయండి..." class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"></textarea>
-                    </div>
-                    
-                    <button type="submit" class="w-full bg-blue-600 text-white py-3.5 rounded-xl font-bold hover:bg-blue-700 shadow-lg active:scale-95 transition-all">
-                        సేవ్ చేయి
-                    </button>
-                </form>
-            </div>
+        
+        <!-- Loading Indicator for Login -->
+        <div id="loginLoader" class="hidden mt-6">
+            <i class="fas fa-circle-notch fa-spin text-blue-500 text-2xl"></i>
         </div>
-
-        <!-- PROFILE MODAL -->
-        <div id="profileModal" class="hidden fixed inset-0 bg-black/70 z-[70] flex items-end sm:items-center justify-center fade-in backdrop-blur-md">
-            <div class="bg-white w-full sm:w-[450px] sm:rounded-2xl rounded-t-3xl shadow-2xl overflow-hidden relative max-h-[90vh] overflow-y-auto">
-                <button onclick="closeProfile()" class="absolute top-4 right-4 bg-gray-100 text-gray-500 w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-200 z-10"><i class="fas fa-times"></i></button>
-                <div class="bg-blue-50 p-6 text-center pt-10 pb-8">
-                    <div id="pIcon" class="w-24 h-24 rounded-full mx-auto flex items-center justify-center text-4xl shadow-inner mb-4 bg-white text-blue-600"><i class="fas fa-user"></i></div>
-                    <h2 id="pName" class="text-2xl font-bold text-gray-800 capitalize">Name</h2>
-                    <p id="pJob" class="text-blue-600 font-medium text-lg capitalize">Job</p>
-                    <p id="pArea" class="text-gray-500 text-sm"><i class="fas fa-map-marker-alt mr-1"></i> Area</p>
-                </div>
-                <div class="p-6 space-y-4">
-                    <div>
-                        <h3 class="text-xs font-bold text-gray-400 uppercase mb-2">Biodata</h3>
-                        <p id="pBio" class="text-gray-600 bg-gray-50 p-4 rounded-xl border border-gray-100 text-sm">No details.</p>
-                    </div>
-                    <!-- Added By Info -->
-                    <div class="flex items-center gap-2 text-xs text-gray-400 justify-center border-t pt-2">
-                        <span>Added by:</span>
-                        <img id="pAddedByImg" src="" class="w-5 h-5 rounded-full hidden">
-                        <span id="pAddedByName">Unknown</span>
-                    </div>
-                    <a id="pCallBtn" href="#" class="block w-full bg-green-500 text-white text-center py-4 rounded-xl font-bold text-lg shadow-lg hover:bg-green-600 transition flex items-center justify-center gap-2">
-                        <i class="fas fa-phone-alt"></i> Call Now
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Search & List -->
-        <div class="relative mb-6 group">
-            <i class="fas fa-search absolute left-5 top-4 text-gray-400"></i>
-            <input type="text" id="searchInput" onkeyup="filterWorkers()" placeholder="ఎవరు కావాలి? (Search...)" class="w-full pl-12 pr-5 py-3.5 rounded-full border border-gray-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
-        </div>
-
-        <div id="loader" class="flex flex-col items-center justify-center my-12 gap-3">
-            <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-10 w-10"></div>
-            <p class="text-gray-400 text-sm animate-pulse">లోడ్ అవుతోంది...</p>
-        </div>
-
-        <div id="workersList" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
-        <div id="noDataMsg" class="hidden flex flex-col items-center justify-center py-16 text-gray-400 opacity-70"><i class="fas fa-users-slash text-5xl mb-4"></i><p>ఇంకా ఎవరూ లేరు.</p></div>
     </div>
 
-    <!-- FIREBASE & AUTH LOGIC -->
+    <!-- 2. MAIN APP (Hidden Initially) -->
+    <div id="mainApp" class="hidden min-h-screen pb-20">
+        
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white p-4 sticky top-0 z-50 shadow-md">
+            <div class="max-w-3xl mx-auto flex justify-between items-center">
+                <div>
+                    <h1 class="text-lg font-bold tracking-wide flex items-center gap-2">
+                        <i class="fas fa-city text-yellow-300"></i> మన ఊరి సేవలు
+                    </h1>
+                </div>
+                
+                <!-- User Profile & Add Button -->
+                <div class="flex items-center gap-3">
+                    <img id="userAvatar" src="" class="w-8 h-8 rounded-full border-2 border-white bg-gray-200">
+                    <button onclick="toggleForm()" class="bg-white text-blue-700 px-3 py-1.5 rounded-full text-xs font-bold shadow hover:bg-blue-50 transition flex items-center gap-1">
+                        <i class="fas fa-plus"></i> Add
+                    </button>
+                    <button onclick="handleLogout()" class="text-white/80 hover:text-white text-xs ml-1"><i class="fas fa-sign-out-alt"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="max-w-3xl mx-auto p-4">
+            <!-- Info Strip -->
+            <div class="bg-indigo-50 text-indigo-700 text-xs text-center py-2 rounded-lg mb-4 border border-indigo-100 font-medium">
+                <i class="fas fa-info-circle mr-1"></i> డిలీట్ చేయడానికి కార్డుని 2.5 సెకండ్లు నొక్కి పట్టుకోండి
+            </div>
+
+            <!-- Error Box -->
+            <div id="errorBox" class="hidden bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 rounded shadow-sm"></div>
+
+            <!-- ADD FORM MODAL -->
+            <div id="addForm" class="hidden fixed inset-0 bg-black/60 z-[60] flex items-center justify-center p-4 fade-in backdrop-blur-sm">
+                <div class="bg-white p-6 rounded-2xl shadow-2xl w-full max-w-md relative max-h-[90vh] overflow-y-auto">
+                    <button onclick="toggleForm()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 p-2">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                    <h2 class="text-xl font-bold mb-6 text-gray-800 flex items-center gap-2">
+                        <i class="fas fa-user-plus text-blue-600"></i> కొత్త వివరాలు
+                    </h2>
+                    <form id="workerForm" class="space-y-4">
+                        <input type="text" id="wName" placeholder="పేరు (Name)" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500" required>
+                        <input type="text" id="wJob" placeholder="పని (Job - Ex: Auto)" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500" required>
+                        <input type="text" id="wArea" placeholder="ఏరియా (Area)" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
+                        <input type="tel" id="wPhone" placeholder="ఫోన్ నంబర్" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500" required>
+                        <textarea id="wBio" rows="2" placeholder="బయోడేటా (Details)..." class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                        <button type="submit" class="w-full bg-blue-600 text-white py-3.5 rounded-xl font-bold hover:bg-blue-700 shadow-lg mt-2">సేవ్ చేయి</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Search -->
+            <div class="relative mb-6">
+                <i class="fas fa-search absolute left-5 top-4 text-gray-400"></i>
+                <input type="text" id="searchInput" onkeyup="filterWorkers()" placeholder="ఎవరు కావాలి? (Search...)" class="w-full pl-12 pr-5 py-3.5 rounded-full border border-gray-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+            </div>
+
+            <!-- List & Loader -->
+            <div id="loader" class="flex flex-col items-center justify-center my-12">
+                <div class="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+            </div>
+            <div id="workersList" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+            <div id="noDataMsg" class="hidden text-center py-16 text-gray-400">
+                <i class="fas fa-folder-open text-4xl mb-2"></i>
+                <p>ఇంకా ఎవరూ లేరు.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- FIREBASE SCRIPT -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         
-        // --- KEYS ---
+        // --- నీ KEYS ఇక్కడ ఉన్నాయి ---
         const firebaseConfig = {
           apiKey: "AIzaSyBfonEUIssxYV5BFxOEsTIA9alYzISEOGU",
           authDomain: "myvillage-app-c3550.firebaseapp.com",
@@ -162,7 +129,6 @@
           measurementId: "G-6Q5425DBFS"
         };
 
-        // Initialize
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
@@ -171,72 +137,57 @@
         let currentUser = null;
         let allWorkers = [];
 
-        // --- AUTH LOGIC ---
-        const authSection = document.getElementById('authSection');
-        const loginBtn = document.getElementById('loginBtn');
+        // --- AUTH & LOGIN LOGIC ---
+        const loginScreen = document.getElementById('loginScreen');
+        const mainApp = document.getElementById('mainApp');
+        const loginLoader = document.getElementById('loginLoader');
 
-        // Check Login Status
         onAuthStateChanged(auth, (user) => {
-            currentUser = user;
             if (user) {
-                // User is Logged In
-                authSection.innerHTML = `
-                    <div class="flex items-center gap-2 bg-gray-100 rounded-full px-2 py-1 pr-3 border border-gray-200">
-                        <img src="${user.photoURL}" class="w-7 h-7 rounded-full">
-                        <div class="text-[10px] leading-tight text-right hidden sm:block">
-                            <p class="font-bold text-gray-700 truncate max-w-[80px]">${user.displayName.split(' ')[0]}</p>
-                            <button onclick="handleLogout()" class="text-red-500 hover:underline">Logout</button>
-                        </div>
-                        <button onclick="handleLogout()" class="text-red-500 text-xs sm:hidden"><i class="fas fa-sign-out-alt"></i></button>
-                    </div>
-                `;
-                // Update Form UI
-                document.getElementById('formUserImg').src = user.photoURL;
-                document.getElementById('formUserName').innerText = user.displayName;
+                // Logged In -> Show App
+                currentUser = user;
+                document.getElementById('userAvatar').src = user.photoURL || 'https://via.placeholder.com/40';
+                
+                loginScreen.classList.add('hidden'); // Hide Login
+                mainApp.classList.remove('hidden');  // Show App
+                
+                // Load Data
+                loadData();
             } else {
-                // User is Logged Out
-                authSection.innerHTML = `
-                    <button onclick="handleLogin()" class="bg-blue-600 text-white px-4 py-2 rounded-full text-xs font-bold shadow hover:bg-blue-700 transition flex items-center gap-2">
-                        <i class="fab fa-google"></i> <span class="hidden sm:inline">Login</span>
-                    </button>
-                `;
+                // Logged Out -> Show Login
+                currentUser = null;
+                loginScreen.classList.remove('hidden'); // Show Login
+                mainApp.classList.add('hidden'); // Hide App
+                loginLoader.classList.add('hidden');
             }
         });
 
-        // Login Function (Global)
         window.handleLogin = () => {
+            loginLoader.classList.remove('hidden');
             signInWithPopup(auth, provider).catch((error) => {
-                alert("Login Failed: " + error.message + "\nDid you enable Google Auth in Firebase Console?");
+                loginLoader.classList.add('hidden');
+                alert("Login Error: " + error.message + "\n\nTip: Did you add this domain in Firebase Console?");
             });
         }
 
-        // Logout Function
         window.handleLogout = () => {
-            if(confirm("Logout చేయమంటారా?")) {
-                signOut(auth);
-            }
+            if(confirm("Logout?")) signOut(auth);
         }
 
-        // Check Login before opening Add Form
-        window.checkLoginAndToggle = () => {
-            if (currentUser) {
-                toggleForm();
-            } else {
-                alert("⚠️ దయచేసి వివరాలు యాడ్ చేయడానికి ముందు Login చేయండి.");
-                handleLogin();
-            }
+        // --- DATA LOGIC ---
+        function loadData() {
+            const q = collection(db, "workers"); 
+            onSnapshot(q, (snapshot) => {
+                allWorkers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                allWorkers.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+                renderWorkers(allWorkers);
+                document.getElementById('loader').classList.add('hidden');
+            }, (error) => {
+                showError("Database Error: " + error.message);
+                document.getElementById('loader').classList.add('hidden');
+            });
         }
 
-        // --- DATABASE LOGIC ---
-        const q = collection(db, "workers"); 
-        onSnapshot(q, (snapshot) => {
-            allWorkers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            allWorkers.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
-            renderWorkers(allWorkers);
-            document.getElementById('loader').classList.add('hidden');
-        });
-
-        // Render Workers
         function renderWorkers(data) {
             const list = document.getElementById('workersList');
             list.innerHTML = '';
@@ -251,7 +202,6 @@
                 const html = `
                     <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4 relative group no-select active:scale-[0.98] transition cursor-pointer overflow-hidden"
                          oncontextmenu="return false;"
-                         onclick="openProfile('${worker.id}')"
                          ontouchstart="handleTouchStart('${worker.id}')"
                          ontouchend="handleTouchEnd()"
                          onmousedown="handleMouseDown('${worker.id}')"
@@ -260,7 +210,8 @@
                          <!-- DELETE OVERLAY -->
                         <div id="overlay-${worker.id}" 
                              class="hidden absolute inset-0 bg-slate-900/95 z-30 flex flex-col items-center justify-center gap-3 backdrop-blur-sm fade-in"
-                             onclick="stopProp(event)"
+                             ontouchstart="stopProp(event)"
+                             onmousedown="stopProp(event)"
                         >
                             <p class="text-white text-xs font-bold uppercase tracking-widest">Admin Options</p>
                             <button onclick="confirmDelete(event, '${worker.id}')" class="bg-red-500 text-white px-6 py-2 rounded-lg font-bold shadow-lg flex items-center gap-2">
@@ -277,109 +228,31 @@
                             <p class="text-sm text-blue-600 font-semibold truncate capitalize">${worker.job}</p>
                             <p class="text-xs text-gray-400 truncate">${worker.area || 'Unknown'}</p>
                         </div>
-                        <div class="bg-gray-50 text-gray-400 w-8 h-8 rounded-full flex items-center justify-center"><i class="fas fa-chevron-right text-xs"></i></div>
+                        <a href="tel:${worker.phone}" onclick="stopProp(event)" class="bg-green-100 text-green-600 w-10 h-10 rounded-full flex items-center justify-center shadow-sm z-20">
+                            <i class="fas fa-phone"></i>
+                        </a>
                     </div>
                 `;
                 list.innerHTML += html;
             });
         }
 
-        // Add Worker with User Info
-        document.getElementById('workerForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            if (!currentUser) return alert("Login Required!");
-
-            const btn = e.target.querySelector('button[type="submit"]');
-            const original = btn.innerHTML;
-            btn.innerHTML = 'Saving...';
-            btn.disabled = true;
-
-            const newWorker = {
-                name: document.getElementById('wName').value.trim(),
-                job: document.getElementById('wJob').value.trim(),
-                area: document.getElementById('wArea').value.trim(),
-                phone: document.getElementById('wPhone').value.trim(),
-                bio: document.getElementById('wBio').value.trim(),
-                // Saving who added this
-                addedBy: currentUser.displayName,
-                addedByUid: currentUser.uid, 
-                addedByPhoto: currentUser.photoURL,
-                createdAt: new Date().toISOString()
-            };
-
-            try {
-                await addDoc(collection(db, "workers"), newWorker);
-                e.target.reset();
-                toggleForm();
-            } catch (err) {
-                alert("Error: " + err.message);
-            } finally {
-                btn.innerHTML = original;
-                btn.disabled = false;
-            }
-        });
-
-        // Profile View Logic
-        window.openProfile = (id) => {
-            if(isLongPressTriggered) { isLongPressTriggered = false; return; }
-            
-            const worker = allWorkers.find(w => w.id === id);
-            if(!worker) return;
-
-            document.getElementById('pName').innerText = worker.name;
-            document.getElementById('pJob').innerText = worker.job;
-            document.getElementById('pArea').innerHTML = `<i class="fas fa-map-marker-alt mr-1"></i> ${worker.area || ''}`;
-            document.getElementById('pBio').innerText = worker.bio || "No details.";
-            document.getElementById('pCallBtn').href = `tel:${worker.phone}`;
-            
-            // Show who added
-            if(worker.addedBy) {
-                document.getElementById('pAddedByImg').src = worker.addedByPhoto || '';
-                document.getElementById('pAddedByImg').classList.remove('hidden');
-                document.getElementById('pAddedByName').innerText = worker.addedBy;
-            } else {
-                document.getElementById('pAddedByName').innerText = "Guest User";
-                document.getElementById('pAddedByImg').classList.add('hidden');
-            }
-
-            // Update Icon
-            const style = getIconByJob(worker.job);
-            const iconDiv = document.getElementById('pIcon');
-            iconDiv.className = `w-24 h-24 rounded-full mx-auto flex items-center justify-center text-4xl shadow-inner mb-4 bg-white text-blue-600 ${style.color}`;
-            iconDiv.innerHTML = `<i class="fas ${style.icon}"></i>`;
-
-            document.getElementById('profileModal').classList.remove('hidden');
-        }
-
-        // --- Helpers ---
-        function getIconByJob(job) {
-            const j = (job || '').toLowerCase();
-            if (j.includes('auto') || j.includes('taxi')) return { icon: 'fa-taxi', color: 'bg-yellow-100 text-yellow-600' };
-            if (j.includes('electr')) return { icon: 'fa-bolt', color: 'bg-yellow-100 text-yellow-500' };
-            if (j.includes('plumb')) return { icon: 'fa-faucet', color: 'bg-blue-100 text-blue-500' };
-            if (j.includes('farm')) return { icon: 'fa-tractor', color: 'bg-green-100 text-green-700' };
-            return { icon: 'fa-briefcase', color: 'bg-gray-100 text-gray-500' };
-        }
-
-        // Long Press Logic
+        // --- LONG PRESS (2500ms) ---
         let pressTimer;
-        let isLongPressTriggered = false;
         
         window.handleTouchStart = (id) => {
-            isLongPressTriggered = false;
+            // 2500 Milliseconds = 2.5 Seconds
             pressTimer = setTimeout(() => {
                 document.getElementById(`overlay-${id}`).classList.remove('hidden');
-                isLongPressTriggered = true;
                 if (navigator.vibrate) navigator.vibrate(50);
-            },2000);
+            }, 2500); 
         }
         window.handleTouchEnd = () => clearTimeout(pressTimer);
+        
         window.handleMouseDown = (id) => {
-             isLongPressTriggered = false;
              pressTimer = setTimeout(() => {
                 document.getElementById(`overlay-${id}`).classList.remove('hidden');
-                isLongPressTriggered = true;
-             }, 2000);
+             }, 2500);
         }
         window.handleMouseUp = () => clearTimeout(pressTimer);
 
@@ -396,13 +269,48 @@
             }, 50);
         }
 
+        // Add Worker
+        document.getElementById('workerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            const original = btn.innerHTML;
+            btn.innerHTML = 'Saving...';
+            btn.disabled = true;
+
+            const newWorker = {
+                name: document.getElementById('wName').value.trim(),
+                job: document.getElementById('wJob').value.trim(),
+                area: document.getElementById('wArea').value.trim(),
+                phone: document.getElementById('wPhone').value.trim(),
+                bio: document.getElementById('wBio').value.trim(),
+                addedBy: currentUser.displayName,
+                createdAt: new Date().toISOString()
+            };
+
+            try {
+                await addDoc(collection(db, "workers"), newWorker);
+                e.target.reset();
+                toggleForm();
+            } catch (err) { alert("Error: " + err.message); } 
+            finally { btn.innerHTML = original; btn.disabled = false; }
+        });
+
+        // Helpers
+        function getIconByJob(job) {
+            const j = (job || '').toLowerCase();
+            if (j.includes('auto') || j.includes('taxi')) return { icon: 'fa-taxi', color: 'bg-yellow-100 text-yellow-600' };
+            if (j.includes('electr')) return { icon: 'fa-bolt', color: 'bg-yellow-100 text-yellow-500' };
+            if (j.includes('plumb')) return { icon: 'fa-faucet', color: 'bg-blue-100 text-blue-500' };
+            return { icon: 'fa-briefcase', color: 'bg-gray-100 text-gray-500' };
+        }
+
         window.toggleForm = () => document.getElementById('addForm').classList.toggle('hidden');
-        window.closeProfile = () => document.getElementById('profileModal').classList.add('hidden');
         window.filterWorkers = () => {
              const term = document.getElementById('searchInput').value.toLowerCase();
              const filtered = allWorkers.filter(w => w.name.toLowerCase().includes(term) || w.job.toLowerCase().includes(term));
              renderWorkers(filtered);
         }
+        function showError(msg) { document.getElementById('errorBox').innerText = msg; document.getElementById('errorBox').classList.remove('hidden'); }
     </script>
 </body>
-</html>
+    </html>
