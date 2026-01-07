@@ -2,108 +2,156 @@
 <html lang="te">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>మన ఊరి సేవలు (Local Directory)</title>
-    <!-- డిజైన్ కోసం Tailwind CSS -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>మన ఊరి సేవలు (Mana Oori Sevalu)</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- ఐకాన్స్ కోసం FontAwesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Ramabhadra&family=Roboto:wght@400;700&display=swap');
-        body { font-family: 'Roboto', sans-serif; background-color: #f3f4f6; }
-        h1, h2 { font-family: 'Ramabhadra', sans-serif; }
-        /* లోడింగ్ యానిమేషన్ */
-        .loader { border-top-color: #2563eb; -webkit-animation: spinner 1.5s linear infinite; animation: spinner 1.5s linear infinite; }
+        @import url('https://fonts.googleapis.com/css2?family=Ramabhadra&family=Roboto:wght@400;500;700&display=swap');
+        body { font-family: 'Roboto', sans-serif; background-color: #f0f4f8; -webkit-tap-highlight-color: transparent; }
+        h1, h2, h3 { font-family: 'Ramabhadra', sans-serif; }
+        .no-select { -webkit-user-select: none; user-select: none; }
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .loader { border-top-color: #3b82f6; animation: spinner 1s linear infinite; }
         @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .fade-in { animation: fadeIn 0.5s ease-in; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body class="text-gray-800">
+<body class="text-slate-800 pb-20">
 
-    <!-- హెడ్డర్ -->
-    <div class="bg-gradient-to-r from-blue-700 to-blue-500 text-white p-4 sticky top-0 z-50 shadow-lg">
+    <!-- Header -->
+    <div class="bg-white p-4 sticky top-0 z-50 shadow-md border-b border-gray-100">
         <div class="max-w-3xl mx-auto flex justify-between items-center">
             <div>
-                <h1 class="text-xl font-bold tracking-wide"><i class="fas fa-city mr-2"></i>మన ఊరి సేవలు</h1>
-                <p class="text-xs text-blue-100 opacity-90">Local Workers Directory</p>
+                <h1 class="text-xl font-bold text-blue-700 tracking-wide flex items-center gap-2">
+                    <i class="fas fa-city text-orange-500"></i> మన ఊరి సేవలు
+                </h1>
+                <p class="text-xs text-gray-500 pl-8">Verified Directory</p>
             </div>
-            <button onclick="toggleForm()" class="bg-white text-blue-600 px-4 py-2 rounded-full text-sm font-bold shadow-md hover:bg-gray-100 transition transform hover:scale-105 active:scale-95">
-                <i class="fas fa-user-plus mr-1"></i> చేర్చు
-            </button>
-        </div>
-    </div>
-
-    <div class="max-w-3xl mx-auto p-4 pb-20">
-        
-        <!-- ఎర్రర్ మెసేజ్ బాక్స్ -->
-        <div id="errorBox" class="hidden bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 rounded shadow-sm" role="alert"></div>
-
-        <!-- కొత్త వర్కర్ ని యాడ్ చేసే ఫామ్ -->
-        <div id="addForm" class="hidden bg-white p-6 rounded-xl shadow-xl mb-6 border border-blue-100 fade-in relative">
-            <button onclick="toggleForm()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
-                <i class="fas fa-times text-xl"></i>
-            </button>
-            <h2 class="text-lg font-bold mb-4 text-gray-800 flex items-center gap-2">
-                <i class="fas fa-edit text-blue-500"></i> వివరాలు నమోదు చేయండి
-            </h2>
-            <form id="workerForm" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">పేరు (Name)</label>
-                    <input type="text" id="wName" placeholder="ఉదా: సురేష్ కుమార్" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition" required>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">పని (Job/Work)</label>
-                    <input type="text" id="wJob" placeholder="ఉదా: Auto Driver, Electrician" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition" required>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">ఏరియా (Area)</label>
-                    <input type="text" id="wArea" placeholder="ఉదా: బస్టాండ్ దగ్గర" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">ఫోన్ నంబర్ (Phone)</label>
-                    <input type="tel" id="wPhone" placeholder="10 అంకెల నంబర్" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition" required>
-                </div>
-                
-                <button type="submit" class="w-full bg-green-600 text-white py-3.5 rounded-lg font-bold hover:bg-green-700 shadow-md transition flex justify-center items-center gap-2 mt-2">
-                    <i class="fas fa-save"></i> సేవ్ చేయి
+            
+            <!-- Login/User Section -->
+            <div id="authSection">
+                <!-- చూపించడానికి బటన్ జావాస్క్రిప్ట్ ద్వారా వస్తుంది -->
+                <button id="loginBtn" class="bg-blue-600 text-white px-4 py-2 rounded-full text-xs font-bold shadow hover:bg-blue-700 transition flex items-center gap-2">
+                    <i class="fab fa-google"></i> Login
                 </button>
-            </form>
+            </div>
         </div>
-
-        <!-- సెర్చ్ బాక్స్ -->
-        <div class="relative mb-6 group">
-            <i class="fas fa-search absolute left-4 top-4 text-gray-400 group-focus-within:text-blue-500 transition"></i>
-            <input type="text" id="searchInput" onkeyup="filterWorkers()" placeholder="వర్కర్ పేరు లేదా పని వెతకండి..." 
-                class="w-full pl-12 pr-4 py-3.5 rounded-full border border-gray-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-white">
-        </div>
-
-        <!-- లోడింగ్ వీల్ -->
-        <div id="loader" class="flex flex-col items-center justify-center my-10 gap-3">
-            <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-10 w-10"></div>
-            <p class="text-gray-500 text-sm animate-pulse">లోడ్ అవుతోంది...</p>
-        </div>
-
-        <!-- లిస్ట్ ఇక్కడ వస్తుంది -->
-        <div id="workersList" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <!-- Cards will be injected here by JS -->
-        </div>
-        
-        <!-- డేటా లేనప్పుడు -->
-        <div id="noDataMsg" class="hidden flex flex-col items-center justify-center py-10 text-gray-400">
-            <i class="fas fa-folder-open text-4xl mb-3 opacity-50"></i>
-            <p>ఎవరూ దొరకలేదు.</p>
-        </div>
-
     </div>
 
-    <!-- FIREBASE లాజిక్ -->
+    <div class="max-w-3xl mx-auto p-4">
+
+        <!-- Action Bar -->
+        <div class="flex justify-between items-center mb-4 mt-2">
+            <p class="text-xs text-gray-400 italic"><i class="fas fa-info-circle"></i> Long press to options</p>
+            
+            <!-- Add Button (Only works if logged in) -->
+            <button onclick="checkLoginAndToggle()" class="bg-blue-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg hover:bg-blue-700 active:scale-95 transition-all flex items-center gap-2">
+                <i class="fas fa-user-plus"></i> Add Worker
+            </button>
+        </div>
+
+        <!-- Error Box -->
+        <div id="errorBox" class="hidden bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 rounded shadow-sm"></div>
+
+        <!-- ADD FORM (Modal) -->
+        <div id="addForm" class="hidden fixed inset-0 bg-black/60 z-[60] flex items-center justify-center p-4 fade-in backdrop-blur-sm">
+            <div class="bg-white p-6 rounded-2xl shadow-2xl w-full max-w-md relative max-h-[90vh] overflow-y-auto">
+                <button onclick="toggleForm()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 p-2">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+                <h2 class="text-xl font-bold mb-6 text-gray-800 flex items-center gap-2">
+                    <i class="fas fa-edit text-blue-600"></i> వివరాలు నమోదు
+                </h2>
+                
+                <!-- User Info Display inside Form -->
+                <div class="bg-blue-50 p-3 rounded-lg mb-4 flex items-center gap-3">
+                    <img id="formUserImg" src="" class="w-8 h-8 rounded-full border border-blue-200">
+                    <div>
+                        <p class="text-xs text-gray-500">Adding as:</p>
+                        <p id="formUserName" class="text-sm font-bold text-blue-800">User</p>
+                    </div>
+                </div>
+
+                <form id="workerForm" class="space-y-4">
+                    <div>
+                        <label class="text-xs font-bold text-gray-500 uppercase ml-1">పేరు (Name)</label>
+                        <input type="text" id="wName" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" required>
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-gray-500 uppercase ml-1">పని (Job)</label>
+                        <input type="text" id="wJob" placeholder="Ex: Electrician" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" required>
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-gray-500 uppercase ml-1">ఏరియా (Area)</label>
+                        <input type="text" id="wArea" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-gray-500 uppercase ml-1">ఫోన్ (Phone)</label>
+                        <input type="tel" id="wPhone" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" required>
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-gray-500 uppercase ml-1">బయోడేటా (Details)</label>
+                        <textarea id="wBio" rows="2" placeholder="అనుభవం గురించి రాయండి..." class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"></textarea>
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-blue-600 text-white py-3.5 rounded-xl font-bold hover:bg-blue-700 shadow-lg active:scale-95 transition-all">
+                        సేవ్ చేయి
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- PROFILE MODAL -->
+        <div id="profileModal" class="hidden fixed inset-0 bg-black/70 z-[70] flex items-end sm:items-center justify-center fade-in backdrop-blur-md">
+            <div class="bg-white w-full sm:w-[450px] sm:rounded-2xl rounded-t-3xl shadow-2xl overflow-hidden relative max-h-[90vh] overflow-y-auto">
+                <button onclick="closeProfile()" class="absolute top-4 right-4 bg-gray-100 text-gray-500 w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-200 z-10"><i class="fas fa-times"></i></button>
+                <div class="bg-blue-50 p-6 text-center pt-10 pb-8">
+                    <div id="pIcon" class="w-24 h-24 rounded-full mx-auto flex items-center justify-center text-4xl shadow-inner mb-4 bg-white text-blue-600"><i class="fas fa-user"></i></div>
+                    <h2 id="pName" class="text-2xl font-bold text-gray-800 capitalize">Name</h2>
+                    <p id="pJob" class="text-blue-600 font-medium text-lg capitalize">Job</p>
+                    <p id="pArea" class="text-gray-500 text-sm"><i class="fas fa-map-marker-alt mr-1"></i> Area</p>
+                </div>
+                <div class="p-6 space-y-4">
+                    <div>
+                        <h3 class="text-xs font-bold text-gray-400 uppercase mb-2">Biodata</h3>
+                        <p id="pBio" class="text-gray-600 bg-gray-50 p-4 rounded-xl border border-gray-100 text-sm">No details.</p>
+                    </div>
+                    <!-- Added By Info -->
+                    <div class="flex items-center gap-2 text-xs text-gray-400 justify-center border-t pt-2">
+                        <span>Added by:</span>
+                        <img id="pAddedByImg" src="" class="w-5 h-5 rounded-full hidden">
+                        <span id="pAddedByName">Unknown</span>
+                    </div>
+                    <a id="pCallBtn" href="#" class="block w-full bg-green-500 text-white text-center py-4 rounded-xl font-bold text-lg shadow-lg hover:bg-green-600 transition flex items-center justify-center gap-2">
+                        <i class="fas fa-phone-alt"></i> Call Now
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search & List -->
+        <div class="relative mb-6 group">
+            <i class="fas fa-search absolute left-5 top-4 text-gray-400"></i>
+            <input type="text" id="searchInput" onkeyup="filterWorkers()" placeholder="ఎవరు కావాలి? (Search...)" class="w-full pl-12 pr-5 py-3.5 rounded-full border border-gray-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+        </div>
+
+        <div id="loader" class="flex flex-col items-center justify-center my-12 gap-3">
+            <div class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-10 w-10"></div>
+            <p class="text-gray-400 text-sm animate-pulse">లోడ్ అవుతోంది...</p>
+        </div>
+
+        <div id="workersList" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+        <div id="noDataMsg" class="hidden flex flex-col items-center justify-center py-16 text-gray-400 opacity-70"><i class="fas fa-users-slash text-5xl mb-4"></i><p>ఇంకా ఎవరూ లేరు.</p></div>
+    </div>
+
+    <!-- FIREBASE & AUTH LOGIC -->
     <script type="module">
-        // మనం బ్రౌజర్ లో వాడుతున్నాం కాబట్టి డైరెక్ట్ లింక్స్ (CDN) వాడుతున్నా
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         
-        // నీ కీస్ ఇక్కడ పెట్టాను (నువ్వు ఇచ్చినవే)
+        // --- KEYS ---
         const firebaseConfig = {
           apiKey: "AIzaSyBfonEUIssxYV5BFxOEsTIA9alYzISEOGU",
           authDomain: "myvillage-app-c3550.firebaseapp.com",
@@ -114,47 +162,84 @@
           measurementId: "G-6Q5425DBFS"
         };
 
-        // Initialize Firebase
-        let app, db;
-        const workersDiv = document.getElementById('workersList');
-        const loader = document.getElementById('loader');
-        let allWorkers = [];
-        
-        try {
-            app = initializeApp(firebaseConfig);
-            db = getFirestore(app);
-            console.log("Firebase Connected!");
-        } catch (e) {
-            showError("కాన్ఫిగరేషన్ ఎర్రర్: " + e.message);
-            loader.classList.add('hidden');
-        }
+        // Initialize
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
 
-        // డేటా తెచ్చుకునే ఫంక్షన్ (Real-time)
-        if (db) {
-            // 'workers' అనే కలెక్షన్ వాడుతున్నాం
-            const q = collection(db, "workers"); 
-            
-            onSnapshot(q, (snapshot) => {
-                allWorkers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                // ఆల్ఫాబెటికల్ ఆర్డర్ లో పెట్టడం
-                allWorkers.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
-                
-                renderWorkers(allWorkers);
-                loader.classList.add('hidden');
-            }, (error) => {
-                console.error("Data Error:", error);
-                if(error.code === 'permission-denied') {
-                     showError("పర్మిషన్ లేదు! Firebase Console లో -> Build -> Firestore Database -> Rules లోకి వెళ్లి 'allow read, write: if true;' అని పెట్టాలి.");
-                } else {
-                    showError("డేటా లోడ్ అవ్వట్లేదు. ఇంటర్నెట్ చెక్ చేయండి.");
-                }
-                loader.classList.add('hidden');
+        let currentUser = null;
+        let allWorkers = [];
+
+        // --- AUTH LOGIC ---
+        const authSection = document.getElementById('authSection');
+        const loginBtn = document.getElementById('loginBtn');
+
+        // Check Login Status
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+            if (user) {
+                // User is Logged In
+                authSection.innerHTML = `
+                    <div class="flex items-center gap-2 bg-gray-100 rounded-full px-2 py-1 pr-3 border border-gray-200">
+                        <img src="${user.photoURL}" class="w-7 h-7 rounded-full">
+                        <div class="text-[10px] leading-tight text-right hidden sm:block">
+                            <p class="font-bold text-gray-700 truncate max-w-[80px]">${user.displayName.split(' ')[0]}</p>
+                            <button onclick="handleLogout()" class="text-red-500 hover:underline">Logout</button>
+                        </div>
+                        <button onclick="handleLogout()" class="text-red-500 text-xs sm:hidden"><i class="fas fa-sign-out-alt"></i></button>
+                    </div>
+                `;
+                // Update Form UI
+                document.getElementById('formUserImg').src = user.photoURL;
+                document.getElementById('formUserName').innerText = user.displayName;
+            } else {
+                // User is Logged Out
+                authSection.innerHTML = `
+                    <button onclick="handleLogin()" class="bg-blue-600 text-white px-4 py-2 rounded-full text-xs font-bold shadow hover:bg-blue-700 transition flex items-center gap-2">
+                        <i class="fab fa-google"></i> <span class="hidden sm:inline">Login</span>
+                    </button>
+                `;
+            }
+        });
+
+        // Login Function (Global)
+        window.handleLogin = () => {
+            signInWithPopup(auth, provider).catch((error) => {
+                alert("Login Failed: " + error.message + "\nDid you enable Google Auth in Firebase Console?");
             });
         }
 
-        // స్క్రీన్ మీద చూపించే ఫంక్షన్
+        // Logout Function
+        window.handleLogout = () => {
+            if(confirm("Logout చేయమంటారా?")) {
+                signOut(auth);
+            }
+        }
+
+        // Check Login before opening Add Form
+        window.checkLoginAndToggle = () => {
+            if (currentUser) {
+                toggleForm();
+            } else {
+                alert("⚠️ దయచేసి వివరాలు యాడ్ చేయడానికి ముందు Login చేయండి.");
+                handleLogin();
+            }
+        }
+
+        // --- DATABASE LOGIC ---
+        const q = collection(db, "workers"); 
+        onSnapshot(q, (snapshot) => {
+            allWorkers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            allWorkers.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+            renderWorkers(allWorkers);
+            document.getElementById('loader').classList.add('hidden');
+        });
+
+        // Render Workers
         function renderWorkers(data) {
-            workersDiv.innerHTML = '';
+            const list = document.getElementById('workersList');
+            list.innerHTML = '';
             if (data.length === 0) {
                 document.getElementById('noDataMsg').classList.remove('hidden');
                 return;
@@ -162,53 +247,63 @@
             document.getElementById('noDataMsg').classList.add('hidden');
 
             data.forEach(worker => {
-                const firstLetter = worker.name ? worker.name.charAt(0).toUpperCase() : '?';
-                // రంగులు మార్చడం కోసం
-                const colors = ['bg-red-100 text-red-600', 'bg-blue-100 text-blue-600', 'bg-green-100 text-green-600', 'bg-yellow-100 text-yellow-600', 'bg-purple-100 text-purple-600'];
-                const colorClass = colors[worker.name.length % colors.length];
-
+                const style = getIconByJob(worker.job);
                 const html = `
-                    <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex items-center gap-4 hover:shadow-md transition relative group fade-in">
-                        <button onclick="deleteWorker('${worker.id}')" class="absolute top-2 right-2 text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition p-2">
-                            <i class="fas fa-trash-alt"></i>
-                        </button>
-                        
-                        <div class="w-12 h-12 rounded-full ${colorClass} flex items-center justify-center font-bold text-xl shrink-0 shadow-inner">
-                            ${firstLetter}
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4 relative group no-select active:scale-[0.98] transition cursor-pointer overflow-hidden"
+                         oncontextmenu="return false;"
+                         onclick="openProfile('${worker.id}')"
+                         ontouchstart="handleTouchStart('${worker.id}')"
+                         ontouchend="handleTouchEnd()"
+                         onmousedown="handleMouseDown('${worker.id}')"
+                         onmouseup="handleMouseUp()"
+                    >
+                         <!-- DELETE OVERLAY -->
+                        <div id="overlay-${worker.id}" 
+                             class="hidden absolute inset-0 bg-slate-900/95 z-30 flex flex-col items-center justify-center gap-3 backdrop-blur-sm fade-in"
+                             onclick="stopProp(event)"
+                        >
+                            <p class="text-white text-xs font-bold uppercase tracking-widest">Admin Options</p>
+                            <button onclick="confirmDelete(event, '${worker.id}')" class="bg-red-500 text-white px-6 py-2 rounded-lg font-bold shadow-lg flex items-center gap-2">
+                                <i class="fas fa-trash-alt"></i> Delete
+                            </button>
+                            <button onclick="closeOverlay(event, '${worker.id}')" class="text-gray-400 text-sm mt-2 underline">Cancel</button>
                         </div>
-                        
-                        <div class="flex-1 min-w-0">
+
+                        <div class="w-14 h-14 rounded-2xl ${style.color} flex items-center justify-center text-2xl shrink-0 shadow-inner">
+                            <i class="fas ${style.icon}"></i>
+                        </div>
+                        <div class="flex-1 min-w-0 pointer-events-none">
                             <h3 class="font-bold text-gray-800 text-lg truncate capitalize">${worker.name}</h3>
-                            <p class="text-sm text-blue-600 font-medium truncate mb-0.5">
-                                <i class="fas fa-briefcase text-xs mr-1 opacity-70"></i>${worker.job}
-                            </p>
-                            <p class="text-xs text-gray-500 truncate">
-                                <i class="fas fa-map-marker-alt text-xs mr-1 opacity-70"></i>${worker.area || 'N/A'}
-                            </p>
+                            <p class="text-sm text-blue-600 font-semibold truncate capitalize">${worker.job}</p>
+                            <p class="text-xs text-gray-400 truncate">${worker.area || 'Unknown'}</p>
                         </div>
-                        
-                        <a href="tel:${worker.phone}" class="bg-green-500 text-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg hover:bg-green-600 transform active:scale-95 transition shrink-0">
-                            <i class="fas fa-phone fa-flip-horizontal"></i>
-                        </a>
+                        <div class="bg-gray-50 text-gray-400 w-8 h-8 rounded-full flex items-center justify-center"><i class="fas fa-chevron-right text-xs"></i></div>
                     </div>
                 `;
-                workersDiv.innerHTML += html;
+                list.innerHTML += html;
             });
         }
 
-        // కొత్త వర్కర్ ని సేవ్ చేసే ఫంక్షన్
+        // Add Worker with User Info
         document.getElementById('workerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            if (!currentUser) return alert("Login Required!");
+
             const btn = e.target.querySelector('button[type="submit"]');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            const original = btn.innerHTML;
+            btn.innerHTML = 'Saving...';
             btn.disabled = true;
 
             const newWorker = {
-                name: document.getElementById('wName').value,
-                job: document.getElementById('wJob').value,
-                area: document.getElementById('wArea').value,
-                phone: document.getElementById('wPhone').value,
+                name: document.getElementById('wName').value.trim(),
+                job: document.getElementById('wJob').value.trim(),
+                area: document.getElementById('wArea').value.trim(),
+                phone: document.getElementById('wPhone').value.trim(),
+                bio: document.getElementById('wBio').value.trim(),
+                // Saving who added this
+                addedBy: currentUser.displayName,
+                addedByUid: currentUser.uid, 
+                addedByPhoto: currentUser.photoURL,
                 createdAt: new Date().toISOString()
             };
 
@@ -216,47 +311,97 @@
                 await addDoc(collection(db, "workers"), newWorker);
                 e.target.reset();
                 toggleForm();
-                // Success Toast can be added here
             } catch (err) {
-                alert("Error saving: " + err.message);
+                alert("Error: " + err.message);
             } finally {
-                btn.innerHTML = originalText;
+                btn.innerHTML = original;
                 btn.disabled = false;
             }
         });
 
-        // Delete Function (Exposed to window)
-        window.deleteWorker = async (id) => {
-            if(confirm("నిజంగా డిలీట్ చేయమంటారా?")) {
-                try {
-                    await deleteDoc(doc(db, "workers", id));
-                } catch(err) {
-                    alert("Delete అవ్వట్లేదు (Permission Error?): " + err.message);
-                }
+        // Profile View Logic
+        window.openProfile = (id) => {
+            if(isLongPressTriggered) { isLongPressTriggered = false; return; }
+            
+            const worker = allWorkers.find(w => w.id === id);
+            if(!worker) return;
+
+            document.getElementById('pName').innerText = worker.name;
+            document.getElementById('pJob').innerText = worker.job;
+            document.getElementById('pArea').innerHTML = `<i class="fas fa-map-marker-alt mr-1"></i> ${worker.area || ''}`;
+            document.getElementById('pBio').innerText = worker.bio || "No details.";
+            document.getElementById('pCallBtn').href = `tel:${worker.phone}`;
+            
+            // Show who added
+            if(worker.addedBy) {
+                document.getElementById('pAddedByImg').src = worker.addedByPhoto || '';
+                document.getElementById('pAddedByImg').classList.remove('hidden');
+                document.getElementById('pAddedByName').innerText = worker.addedBy;
+            } else {
+                document.getElementById('pAddedByName').innerText = "Guest User";
+                document.getElementById('pAddedByImg').classList.add('hidden');
             }
+
+            // Update Icon
+            const style = getIconByJob(worker.job);
+            const iconDiv = document.getElementById('pIcon');
+            iconDiv.className = `w-24 h-24 rounded-full mx-auto flex items-center justify-center text-4xl shadow-inner mb-4 bg-white text-blue-600 ${style.color}`;
+            iconDiv.innerHTML = `<i class="fas ${style.icon}"></i>`;
+
+            document.getElementById('profileModal').classList.remove('hidden');
         }
 
-        // Search Filter (Exposed to window)
+        // --- Helpers ---
+        function getIconByJob(job) {
+            const j = (job || '').toLowerCase();
+            if (j.includes('auto') || j.includes('taxi')) return { icon: 'fa-taxi', color: 'bg-yellow-100 text-yellow-600' };
+            if (j.includes('electr')) return { icon: 'fa-bolt', color: 'bg-yellow-100 text-yellow-500' };
+            if (j.includes('plumb')) return { icon: 'fa-faucet', color: 'bg-blue-100 text-blue-500' };
+            if (j.includes('farm')) return { icon: 'fa-tractor', color: 'bg-green-100 text-green-700' };
+            return { icon: 'fa-briefcase', color: 'bg-gray-100 text-gray-500' };
+        }
+
+        // Long Press Logic
+        let pressTimer;
+        let isLongPressTriggered = false;
+        
+        window.handleTouchStart = (id) => {
+            isLongPressTriggered = false;
+            pressTimer = setTimeout(() => {
+                document.getElementById(`overlay-${id}`).classList.remove('hidden');
+                isLongPressTriggered = true;
+                if (navigator.vibrate) navigator.vibrate(50);
+            }, 600);
+        }
+        window.handleTouchEnd = () => clearTimeout(pressTimer);
+        window.handleMouseDown = (id) => {
+             isLongPressTriggered = false;
+             pressTimer = setTimeout(() => {
+                document.getElementById(`overlay-${id}`).classList.remove('hidden');
+                isLongPressTriggered = true;
+             }, 600);
+        }
+        window.handleMouseUp = () => clearTimeout(pressTimer);
+
+        window.closeOverlay = (e, id) => { e.stopPropagation(); document.getElementById(`overlay-${id}`).classList.add('hidden'); }
+        window.stopProp = (e) => e.stopPropagation();
+        
+        window.confirmDelete = async (e, id) => {
+            e.stopPropagation();
+            setTimeout(async () => {
+                const password = prompt("ADMIN PASSWORD:");
+                if (password === "admin123") {
+                    if(confirm("Delete?")) await deleteDoc(doc(db, "workers", id));
+                } else if(password) alert("Wrong Password");
+            }, 50);
+        }
+
+        window.toggleForm = () => document.getElementById('addForm').classList.toggle('hidden');
+        window.closeProfile = () => document.getElementById('profileModal').classList.add('hidden');
         window.filterWorkers = () => {
-            const term = document.getElementById('searchInput').value.toLowerCase();
-            const filtered = allWorkers.filter(w => 
-                w.name.toLowerCase().includes(term) || 
-                w.job.toLowerCase().includes(term) ||
-                (w.area && w.area.toLowerCase().includes(term))
-            );
-            renderWorkers(filtered);
-        }
-
-        // UI Toggle
-        window.toggleForm = () => {
-            const form = document.getElementById('addForm');
-            form.classList.toggle('hidden');
-        }
-
-        function showError(msg) {
-            const box = document.getElementById('errorBox');
-            box.innerHTML = `<i class="fas fa-exclamation-circle mr-2"></i> ${msg}`;
-            box.classList.remove('hidden');
+             const term = document.getElementById('searchInput').value.toLowerCase();
+             const filtered = allWorkers.filter(w => w.name.toLowerCase().includes(term) || w.job.toLowerCase().includes(term));
+             renderWorkers(filtered);
         }
     </script>
 </body>
