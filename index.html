@@ -102,7 +102,7 @@
                             <!-- Add Review Box -->
                             <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 mb-4">
                                 <div id="starContainer">
-                                    <p class="text-xs text-gray-500 mb-2">Rate now:</p>
+                                    <p class="text-xs text-gray-500 mb-2">Rate now (Stars will be private):</p>
                                     <div class="flex gap-3 text-2xl text-gray-300 mb-3 justify-center" id="starInput">
                                         <button onclick="setRating(1)" class="star-btn"><i class="fas fa-star"></i></button>
                                         <button onclick="setRating(2)" class="star-btn"><i class="fas fa-star"></i></button>
@@ -278,25 +278,43 @@
                 document.getElementById('alreadyRatedMsg').classList.add('hidden');
             }
 
-            // Render Reviews
+            // Render Reviews (Showing Date & Hiding Private Rating)
             const commentsDiv = document.getElementById('commentsList');
             if (w.reviews && w.reviews.length > 0) {
                 const sorted = [...w.reviews].reverse(); 
                 commentsDiv.innerHTML = sorted.map((r, index) => {
-                    // Find actual index in original array for editing
                     const realIndex = w.reviews.length - 1 - index; 
                     const isMyComment = r.uid === currentUser.uid;
                     const editBtn = isMyComment ? `<button onclick="editMyComment(${realIndex})" class="text-blue-500 text-xs ml-2 hover:underline"><i class="fas fa-pencil-alt"></i> Edit</button>` : '';
                     
+                    // DATE FORMATTING (DD/MM/YYYY)
+                    let dateStr = "";
+                    if(r.date) {
+                        const dateObj = new Date(r.date);
+                        // Using en-IN specifically for DD/MM/YYYY
+                        dateStr = dateObj.toLocaleDateString('en-IN', {
+                            day: '2-digit', 
+                            month: '2-digit', 
+                            year: 'numeric'
+                        }) + ', ' + dateObj.toLocaleTimeString('en-IN', {
+                            hour: '2-digit', 
+                            minute: '2-digit',
+                            hour12: true
+                        });
+                    }
+
                     return `
                     <div class="bg-gray-50 p-3 rounded-lg border border-gray-100 text-sm">
                         <div class="flex justify-between items-start mb-1">
-                            <span class="font-bold text-gray-700 text-xs flex items-center gap-1">
-                                ${r.user} ${editBtn}
-                            </span>
-                            ${r.rating > 0 ? `<span class="text-yellow-500 text-xs"><i class="fas fa-star"></i> ${r.rating}</span>` : ''}
+                            <div class="flex flex-col">
+                                <span class="font-bold text-gray-700 text-xs flex items-center gap-1">
+                                    ${r.user} ${editBtn}
+                                </span>
+                                <span class="text-[10px] text-gray-400 font-medium">${dateStr}</span>
+                            </div>
+                            <!-- Rating Hidden Here -->
                         </div>
-                        <p class="text-gray-600">${r.comment}</p>
+                        <p class="text-gray-600 mt-1 leading-snug">${r.comment}</p>
                     </div>`;
                 }).join('');
             } else {
@@ -329,10 +347,6 @@
             document.getElementById('editReviewIndex').value = index;
             document.getElementById('postReviewBtn').innerText = "Update Comment";
             document.getElementById('cancelEditBtn').classList.remove('hidden');
-            
-            // If editing, disable stars (assuming we only edit text for simplicity, or complex logic needed for star update)
-            // For now, let's allow text edit only to keep it simple as per "comment edit option".
-            // Scroll to input
             document.getElementById('reviewText').focus();
         }
 
@@ -362,19 +376,16 @@
                 let newTotalStars = w.totalStars || 0;
                 let newRatingCount = w.ratingCount || 0;
 
-                // LOGIC: One Rating Per User Check
                 const hasRatedBefore = newReviews.some(r => r.uid === currentUser.uid && r.rating > 0);
 
                 if (editIdx > -1) {
-                    // EDIT MODE (Update text only mostly)
+                    // EDIT
                     newReviews[editIdx].comment = comment;
-                    // If we want to allow rating update here, logic gets complex. 
-                    // Let's keep it simple: Text update for better UX.
                 } else {
-                    // NEW MODE
+                    // NEW
                     if (currentRating > 0 && hasRatedBefore) {
                         alert("You have already rated! Only comment added.");
-                        currentRating = 0; // Reset rating to 0, just post comment
+                        currentRating = 0; 
                     }
 
                     const review = {
@@ -392,15 +403,10 @@
                     }
                 }
 
-                // Update DB (Recalculate entire stars to be safe)
-                // Re-sum stars from array to be 100% accurate
-                let sum = 0, count = 0;
-                newReviews.forEach(r => { if(r.rating > 0){ sum += r.rating; count++; } });
-
                 await updateDoc(docRef, {
                     reviews: newReviews,
-                    totalStars: sum,
-                    ratingCount: count
+                    totalStars: newTotalStars,
+                    ratingCount: newRatingCount
                 });
 
                 cancelEdit();
@@ -411,7 +417,7 @@
         // --- HELPERS (Icon, Long Press, Forms) ---
         function getIconByJob(job) {
             const j = (job || '').toLowerCase();
-            if (j.includes('auto')) return { icon: 'fa-taxi', color: 'bg-yellow-100 text-yellow-600' };
+            if (j.includes('auto') || j.includes('taxi')) return { icon: 'fa-taxi', color: 'bg-yellow-100 text-yellow-600' };
             if (j.includes('electr')) return { icon: 'fa-bolt', color: 'bg-yellow-100 text-yellow-500' };
             if (j.includes('plumb')) return { icon: 'fa-faucet', color: 'bg-blue-100 text-blue-500' };
             return { icon: 'fa-briefcase', color: 'bg-gray-100 text-gray-500' };
@@ -451,7 +457,7 @@
         }
 
         window.toggleForm = () => document.getElementById('addForm').classList.toggle('hidden');
-        window.checkLimitAndToggle = () => { toggleForm(); } // Simplified for brevity, old logic applies
+        window.checkLimitAndToggle = () => { toggleForm(); } 
 
         document.getElementById('workerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -466,6 +472,8 @@
             else {
                 data.addedByUid = currentUser.uid;
                 data.reviews = [];
+                data.totalStars = 0; // Initialize properly for new
+                data.ratingCount = 0;
                 await addDoc(collection(db, "workers"), data);
             }
             toggleForm();
@@ -479,4 +487,4 @@
         }
     </script>
 </body>
-                                </html>
+                                                                                                                       </html>
