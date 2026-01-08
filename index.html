@@ -4,22 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
-    <!-- 🔥 GOOGLE VERIFICATION CODE 🔥 -->
-    <meta name="google-site-verification" content="oFcdua6fdfc1HBbQ9gqGTAIB-mgNMCF1saFyyufHx-M" />
-
-    <!-- SEO TAGS -->
+    <!-- SEO & Icons -->
     <title>మన ఊరి సేవలు (Mana Oori Sevalu)</title>
-    <meta name="description" content="మన ఊరి సేవలు (Mana Oori Sevalu) - మన ఊర్లో ఆటో వాళ్ళు, ప్లంబర్లు, ఎలక్ట్రీషియన్ల ఫోన్ నంబర్లు ఒకే చోట. Local Village Services Directory App.">
-    <meta name="keywords" content="Mana Oori Sevalu, Village App, Local Workers, Auto Driver, Electrician, Plumber, Eluru, Andhra Pradesh, Directory, Contact Numbers">
-    <meta name="author" content="Joseph">
-
-    <!-- Social Media / WhatsApp Preview Tags -->
-    <meta property="og:title" content="మన ఊరి సేవలు - Local Services">
-    <meta property="og:description" content="మన ఊరి ఆటో, కరెంట్, ప్లంబర్ పని వాళ్ళ నంబర్లు ఇక్కడ దొరుకుతాయి. క్లిక్ చేసి చూడండి.">
-    <meta property="og:image" content="https://cdn-icons-png.flaticon.com/512/3652/3652191.png">
-    <meta property="og:url" content="https://my-village-app.github.io/MyVillage/">
-    <meta property="og:type" content="website">
-
+    <meta name="description" content="Local Workers Directory with Photos & Reviews">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -69,17 +56,31 @@
                 <i class="fas fa-info-circle mr-1"></i> కార్డుని 2.5 సెకండ్లు నొక్కితే Edit/Delete ఆప్షన్లు వస్తాయి
             </div>
 
-            <!-- ADD FORM -->
+            <!-- ADD/EDIT FORM -->
             <div id="addForm" class="hidden fixed inset-0 bg-black/60 z-[60] flex items-center justify-center p-4 fade-in backdrop-blur-sm">
                 <div class="bg-white p-6 rounded-2xl shadow-2xl w-full max-w-md relative max-h-[90vh] overflow-y-auto">
                     <button onclick="toggleForm()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 p-2"><i class="fas fa-times text-xl"></i></button>
                     <h2 class="text-xl font-bold mb-6 text-gray-800 flex items-center gap-2"><i class="fas fa-user-edit text-blue-600"></i> <span id="formTitle">వివరాలు</span></h2>
+                    
                     <form id="workerForm" class="space-y-4">
+                        <!-- PHOTO UPLOAD FIELD -->
+                        <div class="flex flex-col items-center mb-4">
+                            <label for="wPhotoInput" class="cursor-pointer relative group">
+                                <div id="photoPreview" class="w-20 h-20 rounded-full bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden">
+                                    <i class="fas fa-camera text-gray-400 text-2xl"></i>
+                                </div>
+                                <div class="absolute bottom-0 right-0 bg-blue-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs shadow"><i class="fas fa-plus"></i></div>
+                            </label>
+                            <input type="file" id="wPhotoInput" accept="image/*" class="hidden" onchange="previewImage(this)">
+                            <p class="text-[10px] text-gray-400 mt-1">Tap to upload photo</p>
+                        </div>
+
                         <input type="text" id="wName" placeholder="పేరు (Name)" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500" required>
                         <input type="text" id="wJob" placeholder="పని (Job - Ex: Auto)" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500" required>
                         <input type="text" id="wArea" placeholder="ఏరియా (Area)" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
                         <input type="tel" id="wPhone" placeholder="ఫోన్ నంబర్" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500" required>
                         <textarea id="wBio" rows="2" placeholder="బయోడేటా..." class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                        
                         <button type="submit" id="submitBtn" class="w-full bg-blue-600 text-white py-3.5 rounded-xl font-bold hover:bg-blue-700 shadow-lg mt-2">సేవ్ చేయి</button>
                     </form>
                 </div>
@@ -91,7 +92,12 @@
                     <div class="bg-gradient-to-b from-blue-50 to-white p-6 pb-2 relative">
                         <button onclick="closeProfile()" class="absolute top-4 right-4 bg-gray-200 text-gray-600 w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-300 z-10"><i class="fas fa-times"></i></button>
                         <div class="text-center">
-                            <div id="pIcon" class="w-20 h-20 rounded-full mx-auto flex items-center justify-center text-3xl shadow-md mb-3 bg-white text-blue-600"><i class="fas fa-user"></i></div>
+                            <!-- PROFILE PIC DISPLAY -->
+                            <div id="pIconContainer" class="w-24 h-24 rounded-full mx-auto shadow-md mb-3 bg-white border-2 border-white overflow-hidden flex items-center justify-center">
+                                <div id="pIcon" class="text-3xl text-blue-600"><i class="fas fa-user"></i></div>
+                                <img id="pPhoto" src="" class="w-full h-full object-cover hidden">
+                            </div>
+                            
                             <h2 id="pName" class="text-2xl font-bold text-gray-800 capitalize">Name</h2>
                             <p id="pJob" class="text-blue-600 font-medium capitalize">Job</p>
                             <div class="flex items-center justify-center gap-1 mt-1 text-yellow-400 text-lg">
@@ -139,6 +145,7 @@
                 </div>
             </div>
 
+            <!-- List -->
             <input type="text" id="searchInput" onkeyup="filterWorkers()" placeholder="Search..." class="w-full mb-6 pl-5 pr-5 py-3.5 rounded-full border border-gray-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
             <div id="loader" class="flex flex-col items-center justify-center my-12"><div class="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div></div>
             <div id="workersList" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
@@ -171,6 +178,7 @@
         let editingId = null;
         let currentRating = 0;
         let openProfileId = null;
+        let currentPhotoBase64 = null; // Store image data
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
@@ -206,6 +214,38 @@
             });
         }
 
+        // --- IMAGE COMPRESSION HELPER ---
+        window.previewImage = (input) => {
+            const file = input.files[0];
+            if (!file) return;
+            
+            // Limit: Ensure it's an image
+            if (!file.type.match('image.*')) return alert("Please select an image.");
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                // Compress Logic
+                const img = new Image();
+                img.src = e.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 200; // Small Thumbnail Size
+                    const scaleSize = MAX_WIDTH / img.width;
+                    canvas.width = MAX_WIDTH;
+                    canvas.height = img.height * scaleSize;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    
+                    // Convert to small Base64
+                    currentPhotoBase64 = canvas.toDataURL('image/jpeg', 0.7);
+                    
+                    // Show Preview
+                    document.getElementById('photoPreview').innerHTML = `<img src="${currentPhotoBase64}" class="w-full h-full object-cover">`;
+                }
+            }
+            reader.readAsDataURL(file);
+        }
+
         function renderWorkers(data) {
             const list = document.getElementById('workersList');
             list.innerHTML = '';
@@ -216,6 +256,12 @@
                 const style = getIconByJob(worker.job);
                 const rating = worker.ratingCount > 0 ? (worker.totalStars / worker.ratingCount).toFixed(1) : "New";
                 
+                // DECIDE: Show Uploaded Photo OR Icon
+                let avatarHtml = `<div class="w-14 h-14 rounded-2xl ${style.color} flex items-center justify-center text-2xl shrink-0 shadow-inner"><i class="fas ${style.icon}"></i></div>`;
+                if(worker.photo) {
+                    avatarHtml = `<img src="${worker.photo}" class="w-14 h-14 rounded-2xl object-cover shrink-0 shadow-sm border border-gray-200">`;
+                }
+
                 const html = `
                     <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4 relative group no-select active:scale-[0.98] transition cursor-pointer overflow-hidden"
                          oncontextmenu="return false;"
@@ -233,7 +279,8 @@
                             <button onclick="closeOverlay(event, '${worker.id}')" class="text-gray-400 text-sm mt-2 underline">Cancel</button>
                         </div>
 
-                        <div class="w-14 h-14 rounded-2xl ${style.color} flex items-center justify-center text-2xl shrink-0 shadow-inner"><i class="fas ${style.icon}"></i></div>
+                        ${avatarHtml}
+
                         <div class="flex-1 min-w-0 pointer-events-none">
                             <h3 class="font-bold text-gray-800 text-lg truncate capitalize">${worker.name}</h3>
                             <p class="text-sm text-blue-600 font-semibold truncate capitalize mb-0.5">${worker.job}</p>
@@ -260,10 +307,21 @@
             document.getElementById('pBio').innerText = w.bio || "No details provided.";
             document.getElementById('pCallBtn').href = `tel:${w.phone}`;
             
-            const style = getIconByJob(w.job);
+            // Profile Photo Logic
             const iconDiv = document.getElementById('pIcon');
-            iconDiv.className = `w-20 h-20 rounded-full mx-auto flex items-center justify-center text-3xl shadow-md mb-3 bg-white text-blue-600 ${style.color}`;
-            iconDiv.innerHTML = `<i class="fas ${style.icon}"></i>`;
+            const photoImg = document.getElementById('pPhoto');
+            
+            if(w.photo) {
+                iconDiv.classList.add('hidden');
+                photoImg.src = w.photo;
+                photoImg.classList.remove('hidden');
+            } else {
+                photoImg.classList.add('hidden');
+                const style = getIconByJob(w.job);
+                iconDiv.className = `text-3xl ${style.color.replace('bg-', 'text-')}`; // Text color fix
+                iconDiv.innerHTML = `<i class="fas ${style.icon}"></i>`;
+                iconDiv.classList.remove('hidden');
+            }
 
             const avg = w.ratingCount > 0 ? (w.totalStars / w.ratingCount).toFixed(1) : "0.0";
             document.getElementById('pAvgRating').innerText = avg;
@@ -290,13 +348,7 @@
                     if (r.comment && r.comment.trim() !== "") {
                         const isMyComment = r.uid === currentUser.uid;
                         const editBtn = isMyComment ? `<button onclick="editMyComment(${i})" class="text-blue-500 text-xs ml-2 hover:underline"><i class="fas fa-pencil-alt"></i> Edit</button>` : '';
-                        
-                        let dateStr = "";
-                        if(r.date) {
-                            const dateObj = new Date(r.date);
-                            dateStr = dateObj.toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ', ' + dateObj.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
-                        }
-
+                        let dateStr = r.date ? new Date(r.date).toLocaleDateString('en-IN') : '';
                         let displayName = r.user || "User";
                         if(isMyComment) displayName = "You (Me)";
 
@@ -310,9 +362,7 @@
                         >
                             <div class="flex justify-between items-start mb-1">
                                 <div class="flex flex-col">
-                                    <span class="font-bold text-gray-800 text-xs flex items-center gap-1">
-                                        <i class="fas fa-user-circle text-gray-400"></i> ${displayName} ${editBtn}
-                                    </span>
+                                    <span class="font-bold text-gray-800 text-xs flex items-center gap-1"><i class="fas fa-user-circle text-gray-400"></i> ${displayName} ${editBtn}</span>
                                     <span class="text-[10px] text-gray-400 font-medium ml-5">${dateStr}</span>
                                 </div>
                             </div>
@@ -347,34 +397,18 @@
                 if(pass !== null) alert("Wrong Password");
                 return;
             }
-
             try {
                 const docRef = doc(db, "workers", workerId);
                 const workerSnap = await getDoc(docRef);
                 if(!workerSnap.exists()) return;
-                
                 const workerData = workerSnap.data();
                 const reviews = workerData.reviews || [];
                 const updatedReviews = reviews.filter(r => r.date !== reviewDate);
-                
-                let newTotalStars = 0;
-                let newRatingCount = 0;
-                updatedReviews.forEach(r => {
-                    if(r.rating > 0) {
-                        newTotalStars += r.rating;
-                        newRatingCount++;
-                    }
-                });
-
-                await updateDoc(docRef, {
-                    reviews: updatedReviews,
-                    totalStars: newTotalStars,
-                    ratingCount: newRatingCount
-                });
+                let newTotalStars = 0; let newRatingCount = 0;
+                updatedReviews.forEach(r => { if(r.rating > 0) { newTotalStars += r.rating; newRatingCount++; } });
+                await updateDoc(docRef, { reviews: updatedReviews, totalStars: newTotalStars, ratingCount: newRatingCount });
                 alert("Deleted.");
-            } catch(e) {
-                alert("Error: " + e.message);
-            }
+            } catch(e) { alert("Error: " + e.message); }
         }
 
         window.setRating = (n) => { currentRating = n; updateStarUI(n); }
@@ -409,43 +443,23 @@
             const w = allWorkers.find(x => x.id === openProfileId);
             const comment = document.getElementById('reviewText').value.trim();
             const editIdx = parseInt(document.getElementById('editReviewIndex').value);
-            
             if(!comment && currentRating === 0) return alert("Write something or give stars!");
-
             const btn = document.getElementById('postReviewBtn');
             btn.innerText = "Processing..."; btn.disabled = true;
-
             try {
                 const docRef = doc(db, "workers", openProfileId);
                 let newReviews = w.reviews ? [...w.reviews] : [];
-                
                 if (editIdx > -1) {
                     newReviews[editIdx].comment = comment;
                 } else {
                     const hasRatedBefore = newReviews.some(r => r.uid === currentUser.uid && r.rating > 0);
-                    if (currentRating > 0 && hasRatedBefore) {
-                        alert("You have already rated! Only comment added.");
-                        currentRating = 0; 
-                    }
-                    const review = {
-                        uid: currentUser.uid,
-                        user: currentUser.displayName || "User", 
-                        rating: currentRating,
-                        comment: comment,
-                        date: new Date().toISOString()
-                    };
+                    if (currentRating > 0 && hasRatedBefore) { alert("Already rated! Only comment added."); currentRating = 0; }
+                    const review = { uid: currentUser.uid, user: currentUser.displayName || "User", rating: currentRating, comment: comment, date: new Date().toISOString() };
                     newReviews.push(review);
                 }
-
                 let sum = 0, count = 0;
                 newReviews.forEach(r => { if(r.rating > 0){ sum += r.rating; count++; } });
-
-                await updateDoc(docRef, {
-                    reviews: newReviews,
-                    totalStars: sum,
-                    ratingCount: count
-                });
-
+                await updateDoc(docRef, { reviews: newReviews, totalStars: sum, ratingCount: count });
                 cancelEdit();
             } catch(e) { alert(e.message); } 
             finally { btn.innerText = "Post Comment"; btn.disabled = false; }
@@ -477,6 +491,11 @@
             document.getElementById('wJob').value = w.job;
             document.getElementById('wPhone').value = w.phone;
             document.getElementById('wBio').value = w.bio || '';
+            // Photo handling for edit would require re-upload logic or keeping existing
+            currentPhotoBase64 = w.photo || null;
+            if(currentPhotoBase64) document.getElementById('photoPreview').innerHTML = `<img src="${currentPhotoBase64}" class="w-full h-full object-cover">`;
+            else document.getElementById('photoPreview').innerHTML = `<i class="fas fa-camera text-gray-400 text-2xl"></i>`;
+
             document.getElementById('formTitle').innerText = "Update";
             document.getElementById('submitBtn').innerText = "Update";
             document.getElementById(`overlay-${id}`).classList.add('hidden');
@@ -495,23 +514,33 @@
 
         document.getElementById('workerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            btn.innerText = 'Uploading...'; btn.disabled = true;
+
             const data = {
                 name: document.getElementById('wName').value,
                 job: document.getElementById('wJob').value,
                 phone: document.getElementById('wPhone').value,
                 bio: document.getElementById('wBio').value,
-                area: document.getElementById('wArea').value
+                area: document.getElementById('wArea').value,
+                photo: currentPhotoBase64 // Save the Base64 image
             };
-            if(editingId) await updateDoc(doc(db, "workers", editingId), data);
-            else {
-                data.addedByUid = currentUser.uid;
-                data.reviews = [];
-                data.totalStars = 0; 
-                data.ratingCount = 0;
-                await addDoc(collection(db, "workers"), data);
-            }
-            toggleForm();
-            editingId = null; document.getElementById('workerForm').reset();
+            try {
+                if(editingId) await updateDoc(doc(db, "workers", editingId), data);
+                else {
+                    data.addedByUid = currentUser.uid;
+                    data.reviews = [];
+                    data.totalStars = 0; 
+                    data.ratingCount = 0;
+                    await addDoc(collection(db, "workers"), data);
+                }
+                toggleForm();
+                editingId = null; 
+                document.getElementById('workerForm').reset();
+                currentPhotoBase64 = null;
+                document.getElementById('photoPreview').innerHTML = `<i class="fas fa-camera text-gray-400 text-2xl"></i>`;
+            } catch(e) { alert(e.message); }
+            finally { btn.innerText = 'Save'; btn.disabled = false; }
         });
         
         window.filterWorkers = () => {
@@ -521,4 +550,4 @@
         }
     </script>
 </body>
-</html>
+    </html>
