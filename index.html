@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>మన ఊరి సేవలు (Mana Oori Sevalu)</title>
+    <title>మన ఊరి సేవలు (Reviews Enabled)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -13,8 +13,9 @@
         .no-select { -webkit-user-select: none; user-select: none; }
         .fade-in { animation: fadeIn 0.4s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .loader { border-top-color: #3b82f6; animation: spinner 1s linear infinite; }
-        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        /* Rating Stars Animation */
+        .star-btn:active { transform: scale(1.3); }
+        .star-btn { transition: color 0.2s, transform 0.1s; }
     </style>
 </head>
 <body class="text-slate-800 bg-slate-50">
@@ -25,16 +26,8 @@
             <i class="fas fa-hands-helping text-6xl text-blue-600"></i>
         </div>
         <h1 class="text-3xl font-bold text-blue-800 mb-2">మన ఊరి సేవలు</h1>
-        <p class="text-gray-500 mb-2">Local Workers Directory</p>
+        <p class="text-gray-500 mb-8">Local Workers Directory</p>
         
-        <div class="bg-green-100 text-green-700 px-4 py-1 rounded-full text-sm font-bold mb-8 shadow-sm flex items-center gap-2">
-            <span class="relative flex h-3 w-3">
-              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-              <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
-            </span>
-            <span id="loginUserCount">0</span> Users Joined
-        </div>
-
         <div class="space-y-4 w-full max-w-xs">
             <button onclick="handleLogin()" id="googleBtn" class="w-full bg-white border border-gray-300 text-gray-700 font-bold py-3 px-4 rounded-xl shadow-md hover:bg-gray-50 active:scale-95 transition flex items-center justify-center gap-3">
                 <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-6 h-6">
@@ -42,13 +35,8 @@
             </button>
             <p class="text-xs text-gray-400 mt-4">యాప్ వాడాలంటే లాగిన్ తప్పనిసరి.</p>
         </div>
-        
-        <div id="loginErrorMsg" class="hidden mt-4 w-full max-w-xs bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded text-xs text-left">
-            <strong class="font-bold">Error:</strong> <span id="loginErrorText"></span>
-        </div>
-        <div id="loginLoader" class="hidden mt-6">
-            <div class="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
-        </div>
+        <div id="loginLoader" class="hidden mt-6"><i class="fas fa-circle-notch fa-spin text-blue-500 text-2xl"></i></div>
+        <div id="loginErrorMsg" class="hidden mt-4 w-full max-w-xs bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded text-xs text-left"></div>
     </div>
 
     <!-- 2. MAIN APP -->
@@ -60,9 +48,6 @@
                     <h1 class="text-lg font-bold tracking-wide flex items-center gap-2">
                         <i class="fas fa-city text-yellow-300"></i> మన ఊరి సేవలు
                     </h1>
-                    <p class="text-[10px] text-blue-200 flex items-center gap-1 ml-1">
-                        <i class="fas fa-users"></i> <span id="appUserCount">0</span> Active Members
-                    </p>
                 </div>
                 <div class="flex items-center gap-3">
                     <img id="userAvatar" src="" class="w-8 h-8 rounded-full border-2 border-white bg-gray-200">
@@ -75,39 +60,99 @@
         </div>
 
         <div class="max-w-3xl mx-auto p-4">
-            <!-- Info Strip -->
+            <!-- Info -->
             <div class="bg-indigo-50 text-indigo-700 text-xs text-center py-2 rounded-lg mb-4 border border-indigo-100 font-medium">
-                <i class="fas fa-info-circle mr-1"></i> ఎడిట్/డిలీట్ కోసం కార్డుని 2.5 సెకండ్లు నొక్కి పట్టుకోండి
+                <i class="fas fa-info-circle mr-1"></i> డిలీట్/ఎడిట్ కోసం కార్డుని నొక్కి పట్టుకోండి (Long Press)
             </div>
 
             <!-- Error Box -->
             <div id="errorBox" class="hidden bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 rounded shadow-sm"></div>
 
-            <!-- ADD/EDIT FORM MODAL -->
+            <!-- ADD FORM -->
             <div id="addForm" class="hidden fixed inset-0 bg-black/60 z-[60] flex items-center justify-center p-4 fade-in backdrop-blur-sm">
                 <div class="bg-white p-6 rounded-2xl shadow-2xl w-full max-w-md relative max-h-[90vh] overflow-y-auto">
-                    <button onclick="toggleForm()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 p-2">
-                        <i class="fas fa-times text-xl"></i>
-                    </button>
-                    <h2 class="text-xl font-bold mb-6 text-gray-800 flex items-center gap-2">
-                        <i class="fas fa-user-edit text-blue-600"></i> <span id="formTitle">కొత్త వివరాలు</span>
-                    </h2>
+                    <button onclick="toggleForm()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 p-2"><i class="fas fa-times text-xl"></i></button>
+                    <h2 class="text-xl font-bold mb-6 text-gray-800 flex items-center gap-2"><i class="fas fa-user-edit text-blue-600"></i> <span id="formTitle">వివరాలు</span></h2>
                     
-                    <p class="text-xs text-orange-600 bg-orange-50 p-2 rounded mb-4 border border-orange-200">
-                        <i class="fas fa-exclamation-triangle"></i> దయచేసి సరైన సమాచారం మాత్రమే ఇవ్వండి.
-                    </p>
+                    <p class="text-xs text-orange-600 bg-orange-50 p-2 rounded mb-4 border border-orange-200"><i class="fas fa-exclamation-triangle"></i> ఒక్కసారి మాత్రమే యాడ్ చేయగలరు.</p>
 
                     <form id="workerForm" class="space-y-4">
-                        <input type="hidden" id="editDocId"> <!-- Hidden ID for Edit -->
-                        
+                        <input type="hidden" id="editDocId">
                         <input type="text" id="wName" placeholder="పేరు (Name)" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500" required>
                         <input type="text" id="wJob" placeholder="పని (Job - Ex: Auto)" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500" required>
                         <input type="text" id="wArea" placeholder="ఏరియా (Area)" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
                         <input type="tel" id="wPhone" placeholder="ఫోన్ నంబర్" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500" required>
-                        <textarea id="wBio" rows="2" placeholder="బయోడేటా (Details)..." class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500"></textarea>
-                        
+                        <textarea id="wBio" rows="2" placeholder="బయోడేటా / అనుభవం..." class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500"></textarea>
                         <button type="submit" id="submitBtn" class="w-full bg-blue-600 text-white py-3.5 rounded-xl font-bold hover:bg-blue-700 shadow-lg mt-2">సేవ్ చేయి</button>
                     </form>
+                </div>
+            </div>
+
+            <!-- PROFILE & REVIEWS MODAL -->
+            <div id="profileModal" class="hidden fixed inset-0 bg-black/80 z-[70] flex items-end sm:items-center justify-center fade-in backdrop-blur-md">
+                <div class="bg-white w-full sm:w-[450px] sm:rounded-2xl rounded-t-3xl shadow-2xl overflow-hidden relative max-h-[90vh] overflow-y-auto flex flex-col">
+                    
+                    <!-- Modal Header -->
+                    <div class="bg-gradient-to-b from-blue-50 to-white p-6 pb-2 relative">
+                        <button onclick="closeProfile()" class="absolute top-4 right-4 bg-gray-200 text-gray-600 w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-300 z-10"><i class="fas fa-times"></i></button>
+                        
+                        <div class="text-center">
+                            <div id="pIcon" class="w-20 h-20 rounded-full mx-auto flex items-center justify-center text-3xl shadow-md mb-3 bg-white text-blue-600"><i class="fas fa-user"></i></div>
+                            <h2 id="pName" class="text-2xl font-bold text-gray-800 capitalize">Name</h2>
+                            <p id="pJob" class="text-blue-600 font-medium capitalize">Job</p>
+                            
+                            <!-- Overall Rating -->
+                            <div class="flex items-center justify-center gap-1 mt-1 text-yellow-400 text-lg">
+                                <span id="pAvgRating" class="font-bold text-gray-900 mr-1">0.0</span>
+                                <div id="pStars"></div>
+                                <span id="pReviewCount" class="text-gray-400 text-xs ml-1">(0)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Scrollable Content -->
+                    <div class="p-6 pt-0 space-y-6 overflow-y-auto flex-1">
+                        
+                        <!-- Bio -->
+                        <div class="mt-4">
+                            <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">About</h3>
+                            <p id="pBio" class="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg border border-gray-100 italic">No bio available.</p>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="flex gap-3">
+                            <a id="pCallBtn" href="#" class="flex-1 bg-green-500 text-white text-center py-3 rounded-xl font-bold shadow-md hover:bg-green-600 active:scale-95 transition flex items-center justify-center gap-2">
+                                <i class="fas fa-phone-alt"></i> Call
+                            </a>
+                        </div>
+
+                        <!-- REVIEWS SECTION -->
+                        <div class="border-t pt-4">
+                            <h3 class="text-sm font-bold text-gray-800 mb-3 flex items-center gap-2">
+                                <i class="fas fa-comments text-blue-500"></i> Reviews & Ratings
+                            </h3>
+                            
+                            <!-- Add Review Box -->
+                            <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 mb-4">
+                                <p class="text-xs text-gray-500 mb-2">Rate this worker:</p>
+                                <div class="flex gap-3 text-2xl text-gray-300 mb-3 justify-center" id="starInput">
+                                    <button onclick="setRating(1)" class="star-btn"><i class="fas fa-star"></i></button>
+                                    <button onclick="setRating(2)" class="star-btn"><i class="fas fa-star"></i></button>
+                                    <button onclick="setRating(3)" class="star-btn"><i class="fas fa-star"></i></button>
+                                    <button onclick="setRating(4)" class="star-btn"><i class="fas fa-star"></i></button>
+                                    <button onclick="setRating(5)" class="star-btn"><i class="fas fa-star"></i></button>
+                                </div>
+                                <textarea id="reviewText" placeholder="మీ అభిప్రాయం రాయండి (Optional)..." class="w-full p-2 text-sm border rounded-lg focus:outline-none focus:border-blue-400 mb-2"></textarea>
+                                <button onclick="submitReview()" class="w-full bg-blue-600 text-white py-2 rounded-lg text-xs font-bold hover:bg-blue-700">Submit Review</button>
+                            </div>
+
+                            <!-- Comments List -->
+                            <div id="commentsList" class="space-y-3">
+                                <!-- Comments will load here -->
+                                <p class="text-center text-xs text-gray-400 py-2">No reviews yet.</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -122,17 +167,14 @@
                 <div class="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
             </div>
             <div id="workersList" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
-            <div id="noDataMsg" class="hidden text-center py-16 text-gray-400">
-                <i class="fas fa-folder-open text-4xl mb-2"></i>
-                <p>ఇంకా ఎవరూ లేరు.</p>
-            </div>
+            <div id="noDataMsg" class="hidden text-center py-16 text-gray-400"><i class="fas fa-folder-open text-4xl mb-2"></i><p>ఇంకా ఎవరూ లేరు.</p></div>
         </div>
     </div>
 
     <!-- FIREBASE SCRIPT -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, query, where, getDocs, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, query, where, getDocs, setDoc, updateDoc, arrayUnion, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         
         // --- KEYS ---
@@ -154,37 +196,16 @@
         let currentUser = null;
         let allWorkers = [];
         let editingId = null;
+        let currentRating = 0; // Temp store for selected stars
+        let openProfileId = null; // Track open profile ID
 
-        // --- AUTH & LOGIN LOGIC ---
+        // --- AUTH ---
         const loginScreen = document.getElementById('loginScreen');
         const mainApp = document.getElementById('mainApp');
-        const loginLoader = document.getElementById('loginLoader');
-        const loginErrorMsg = document.getElementById('loginErrorMsg');
-        const loginErrorText = document.getElementById('loginErrorText');
-
-        function trackUserCount() {
-            const usersRef = collection(db, "users");
-            onSnapshot(usersRef, (snap) => {
-                const count = snap.size; 
-                document.getElementById('loginUserCount').innerText = count;
-                document.getElementById('appUserCount').innerText = count;
-            });
-        }
-        trackUserCount();
-
+        
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 currentUser = user;
-                document.getElementById('userAvatar').src = user.photoURL || 'https://via.placeholder.com/40';
-                try {
-                    const userDocRef = doc(db, "users", user.uid);
-                    await setDoc(userDocRef, {
-                        email: user.email,
-                        name: user.displayName,
-                        lastSeen: new Date().toISOString()
-                    }, { merge: true });
-                } catch(e) { console.log("User save error", e); }
-
                 loginScreen.classList.add('hidden');
                 mainApp.classList.remove('hidden');
                 loadData();
@@ -192,94 +213,77 @@
                 currentUser = null;
                 loginScreen.classList.remove('hidden');
                 mainApp.classList.add('hidden');
-                loginLoader.classList.add('hidden');
             }
         });
 
         window.handleLogin = () => {
-            loginLoader.classList.remove('hidden');
-            loginErrorMsg.classList.add('hidden');
+            document.getElementById('loginLoader').classList.remove('hidden');
             signInWithPopup(auth, provider).catch((error) => {
-                loginLoader.classList.add('hidden');
-                loginErrorText.innerText = error.message;
-                loginErrorMsg.classList.remove('hidden');
+                document.getElementById('loginLoader').classList.add('hidden');
+                document.getElementById('loginErrorMsg').innerText = error.message;
+                document.getElementById('loginErrorMsg').classList.remove('hidden');
             });
         }
-
         window.handleLogout = () => { if(confirm("Logout?")) signOut(auth); }
 
-        // --- ADD/EDIT TOGGLE ---
+        // --- WORKER MANAGEMENT ---
         window.checkLimitAndToggle = async () => {
             if (!currentUser) return;
-            // Reset for Adding
             editingId = null; 
             document.getElementById('workerForm').reset();
             document.getElementById('formTitle').innerText = "కొత్త వివరాలు";
             document.getElementById('submitBtn').innerText = "సేవ్ చేయి";
 
-            // Limit Check for New Additions
-            const addBtn = document.querySelector('button[onclick="checkLimitAndToggle()"]');
-            const originalIcon = addBtn.innerHTML;
-            addBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
-            addBtn.disabled = true;
-
+            // Check Limit
             try {
                 const q = query(collection(db, "workers"), where("addedByUid", "==", currentUser.uid));
-                const querySnapshot = await getDocs(q);
-                const count = querySnapshot.size;
-
-                if (count >= 1) {
-                    const password = prompt("⚠️ మీరు ఇప్పటికే ఒక నంబర్ యాడ్ చేశారు.\nఇంకొకటి యాడ్ చేయాలంటే అడ్మిన్ పాస్‌వర్డ్ ఎంటర్ చేయండి:");
-                    if (password === "admin123") toggleForm();
-                    else if (password !== null) alert("❌ తప్పు పాస్‌వర్డ్!");
+                const snap = await getDocs(q);
+                if (!snap.empty) {
+                    const pass = prompt("⚠️ ఒక్క ఎంట్రీ మాత్రమే ఉచితం.\nఇంకోటి యాడ్ చేయాలంటే అడ్మిన్ పాస్‌వర్డ్ కొట్టండి:");
+                    if (pass === "admin123") toggleForm();
+                    else if (pass !== null) alert("❌ తప్పు పాస్‌వర్డ్!");
                 } else {
                     toggleForm();
                 }
-            } catch (error) { alert("Checking Failed: " + error.message); } 
-            finally { addBtn.innerHTML = originalIcon; addBtn.disabled = false; }
+            } catch (e) { toggleForm(); } // Fallback
         }
 
-        // --- EDIT WORKER LOGIC ---
         window.handleEdit = (e, id) => {
-            e.stopPropagation(); // Stop overlay from closing or triggering delete
-            
+            e.stopPropagation();
             const worker = allWorkers.find(w => w.id === id);
             if(!worker) return;
-
-            // Permission Check: Owner or Admin
+            
             let isOwner = currentUser && currentUser.uid === worker.addedByUid;
             if (!isOwner) {
-                const pass = prompt("🔐 మీరు దీని ఓనర్ కాదు.\nఎడిట్ చేయడానికి అడ్మిన్ పాస్‌వర్డ్ ఎంటర్ చేయండి:");
-                if (pass !== "admin123") {
-                    if(pass !== null) alert("❌ తప్పు పాస్‌వర్డ్!");
-                    return;
-                }
+                const pass = prompt("🔐 అడ్మిన్ పాస్‌వర్డ్ ఎంటర్ చేయండి:");
+                if (pass !== "admin123") return alert("❌ Access Denied");
             }
 
-            // Populate Form
             document.getElementById('wName').value = worker.name;
             document.getElementById('wJob').value = worker.job;
             document.getElementById('wArea').value = worker.area || '';
             document.getElementById('wPhone').value = worker.phone;
             document.getElementById('wBio').value = worker.bio || '';
-            
-            // Set Edit Mode
             editingId = id;
-            document.getElementById('formTitle').innerText = "వివరాలు మార్చండి";
+            document.getElementById('formTitle').innerText = "ఎడిట్ చేయండి";
             document.getElementById('submitBtn').innerText = "Update";
-            
-            // Hide Overlay and Show Form
             document.getElementById(`overlay-${id}`).classList.add('hidden');
             toggleForm();
         }
 
-        // --- DATA LOGIC ---
+        // --- DATA LOAD ---
         function loadData() {
             const q = collection(db, "workers"); 
             onSnapshot(q, (snapshot) => {
                 allWorkers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 allWorkers.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
                 renderWorkers(allWorkers);
+                
+                // Refresh Profile if open
+                if(openProfileId) {
+                    const w = allWorkers.find(x => x.id === openProfileId);
+                    if(w) openProfile(w.id, true); // True = skip modal open animation
+                }
                 document.getElementById('loader').classList.add('hidden');
             });
         }
@@ -287,13 +291,13 @@
         function renderWorkers(data) {
             const list = document.getElementById('workersList');
             list.innerHTML = '';
-            if (data.length === 0) {
-                document.getElementById('noDataMsg').classList.remove('hidden'); return;
-            }
+            if (data.length === 0) { document.getElementById('noDataMsg').classList.remove('hidden'); return; }
             document.getElementById('noDataMsg').classList.add('hidden');
 
             data.forEach(worker => {
                 const style = getIconByJob(worker.job);
+                const rating = worker.ratingCount > 0 ? (worker.totalStars / worker.ratingCount).toFixed(1) : "New";
+                
                 const html = `
                     <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4 relative group no-select active:scale-[0.98] transition cursor-pointer overflow-hidden"
                          oncontextmenu="return false;"
@@ -302,22 +306,13 @@
                          onmousedown="handleMouseDown('${worker.id}')"
                          onmouseup="handleMouseUp()"
                     >
-                         <!-- OPTIONS OVERLAY -->
-                        <div id="overlay-${worker.id}" 
-                             class="hidden absolute inset-0 bg-slate-900/95 z-30 flex flex-col items-center justify-center gap-3 backdrop-blur-sm fade-in"
-                             ontouchstart="stopProp(event)"
-                             onmousedown="stopProp(event)"
-                        >
-                            <p class="text-white text-xs font-bold uppercase tracking-widest mb-1">Select Action</p>
-                            <div class="flex gap-4">
-                                <button onclick="handleEdit(event, '${worker.id}')" class="bg-blue-600 text-white px-5 py-2 rounded-lg font-bold shadow-lg flex items-center gap-2 active:scale-95 transition">
-                                    <i class="fas fa-edit"></i> Edit
-                                </button>
-                                <button onclick="confirmDelete(event, '${worker.id}')" class="bg-red-500 text-white px-5 py-2 rounded-lg font-bold shadow-lg flex items-center gap-2 active:scale-95 transition">
-                                    <i class="fas fa-trash-alt"></i> Delete
-                                </button>
+                        <div id="overlay-${worker.id}" class="hidden absolute inset-0 bg-slate-900/95 z-30 flex flex-col items-center justify-center gap-3 backdrop-blur-sm fade-in" ontouchstart="stopProp(event)" onmousedown="stopProp(event)">
+                            <p class="text-white text-xs font-bold uppercase tracking-widest">Options</p>
+                            <div class="flex gap-3">
+                                <button onclick="handleEdit(event, '${worker.id}')" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold shadow hover:bg-blue-700">Edit</button>
+                                <button onclick="confirmDelete(event, '${worker.id}')" class="bg-red-500 text-white px-4 py-2 rounded-lg font-bold shadow hover:bg-red-600">Delete</button>
                             </div>
-                            <button onclick="closeOverlay(event, '${worker.id}')" class="text-gray-400 text-sm mt-3 underline">Cancel</button>
+                            <button onclick="closeOverlay(event, '${worker.id}')" class="text-gray-400 text-sm mt-2 underline">Cancel</button>
                         </div>
 
                         <div class="w-14 h-14 rounded-2xl ${style.color} flex items-center justify-center text-2xl shrink-0 shadow-inner">
@@ -325,21 +320,135 @@
                         </div>
                         <div class="flex-1 min-w-0 pointer-events-none">
                             <h3 class="font-bold text-gray-800 text-lg truncate capitalize">${worker.name}</h3>
-                            <p class="text-sm text-blue-600 font-semibold truncate capitalize">${worker.job}</p>
-                            <p class="text-xs text-gray-400 truncate">${worker.area || 'Unknown'}</p>
+                            <p class="text-sm text-blue-600 font-semibold truncate capitalize mb-0.5">${worker.job}</p>
+                            <div class="flex items-center gap-2">
+                                <span class="bg-yellow-100 text-yellow-700 text-[10px] font-bold px-1.5 rounded border border-yellow-200"><i class="fas fa-star text-[8px]"></i> ${rating}</span>
+                                <p class="text-xs text-gray-400 truncate">${worker.area || ''}</p>
+                            </div>
                         </div>
-                        <a href="tel:${worker.phone}" onclick="stopProp(event)" class="bg-green-100 text-green-600 w-10 h-10 rounded-full flex items-center justify-center shadow-sm z-20">
-                            <i class="fas fa-phone"></i>
-                        </a>
+                        
+                        <!-- DETAIL ARROW BUTTON -->
+                        <button onclick="openProfile('${worker.id}')" class="w-10 h-10 rounded-full bg-gray-100 text-blue-600 hover:bg-blue-100 flex items-center justify-center transition shadow-sm z-20" onclick="stopProp(event)">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                        
+                        <!-- Call Button Hidden Logic (Card itself isn't clickable for call now to avoid conflict) -->
+                        <a href="tel:${worker.phone}" class="hidden"></a>
                     </div>
                 `;
                 list.innerHTML += html;
             });
         }
 
+        // --- PROFILE & REVIEWS LOGIC ---
+        window.openProfile = (id, isRefresh = false) => {
+            if(!isRefresh && document.getElementById(`overlay-${id}`) && !document.getElementById(`overlay-${id}`).classList.contains('hidden')) return; // Don't open if overlay active
+            
+            const w = allWorkers.find(x => x.id === id);
+            if(!w) return;
+            openProfileId = id;
+
+            // Basic Info
+            document.getElementById('pName').innerText = w.name;
+            document.getElementById('pJob').innerText = w.job;
+            document.getElementById('pBio').innerText = w.bio || "No details provided.";
+            document.getElementById('pCallBtn').href = `tel:${w.phone}`;
+            
+            // Icon
+            const style = getIconByJob(w.job);
+            document.getElementById('pIcon').className = `w-20 h-20 rounded-full mx-auto flex items-center justify-center text-3xl shadow-md mb-3 bg-white text-blue-600 ${style.color}`;
+            document.getElementById('pIcon').innerHTML = `<i class="fas ${style.icon}"></i>`;
+
+            // Ratings Header
+            const avg = w.ratingCount > 0 ? (w.totalStars / w.ratingCount).toFixed(1) : "0.0";
+            document.getElementById('pAvgRating').innerText = avg;
+            document.getElementById('pReviewCount').innerText = `(${w.ratingCount || 0})`;
+            
+            let starHtml = '';
+            for(let i=1; i<=5; i++) starHtml += i <= Math.round(avg) ? '<i class="fas fa-star"></i>' : '<i class="far fa-star text-gray-300"></i>';
+            document.getElementById('pStars').innerHTML = starHtml;
+
+            // Comments List
+            const commentsDiv = document.getElementById('commentsList');
+            if (w.reviews && w.reviews.length > 0) {
+                // Sort by date (newest first) if date exists, else keep order
+                const sorted = [...w.reviews].reverse(); 
+                commentsDiv.innerHTML = sorted.map(r => `
+                    <div class="bg-gray-50 p-3 rounded-lg border border-gray-100 text-sm">
+                        <div class="flex justify-between items-start mb-1">
+                            <span class="font-bold text-gray-700 text-xs">${r.user}</span>
+                            <span class="text-yellow-500 text-xs"><i class="fas fa-star"></i> ${r.rating}</span>
+                        </div>
+                        <p class="text-gray-600">${r.comment}</p>
+                    </div>
+                `).join('');
+            } else {
+                commentsDiv.innerHTML = '<p class="text-center text-xs text-gray-400 py-2">No reviews yet. Be the first!</p>';
+            }
+
+            if(!isRefresh) document.getElementById('profileModal').classList.remove('hidden');
+        }
+
+        window.closeProfile = () => {
+            document.getElementById('profileModal').classList.add('hidden');
+            openProfileId = null;
+            // Reset rating input
+            currentRating = 0;
+            document.getElementById('reviewText').value = '';
+            updateStarUI(0);
+        }
+
+        // Rating Input Logic
+        window.setRating = (n) => {
+            currentRating = n;
+            updateStarUI(n);
+        }
+        function updateStarUI(n) {
+            const btns = document.querySelectorAll('#starInput .star-btn');
+            btns.forEach((btn, idx) => {
+                if(idx < n) btn.classList.add('text-yellow-400');
+                else btn.classList.remove('text-yellow-400');
+            });
+        }
+
+        window.submitReview = async () => {
+            if(!openProfileId) return;
+            if(currentRating === 0) return alert("Please select stars!");
+            
+            const comment = document.getElementById('reviewText').value.trim();
+            const review = {
+                user: currentUser.displayName || "Anonymous",
+                rating: currentRating,
+                comment: comment || "Rated",
+                date: new Date().toISOString()
+            };
+
+            const btn = document.querySelector('#profileModal button[onclick="submitReview()"]');
+            btn.innerText = "Submitting...";
+            btn.disabled = true;
+
+            try {
+                const docRef = doc(db, "workers", openProfileId);
+                await updateDoc(docRef, {
+                    reviews: arrayUnion(review),
+                    totalStars: increment(currentRating),
+                    ratingCount: increment(1)
+                });
+                // Reset form
+                currentRating = 0;
+                document.getElementById('reviewText').value = '';
+                updateStarUI(0);
+                alert("Thank you! Review added.");
+            } catch(e) {
+                alert("Error: " + e.message);
+            } finally {
+                btn.innerText = "Submit Review";
+                btn.disabled = false;
+            }
+        }
+
         // --- LONG PRESS (2.5s) ---
         let pressTimer;
-        
         window.handleTouchStart = (id) => {
             pressTimer = setTimeout(() => {
                 document.getElementById(`overlay-${id}`).classList.remove('hidden');
@@ -347,56 +456,47 @@
             }, 2500); 
         }
         window.handleTouchEnd = () => clearTimeout(pressTimer);
-        window.handleMouseDown = (id) => {
-             pressTimer = setTimeout(() => { document.getElementById(`overlay-${id}`).classList.remove('hidden'); }, 2500);
-        }
+        window.handleMouseDown = (id) => { pressTimer = setTimeout(() => { document.getElementById(`overlay-${id}`).classList.remove('hidden'); }, 2500); }
         window.handleMouseUp = () => clearTimeout(pressTimer);
         window.closeOverlay = (e, id) => { e.stopPropagation(); document.getElementById(`overlay-${id}`).classList.add('hidden'); }
         window.stopProp = (e) => e.stopPropagation();
         
-        // --- DELETE LOGIC ---
         window.confirmDelete = async (e, id) => {
             e.stopPropagation();
-            setTimeout(async () => {
-                const password = prompt("🔐 ADMIN PASSWORD:");
-                if (password === "admin123") {
-                    if(confirm("Delete Permanently?")) await deleteDoc(doc(db, "workers", id));
-                } else if(password) alert("Wrong Password");
-            }, 50);
+            const pass = prompt("🔐 Admin Password:");
+            if (pass === "admin123") {
+                if(confirm("Delete?")) await deleteDoc(doc(db, "workers", id));
+            } else if(pass) alert("Wrong Password");
         }
 
-        // --- FORM SUBMIT (ADD OR EDIT) ---
+        // Form Submit
         document.getElementById('workerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('submitBtn');
-            const original = btn.innerText;
-            btn.innerText = 'Processing...';
-            btn.disabled = true;
-
+            btn.innerText = 'Saving...'; btn.disabled = true;
+            
             const data = {
                 name: document.getElementById('wName').value.trim(),
                 job: document.getElementById('wJob').value.trim(),
                 area: document.getElementById('wArea').value.trim(),
                 phone: document.getElementById('wPhone').value.trim(),
-                bio: document.getElementById('wBio').value.trim(),
+                bio: document.getElementById('wBio').value.trim()
             };
 
             try {
-                if (editingId) {
-                    // UPDATE EXISTING
+                if(editingId) {
                     await updateDoc(doc(db, "workers", editingId), data);
-                    // alert("వివరాలు అప్‌డేట్ అయ్యాయి!");
                 } else {
-                    // ADD NEW
-                    data.addedBy = currentUser.displayName;
                     data.addedByUid = currentUser.uid;
-                    data.createdAt = new Date().toISOString();
+                    data.reviews = []; // Init reviews array
+                    data.totalStars = 0;
+                    data.ratingCount = 0;
                     await addDoc(collection(db, "workers"), data);
                 }
                 toggleForm();
                 document.getElementById('workerForm').reset();
-            } catch (err) { alert("Error: " + err.message); } 
-            finally { btn.innerText = original; btn.disabled = false; editingId = null; }
+            } catch (e) { alert(e.message); }
+            finally { btn.innerText = 'Save'; btn.disabled = false; editingId = null; }
         });
 
         function getIconByJob(job) {
@@ -415,4 +515,4 @@
         }
     </script>
 </body>
-</html>
+    </html>
