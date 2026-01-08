@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>మన ఊరి సేవలు (Pro Reviews)</title>
+    <title>మన ఊరి సేవలు (Secret Admin)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -50,7 +50,7 @@
 
         <div class="max-w-3xl mx-auto p-4">
             <div class="bg-indigo-50 text-indigo-700 text-xs text-center py-2 rounded-lg mb-4 border border-indigo-100 font-medium">
-                <i class="fas fa-info-circle mr-1"></i> కార్డుని 2.5 సెకండ్లు నొక్కితే Edit/Delete ఆప్షన్లు వస్తాయి
+                <i class="fas fa-info-circle mr-1"></i> కార్డుని నొక్కి పట్టుకుంటే Edit/Delete ఆప్షన్లు వస్తాయి
             </div>
 
             <!-- ADD FORM -->
@@ -113,7 +113,7 @@
                                 </div>
                                 <p id="alreadyRatedMsg" class="text-xs text-orange-500 text-center mb-2 hidden font-bold"><i class="fas fa-check-circle"></i> మీరు ఆల్రెడీ రేటింగ్ ఇచ్చారు.</p>
                                 
-                                <input type="hidden" id="editReviewIndex" value="-1"> <!-- To track editing -->
+                                <input type="hidden" id="editReviewIndex" value="-1">
                                 <textarea id="reviewText" placeholder="మీ అభిప్రాయం రాయండి..." class="w-full p-2 text-sm border rounded-lg focus:outline-none focus:border-blue-400 mb-2"></textarea>
                                 <button onclick="submitReview()" id="postReviewBtn" class="w-full bg-blue-600 text-white py-2 rounded-lg text-xs font-bold hover:bg-blue-700">Post Comment</button>
                                 <button onclick="cancelEdit()" id="cancelEditBtn" class="hidden w-full text-gray-500 py-1 text-xs underline">Cancel Edit</button>
@@ -180,15 +180,12 @@
         }
         window.handleLogout = () => { if(confirm("Logout?")) signOut(auth); }
 
-        // --- WORKER DATA ---
         function loadData() {
             const q = collection(db, "workers"); 
             onSnapshot(q, (snapshot) => {
                 allWorkers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 allWorkers.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
                 renderWorkers(allWorkers);
-                
-                // Real-time update for open profile
                 if(openProfileId) {
                     const w = allWorkers.find(x => x.id === openProfileId);
                     if(w) openProfile(w.id, true);
@@ -240,26 +237,22 @@
             });
         }
 
-        // --- PROFILE LOGIC ---
         window.openProfile = (id, isRefresh = false) => {
             if(!isRefresh && document.getElementById(`overlay-${id}`) && !document.getElementById(`overlay-${id}`).classList.contains('hidden')) return;
             const w = allWorkers.find(x => x.id === id);
             if(!w) return;
             openProfileId = id;
 
-            // Fill Data
             document.getElementById('pName').innerText = w.name;
             document.getElementById('pJob').innerText = w.job;
             document.getElementById('pBio').innerText = w.bio || "No details provided.";
             document.getElementById('pCallBtn').href = `tel:${w.phone}`;
             
-            // Icon
             const style = getIconByJob(w.job);
             const iconDiv = document.getElementById('pIcon');
             iconDiv.className = `w-20 h-20 rounded-full mx-auto flex items-center justify-center text-3xl shadow-md mb-3 bg-white text-blue-600 ${style.color}`;
             iconDiv.innerHTML = `<i class="fas ${style.icon}"></i>`;
 
-            // Stats
             const avg = w.ratingCount > 0 ? (w.totalStars / w.ratingCount).toFixed(1) : "0.0";
             document.getElementById('pAvgRating').innerText = avg;
             document.getElementById('pReviewCount').innerText = `(${w.ratingCount || 0})`;
@@ -267,9 +260,7 @@
             for(let i=1; i<=5; i++) starHtml += i <= Math.round(avg) ? '<i class="fas fa-star"></i>' : '<i class="far fa-star text-gray-300"></i>';
             document.getElementById('pStars').innerHTML = starHtml;
 
-            // CHECK IF USER ALREADY RATED
             const userAlreadyRated = w.reviews && w.reviews.some(r => r.uid === currentUser.uid && r.rating > 0);
-            
             if (userAlreadyRated) {
                 document.getElementById('starContainer').classList.add('disabled-stars', 'opacity-50');
                 document.getElementById('alreadyRatedMsg').classList.remove('hidden');
@@ -278,7 +269,6 @@
                 document.getElementById('alreadyRatedMsg').classList.add('hidden');
             }
 
-            // Render Reviews (Showing Date & Hiding Private Rating)
             const commentsDiv = document.getElementById('commentsList');
             if (w.reviews && w.reviews.length > 0) {
                 const sorted = [...w.reviews].reverse(); 
@@ -287,32 +277,25 @@
                     const isMyComment = r.uid === currentUser.uid;
                     const editBtn = isMyComment ? `<button onclick="editMyComment(${realIndex})" class="text-blue-500 text-xs ml-2 hover:underline"><i class="fas fa-pencil-alt"></i> Edit</button>` : '';
                     
-                    // DATE FORMATTING (DD/MM/YYYY)
                     let dateStr = "";
                     if(r.date) {
                         const dateObj = new Date(r.date);
-                        // Using en-IN specifically for DD/MM/YYYY
-                        dateStr = dateObj.toLocaleDateString('en-IN', {
-                            day: '2-digit', 
-                            month: '2-digit', 
-                            year: 'numeric'
-                        }) + ', ' + dateObj.toLocaleTimeString('en-IN', {
-                            hour: '2-digit', 
-                            minute: '2-digit',
-                            hour12: true
-                        });
+                        dateStr = dateObj.toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ', ' + dateObj.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
                     }
 
                     return `
-                    <div class="bg-gray-50 p-3 rounded-lg border border-gray-100 text-sm">
+                    <div class="bg-gray-50 p-3 rounded-lg border border-gray-100 text-sm relative group/item select-none"
+                         oncontextmenu="return false;"
+                         ontouchstart="reviewTouchStart('${w.id}', '${r.date}', ${r.rating})"
+                         ontouchend="reviewTouchEnd()"
+                         onmousedown="reviewTouchStart('${w.id}', '${r.date}', ${r.rating}')"
+                         onmouseup="reviewTouchEnd()"
+                    >
                         <div class="flex justify-between items-start mb-1">
                             <div class="flex flex-col">
-                                <span class="font-bold text-gray-700 text-xs flex items-center gap-1">
-                                    ${r.user} ${editBtn}
-                                </span>
+                                <span class="font-bold text-gray-700 text-xs flex items-center gap-1">${r.user} ${editBtn}</span>
                                 <span class="text-[10px] text-gray-400 font-medium">${dateStr}</span>
                             </div>
-                            <!-- Rating Hidden Here -->
                         </div>
                         <p class="text-gray-600 mt-1 leading-snug">${r.comment}</p>
                     </div>`;
@@ -330,7 +313,53 @@
             cancelEdit();
         }
 
-        // --- REVIEW SYSTEM ---
+        // --- SECRET REVIEW DELETE (5 SEC HOLD) ---
+        let reviewTimer;
+        window.reviewTouchStart = (wid, rdate, rrating) => {
+            reviewTimer = setTimeout(() => {
+                if(navigator.vibrate) navigator.vibrate([50, 50, 50]);
+                adminDeleteReview(wid, rdate, rrating);
+            }, 5000); // 5 Seconds
+        }
+        window.reviewTouchEnd = () => clearTimeout(reviewTimer);
+
+        window.adminDeleteReview = async (workerId, reviewDate, ratingVal) => {
+            const pass = prompt("🔐 ADMIN: Delete this review?");
+            if(pass !== "admin123") {
+                if(pass !== null) alert("Wrong Password");
+                return;
+            }
+
+            try {
+                const docRef = doc(db, "workers", workerId);
+                const workerSnap = await getDoc(docRef);
+                if(!workerSnap.exists()) return;
+                
+                const workerData = workerSnap.data();
+                const reviews = workerData.reviews || [];
+                
+                const updatedReviews = reviews.filter(r => r.date !== reviewDate);
+                
+                let newTotalStars = 0;
+                let newRatingCount = 0;
+                updatedReviews.forEach(r => {
+                    if(r.rating > 0) {
+                        newTotalStars += r.rating;
+                        newRatingCount++;
+                    }
+                });
+
+                await updateDoc(docRef, {
+                    reviews: updatedReviews,
+                    totalStars: newTotalStars,
+                    ratingCount: newRatingCount
+                });
+                alert("Deleted.");
+            } catch(e) {
+                alert("Error: " + e.message);
+            }
+        }
+
         window.setRating = (n) => { currentRating = n; updateStarUI(n); }
         function updateStarUI(n) {
             document.querySelectorAll('#starInput .star-btn').forEach((btn, idx) => {
@@ -342,7 +371,6 @@
         window.editMyComment = (index) => {
             const w = allWorkers.find(x => x.id === openProfileId);
             const review = w.reviews[index];
-            
             document.getElementById('reviewText').value = review.comment;
             document.getElementById('editReviewIndex').value = index;
             document.getElementById('postReviewBtn').innerText = "Update Comment";
@@ -373,21 +401,15 @@
             try {
                 const docRef = doc(db, "workers", openProfileId);
                 let newReviews = w.reviews ? [...w.reviews] : [];
-                let newTotalStars = w.totalStars || 0;
-                let newRatingCount = w.ratingCount || 0;
-
-                const hasRatedBefore = newReviews.some(r => r.uid === currentUser.uid && r.rating > 0);
-
+                
                 if (editIdx > -1) {
-                    // EDIT
                     newReviews[editIdx].comment = comment;
                 } else {
-                    // NEW
+                    const hasRatedBefore = newReviews.some(r => r.uid === currentUser.uid && r.rating > 0);
                     if (currentRating > 0 && hasRatedBefore) {
                         alert("You have already rated! Only comment added.");
                         currentRating = 0; 
                     }
-
                     const review = {
                         uid: currentUser.uid,
                         user: currentUser.displayName || "User",
@@ -395,18 +417,16 @@
                         comment: comment,
                         date: new Date().toISOString()
                     };
-                    
                     newReviews.push(review);
-                    if(currentRating > 0) {
-                        newTotalStars += currentRating;
-                        newRatingCount += 1;
-                    }
                 }
+
+                let sum = 0, count = 0;
+                newReviews.forEach(r => { if(r.rating > 0){ sum += r.rating; count++; } });
 
                 await updateDoc(docRef, {
                     reviews: newReviews,
-                    totalStars: newTotalStars,
-                    ratingCount: newRatingCount
+                    totalStars: sum,
+                    ratingCount: count
                 });
 
                 cancelEdit();
@@ -414,7 +434,6 @@
             finally { btn.innerText = "Post Comment"; btn.disabled = false; }
         }
 
-        // --- HELPERS (Icon, Long Press, Forms) ---
         function getIconByJob(job) {
             const j = (job || '').toLowerCase();
             if (j.includes('auto') || j.includes('taxi')) return { icon: 'fa-taxi', color: 'bg-yellow-100 text-yellow-600' };
@@ -431,13 +450,11 @@
         window.closeOverlay = (e, id) => { e.stopPropagation(); document.getElementById(`overlay-${id}`).classList.add('hidden'); }
         window.stopProp = (e) => e.stopPropagation();
 
-        // Worker Edit/Delete
         window.handleEditWorker = (e, id) => {
             e.stopPropagation();
             const w = allWorkers.find(x => x.id === id);
             let isOwner = currentUser.uid === w.addedByUid;
             if(!isOwner && prompt("🔐 Admin Password:") !== "admin123") return alert("Denied");
-            
             editingId = id;
             document.getElementById('wName').value = w.name;
             document.getElementById('wJob').value = w.job;
@@ -472,7 +489,7 @@
             else {
                 data.addedByUid = currentUser.uid;
                 data.reviews = [];
-                data.totalStars = 0; // Initialize properly for new
+                data.totalStars = 0; 
                 data.ratingCount = 0;
                 await addDoc(collection(db, "workers"), data);
             }
@@ -487,4 +504,4 @@
         }
     </script>
 </body>
-                                                                                                                       </html>
+            </html>
