@@ -3,7 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>మన ఊరి సేవలు</title>
+    
+    <!-- 🔥 SEO TAGS (గూగుల్ కోసం) 🔥 -->
+    <title>మన ఊరి సేవలు - Local Workers Directory</title>
+    <meta name="description" content="మన ఊరి సేవలు (Mana Oori Sevalu) - మన ఊర్లో ఆటో వాళ్ళు, ప్లంబర్లు, ఎలక్ట్రీషియన్ల ఫోన్ నంబర్లు ఒకే చోట. Local Village Services Directory App.">
+    <meta name="keywords" content="Mana Oori Sevalu, Village App, Local Workers, Auto Driver, Electrician, Plumber, Eluru, Andhra Pradesh, Directory">
+    <meta name="author" content="Joseph">
+
+    <!-- Social Media / WhatsApp Preview Tags -->
+    <meta property="og:title" content="మన ఊరి సేవలు - Local Services">
+    <meta property="og:description" content="మన ఊరి ఆటో, కరెంట్, ప్లంబర్ పని వాళ్ళ నంబర్లు ఇక్కడ దొరుకుతాయి. క్లిక్ చేసి చూడండి.">
+    <meta property="og:image" content="https://cdn-icons-png.flaticon.com/512/3652/3652191.png"> <!-- సాంపుల్ ఐకాన్ -->
+    <meta property="og:url" content="https://my-village-app.github.io/MyVillage/">
+    <meta property="og:type" content="website">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -50,7 +63,7 @@
 
         <div class="max-w-3xl mx-auto p-4">
             <div class="bg-indigo-50 text-indigo-700 text-xs text-center py-2 rounded-lg mb-4 border border-indigo-100 font-medium">
-                <i class="fas fa-info-circle mr-1"></i> కార్డుని 5 సెకండ్లు నొక్కితే Edit/Delete ఆప్షన్లు వస్తాయి
+                <i class="fas fa-info-circle mr-1"></i> కార్డుని 2.5 సెకండ్లు నొక్కితే Edit/Delete ఆప్షన్లు వస్తాయి
             </div>
 
             <!-- ADD FORM -->
@@ -102,7 +115,7 @@
                             <!-- Add Review Box -->
                             <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 mb-4">
                                 <div id="starContainer">
-                                    <p class="text-xs text-gray-500 mb-2">రేటింగ్ ఇవ్వండి (పేరు కనిపించదు):</p>
+                                    <p class="text-xs text-gray-500 mb-2">Rate now (Stars hidden):</p>
                                     <div class="flex gap-3 text-2xl text-gray-300 mb-3 justify-center" id="starInput">
                                         <button onclick="setRating(1)" class="star-btn"><i class="fas fa-star"></i></button>
                                         <button onclick="setRating(2)" class="star-btn"><i class="fas fa-star"></i></button>
@@ -114,7 +127,7 @@
                                 <p id="alreadyRatedMsg" class="text-xs text-orange-500 text-center mb-2 hidden font-bold"><i class="fas fa-check-circle"></i> మీరు ఆల్రెడీ రేటింగ్ ఇచ్చారు.</p>
                                 
                                 <input type="hidden" id="editReviewIndex" value="-1">
-                                <textarea id="reviewText" placeholder="మీ అభిప్రాయం రాయండి (పేరుతో కనిపిస్తుంది)..." class="w-full p-2 text-sm border rounded-lg focus:outline-none focus:border-blue-400 mb-2"></textarea>
+                                <textarea id="reviewText" placeholder="మీ అభిప్రాయం రాయండి..." class="w-full p-2 text-sm border rounded-lg focus:outline-none focus:border-blue-400 mb-2"></textarea>
                                 <button onclick="submitReview()" id="postReviewBtn" class="w-full bg-blue-600 text-white py-2 rounded-lg text-xs font-bold hover:bg-blue-700">Post Comment</button>
                                 <button onclick="cancelEdit()" id="cancelEditBtn" class="hidden w-full text-gray-500 py-1 text-xs underline">Cancel Edit</button>
                             </div>
@@ -269,52 +282,47 @@
                 document.getElementById('alreadyRatedMsg').classList.add('hidden');
             }
 
-            // RENDER REVIEWS (Only if comment exists)
             const commentsDiv = document.getElementById('commentsList');
-            let reviewHtml = '';
-            
             if (w.reviews && w.reviews.length > 0) {
-                // Iterate Backwards (Newest First)
-                for(let i = w.reviews.length - 1; i >= 0; i--) {
-                    const r = w.reviews[i];
-                    // FILTER: Show only if comment text exists
-                    if(r.comment && r.comment.trim() !== "") {
-                        const isMyComment = r.uid === currentUser.uid;
-                        const editBtn = isMyComment ? `<button onclick="editMyComment(${i})" class="text-blue-500 text-xs ml-2 hover:underline"><i class="fas fa-pencil-alt"></i> Edit</button>` : '';
-                        
-                        let dateStr = "";
-                        if(r.date) {
-                            const dateObj = new Date(r.date);
-                            dateStr = dateObj.toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ', ' + dateObj.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
-                        }
-
-                        // NAME DISPLAY (r.user is Real Name)
-                        let displayName = r.user || "User";
-                        if(isMyComment) displayName = "You (Me)";
-
-                        reviewHtml += `
-                        <div class="bg-gray-50 p-3 rounded-lg border border-gray-100 text-sm relative group/item select-none"
-                             oncontextmenu="return false;"
-                             ontouchstart="reviewTouchStart('${w.id}', '${r.date}', ${r.rating})"
-                             ontouchend="reviewTouchEnd()"
-                             onmousedown="reviewTouchStart('${w.id}', '${r.date}', ${r.rating}')"
-                             onmouseup="reviewTouchEnd()"
-                        >
-                            <div class="flex justify-between items-start mb-1">
-                                <div class="flex flex-col">
-                                    <span class="font-bold text-gray-800 text-xs flex items-center gap-1">
-                                        <i class="fas fa-user-circle text-gray-400"></i> ${displayName} ${editBtn}
-                                    </span>
-                                    <span class="text-[10px] text-gray-400 font-medium ml-5">${dateStr}</span>
-                                </div>
-                            </div>
-                            <p class="text-gray-600 mt-1 leading-snug ml-5">${r.comment}</p>
-                        </div>`;
+                const sorted = [...w.reviews].reverse(); 
+                commentsDiv.innerHTML = sorted.map((r, index) => {
+                    const realIndex = w.reviews.length - 1 - index; 
+                    const isMyComment = r.uid === currentUser.uid;
+                    const editBtn = isMyComment ? `<button onclick="editMyComment(${realIndex})" class="text-blue-500 text-xs ml-2 hover:underline"><i class="fas fa-pencil-alt"></i> Edit</button>` : '';
+                    
+                    let dateStr = "";
+                    if(r.date) {
+                        const dateObj = new Date(r.date);
+                        dateStr = dateObj.toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ', ' + dateObj.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
                     }
-                }
+
+                    // PUBLIC NAME, HIDDEN STARS
+                    let displayName = r.user || "User";
+                    if(isMyComment) displayName = "You (Me)";
+
+                    return `
+                    <div class="bg-gray-50 p-3 rounded-lg border border-gray-100 text-sm relative group/item select-none"
+                         oncontextmenu="return false;"
+                         ontouchstart="reviewTouchStart('${w.id}', '${r.date}', ${r.rating})"
+                         ontouchend="reviewTouchEnd()"
+                         onmousedown="reviewTouchStart('${w.id}', '${r.date}', ${r.rating}')"
+                         onmouseup="reviewTouchEnd()"
+                    >
+                        <div class="flex justify-between items-start mb-1">
+                            <div class="flex flex-col">
+                                <span class="font-bold text-gray-800 text-xs flex items-center gap-1">
+                                    <i class="fas fa-user-circle text-gray-400"></i> ${displayName} ${editBtn}
+                                </span>
+                                <span class="text-[10px] text-gray-400 font-medium ml-5">${dateStr}</span>
+                            </div>
+                            <!-- Stars are HIDDEN -->
+                        </div>
+                        <p class="text-gray-600 mt-1 leading-snug ml-5">${r.comment}</p>
+                    </div>`;
+                }).join('');
+            } else {
+                commentsDiv.innerHTML = '<p class="text-center text-xs text-gray-400 py-2">No reviews yet.</p>';
             }
-            
-            commentsDiv.innerHTML = reviewHtml || '<p class="text-center text-xs text-gray-400 py-2">No reviews yet.</p>';
 
             if(!isRefresh) document.getElementById('profileModal').classList.remove('hidden');
         }
@@ -453,9 +461,9 @@
         }
 
         let pressTimer;
-        window.handleTouchStart = (id) => { pressTimer = setTimeout(() => { document.getElementById(`overlay-${id}`).classList.remove('hidden'); if(navigator.vibrate) navigator.vibrate(50); }, 5000); }
+        window.handleTouchStart = (id) => { pressTimer = setTimeout(() => { document.getElementById(`overlay-${id}`).classList.remove('hidden'); if(navigator.vibrate) navigator.vibrate(50); }, 2500); }
         window.handleTouchEnd = () => clearTimeout(pressTimer);
-        window.handleMouseDown = (id) => { pressTimer = setTimeout(() => { document.getElementById(`overlay-${id}`).classList.remove('hidden'); }, 5000); }
+        window.handleMouseDown = (id) => { pressTimer = setTimeout(() => { document.getElementById(`overlay-${id}`).classList.remove('hidden'); }, 2500); }
         window.handleMouseUp = () => clearTimeout(pressTimer);
         window.closeOverlay = (e, id) => { e.stopPropagation(); document.getElementById(`overlay-${id}`).classList.add('hidden'); }
         window.stopProp = (e) => e.stopPropagation();
@@ -514,4 +522,4 @@
         }
     </script>
 </body>
-    </html>
+                                    </html>
