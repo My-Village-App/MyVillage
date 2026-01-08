@@ -4,9 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
-    <!-- 🔥 SEO TAGS (Google & Social Media) 🔥 -->
+    <!-- 🔥 GOOGLE VERIFICATION CODE 🔥 -->
+    <meta name="google-site-verification" content="oFcdua6fdfc1HBbQ9gqGTAIB-mgNMCF1saFyyufHx-M" />
+
+    <!-- SEO TAGS -->
     <title>మన ఊరి సేవలు (Mana Oori Sevalu)</title>
-    <meta name="description" content="మన ఊరి సేవలు - మన ఊర్లో ఆటో వాళ్ళు, ప్లంబర్లు, ఎలక్ట్రీషియన్ల ఫోన్ నంబర్లు, రేటింగ్స్ ఒకే చోట. Local Village Services Directory App.">
+    <meta name="description" content="మన ఊరి సేవలు (Mana Oori Sevalu) - మన ఊర్లో ఆటో వాళ్ళు, ప్లంబర్లు, ఎలక్ట్రీషియన్ల ఫోన్ నంబర్లు ఒకే చోట. Local Village Services Directory App.">
     <meta name="keywords" content="Mana Oori Sevalu, Village App, Local Workers, Auto Driver, Electrician, Plumber, Eluru, Andhra Pradesh, Directory, Contact Numbers">
     <meta name="author" content="Joseph">
 
@@ -111,7 +114,6 @@
                         <div class="border-t pt-4">
                             <h3 class="text-sm font-bold text-gray-800 mb-3 flex items-center gap-2"><i class="fas fa-comments text-blue-500"></i> Reviews</h3>
                             
-                            <!-- Add Review Box -->
                             <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 mb-4">
                                 <div id="starContainer">
                                     <p class="text-xs text-gray-500 mb-2">Rate now (Hidden if no comment):</p>
@@ -137,7 +139,6 @@
                 </div>
             </div>
 
-            <!-- List -->
             <input type="text" id="searchInput" onkeyup="filterWorkers()" placeholder="Search..." class="w-full mb-6 pl-5 pr-5 py-3.5 rounded-full border border-gray-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
             <div id="loader" class="flex flex-col items-center justify-center my-12"><div class="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div></div>
             <div id="workersList" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
@@ -286,7 +287,6 @@
             if (w.reviews && w.reviews.length > 0) {
                 for(let i = w.reviews.length - 1; i >= 0; i--) {
                     const r = w.reviews[i];
-                    // FILTER: Only show if comment exists
                     if (r.comment && r.comment.trim() !== "") {
                         const isMyComment = r.uid === currentUser.uid;
                         const editBtn = isMyComment ? `<button onclick="editMyComment(${i})" class="text-blue-500 text-xs ml-2 hover:underline"><i class="fas fa-pencil-alt"></i> Edit</button>` : '';
@@ -521,4 +521,4 @@
         }
     </script>
 </body>
-                                </html>
+</html>
