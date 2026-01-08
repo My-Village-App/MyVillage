@@ -4,9 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
-    <!-- SEO & Icons -->
+    <!-- 🔥 SEO TAGS (Google & Social Media) 🔥 -->
     <title>మన ఊరి సేవలు (Mana Oori Sevalu)</title>
-    <meta name="description" content="Local Workers Directory with Photos & Reviews">
+    <meta name="description" content="మన ఊరి సేవలు (Mana Oori Sevalu) - మన ఊర్లో ఆటో వాళ్ళు, ప్లంబర్లు, ఎలక్ట్రీషియన్ల ఫోన్ నంబర్లు ఒకే చోట. Local Village Services Directory App.">
+    <meta name="keywords" content="Mana Oori Sevalu, Village App, Local Workers, Auto Driver, Electrician, Plumber, Eluru, Andhra Pradesh, Directory, Contact Numbers">
+    <meta name="author" content="Joseph">
+
+    <!-- Social Media / WhatsApp Preview Tags -->
+    <meta property="og:title" content="మన ఊరి సేవలు - Local Services">
+    <meta property="og:description" content="మన ఊరి ఆటో, కరెంట్, ప్లంబర్ పని వాళ్ళ నంబర్లు ఇక్కడ దొరుకుతాయి. క్లిక్ చేసి చూడండి.">
+    <meta property="og:image" content="https://cdn-icons-png.flaticon.com/512/3652/3652191.png">
+    <meta property="og:url" content="https://my-village-app.github.io/MyVillage/">
+    <meta property="og:type" content="website">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -56,12 +66,16 @@
                 <i class="fas fa-info-circle mr-1"></i> కార్డుని 2.5 సెకండ్లు నొక్కితే Edit/Delete ఆప్షన్లు వస్తాయి
             </div>
 
-            <!-- ADD/EDIT FORM -->
+            <!-- ADD FORM -->
             <div id="addForm" class="hidden fixed inset-0 bg-black/60 z-[60] flex items-center justify-center p-4 fade-in backdrop-blur-sm">
                 <div class="bg-white p-6 rounded-2xl shadow-2xl w-full max-w-md relative max-h-[90vh] overflow-y-auto">
                     <button onclick="toggleForm()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 p-2"><i class="fas fa-times text-xl"></i></button>
                     <h2 class="text-xl font-bold mb-6 text-gray-800 flex items-center gap-2"><i class="fas fa-user-edit text-blue-600"></i> <span id="formTitle">వివరాలు</span></h2>
                     
+                    <p class="text-xs text-orange-600 bg-orange-50 p-2 rounded mb-4 border border-orange-200 text-center">
+                        <i class="fas fa-exclamation-triangle"></i> ఒక్కసారి మాత్రమే ఉచితంగా యాడ్ చేయగలరు.
+                    </p>
+
                     <form id="workerForm" class="space-y-4">
                         <!-- PHOTO UPLOAD FIELD -->
                         <div class="flex flex-col items-center mb-4">
@@ -80,7 +94,6 @@
                         <input type="text" id="wArea" placeholder="ఏరియా (Area)" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
                         <input type="tel" id="wPhone" placeholder="ఫోన్ నంబర్" class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500" required>
                         <textarea id="wBio" rows="2" placeholder="బయోడేటా..." class="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500"></textarea>
-                        
                         <button type="submit" id="submitBtn" class="w-full bg-blue-600 text-white py-3.5 rounded-xl font-bold hover:bg-blue-700 shadow-lg mt-2">సేవ్ చేయి</button>
                     </form>
                 </div>
@@ -155,7 +168,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc, getDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         
         const firebaseConfig = {
@@ -178,7 +191,7 @@
         let editingId = null;
         let currentRating = 0;
         let openProfileId = null;
-        let currentPhotoBase64 = null; // Store image data
+        let currentPhotoBase64 = null;
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
@@ -214,32 +227,23 @@
             });
         }
 
-        // --- IMAGE COMPRESSION HELPER ---
         window.previewImage = (input) => {
             const file = input.files[0];
             if (!file) return;
-            
-            // Limit: Ensure it's an image
             if (!file.type.match('image.*')) return alert("Please select an image.");
-
             const reader = new FileReader();
             reader.onload = (e) => {
-                // Compress Logic
                 const img = new Image();
                 img.src = e.target.result;
                 img.onload = () => {
                     const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 200; // Small Thumbnail Size
+                    const MAX_WIDTH = 200; 
                     const scaleSize = MAX_WIDTH / img.width;
                     canvas.width = MAX_WIDTH;
                     canvas.height = img.height * scaleSize;
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    
-                    // Convert to small Base64
                     currentPhotoBase64 = canvas.toDataURL('image/jpeg', 0.7);
-                    
-                    // Show Preview
                     document.getElementById('photoPreview').innerHTML = `<img src="${currentPhotoBase64}" class="w-full h-full object-cover">`;
                 }
             }
@@ -256,11 +260,8 @@
                 const style = getIconByJob(worker.job);
                 const rating = worker.ratingCount > 0 ? (worker.totalStars / worker.ratingCount).toFixed(1) : "New";
                 
-                // DECIDE: Show Uploaded Photo OR Icon
                 let avatarHtml = `<div class="w-14 h-14 rounded-2xl ${style.color} flex items-center justify-center text-2xl shrink-0 shadow-inner"><i class="fas ${style.icon}"></i></div>`;
-                if(worker.photo) {
-                    avatarHtml = `<img src="${worker.photo}" class="w-14 h-14 rounded-2xl object-cover shrink-0 shadow-sm border border-gray-200">`;
-                }
+                if(worker.photo) avatarHtml = `<img src="${worker.photo}" class="w-14 h-14 rounded-2xl object-cover shrink-0 shadow-sm border border-gray-200">`;
 
                 const html = `
                     <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4 relative group no-select active:scale-[0.98] transition cursor-pointer overflow-hidden"
@@ -278,9 +279,7 @@
                             </div>
                             <button onclick="closeOverlay(event, '${worker.id}')" class="text-gray-400 text-sm mt-2 underline">Cancel</button>
                         </div>
-
                         ${avatarHtml}
-
                         <div class="flex-1 min-w-0 pointer-events-none">
                             <h3 class="font-bold text-gray-800 text-lg truncate capitalize">${worker.name}</h3>
                             <p class="text-sm text-blue-600 font-semibold truncate capitalize mb-0.5">${worker.job}</p>
@@ -307,7 +306,6 @@
             document.getElementById('pBio').innerText = w.bio || "No details provided.";
             document.getElementById('pCallBtn').href = `tel:${w.phone}`;
             
-            // Profile Photo Logic
             const iconDiv = document.getElementById('pIcon');
             const photoImg = document.getElementById('pPhoto');
             
@@ -318,7 +316,7 @@
             } else {
                 photoImg.classList.add('hidden');
                 const style = getIconByJob(w.job);
-                iconDiv.className = `text-3xl ${style.color.replace('bg-', 'text-')}`; // Text color fix
+                iconDiv.className = `text-3xl ${style.color.replace('bg-', 'text-')}`; 
                 iconDiv.innerHTML = `<i class="fas ${style.icon}"></i>`;
                 iconDiv.classList.remove('hidden');
             }
@@ -348,7 +346,7 @@
                     if (r.comment && r.comment.trim() !== "") {
                         const isMyComment = r.uid === currentUser.uid;
                         const editBtn = isMyComment ? `<button onclick="editMyComment(${i})" class="text-blue-500 text-xs ml-2 hover:underline"><i class="fas fa-pencil-alt"></i> Edit</button>` : '';
-                        let dateStr = r.date ? new Date(r.date).toLocaleDateString('en-IN') : '';
+                        let dateStr = r.date ? new Date(r.date).toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ', ' + new Date(r.date).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true }) : '';
                         let displayName = r.user || "User";
                         if(isMyComment) displayName = "You (Me)";
 
@@ -491,11 +489,9 @@
             document.getElementById('wJob').value = w.job;
             document.getElementById('wPhone').value = w.phone;
             document.getElementById('wBio').value = w.bio || '';
-            // Photo handling for edit would require re-upload logic or keeping existing
             currentPhotoBase64 = w.photo || null;
             if(currentPhotoBase64) document.getElementById('photoPreview').innerHTML = `<img src="${currentPhotoBase64}" class="w-full h-full object-cover">`;
             else document.getElementById('photoPreview').innerHTML = `<i class="fas fa-camera text-gray-400 text-2xl"></i>`;
-
             document.getElementById('formTitle').innerText = "Update";
             document.getElementById('submitBtn').innerText = "Update";
             document.getElementById(`overlay-${id}`).classList.add('hidden');
@@ -510,7 +506,35 @@
         }
 
         window.toggleForm = () => document.getElementById('addForm').classList.toggle('hidden');
-        window.checkLimitAndToggle = () => { toggleForm(); } 
+        
+        // --- FIXED LIMIT LOGIC ---
+        window.checkLimitAndToggle = async () => {
+            if (!currentUser) return;
+            editingId = null; 
+            document.getElementById('workerForm').reset();
+            document.getElementById('formTitle').innerText = "కొత్త వివరాలు";
+            document.getElementById('submitBtn').innerText = "సేవ్ చేయి";
+            currentPhotoBase64 = null;
+            document.getElementById('photoPreview').innerHTML = `<i class="fas fa-camera text-gray-400 text-2xl"></i>`;
+
+            const addBtn = document.querySelector('button[onclick="checkLimitAndToggle()"]');
+            const originalIcon = addBtn.innerHTML;
+            addBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
+            addBtn.disabled = true;
+
+            try {
+                const q = query(collection(db, "workers"), where("addedByUid", "==", currentUser.uid));
+                const querySnapshot = await getDocs(q);
+                if (!querySnapshot.empty) {
+                    const password = prompt("⚠️ మీరు ఇప్పటికే ఒక నంబర్ యాడ్ చేశారు.\nఇంకొకటి యాడ్ చేయాలంటే అడ్మిన్ పాస్‌వర్డ్ ఎంటర్ చేయండి:");
+                    if (password === "admin123") toggleForm();
+                    else if (password !== null) alert("❌ తప్పు పాస్‌వర్డ్!");
+                } else {
+                    toggleForm();
+                }
+            } catch (error) { alert("Checking Failed: " + error.message); } 
+            finally { addBtn.innerHTML = originalIcon; addBtn.disabled = false; }
+        }
 
         document.getElementById('workerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -523,7 +547,7 @@
                 phone: document.getElementById('wPhone').value,
                 bio: document.getElementById('wBio').value,
                 area: document.getElementById('wArea').value,
-                photo: currentPhotoBase64 // Save the Base64 image
+                photo: currentPhotoBase64
             };
             try {
                 if(editingId) await updateDoc(doc(db, "workers", editingId), data);
@@ -535,10 +559,7 @@
                     await addDoc(collection(db, "workers"), data);
                 }
                 toggleForm();
-                editingId = null; 
-                document.getElementById('workerForm').reset();
-                currentPhotoBase64 = null;
-                document.getElementById('photoPreview').innerHTML = `<i class="fas fa-camera text-gray-400 text-2xl"></i>`;
+                editingId = null; document.getElementById('workerForm').reset();
             } catch(e) { alert(e.message); }
             finally { btn.innerText = 'Save'; btn.disabled = false; }
         });
@@ -550,4 +571,4 @@
         }
     </script>
 </body>
-    </html>
+                                    </html>
