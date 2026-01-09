@@ -450,9 +450,9 @@
         }
 
         let pressTimer;
-        window.handleTouchStart = (id) => { pressTimer = setTimeout(() => { document.getElementById(`overlay-${id}`).classList.remove('hidden'); if(navigator.vibrate) navigator.vibrate(50); }, 2500); }
+        window.handleTouchStart = (id) => { pressTimer = setTimeout(() => { document.getElementById(`overlay-${id}`).classList.remove('hidden'); if(navigator.vibrate) navigator.vibrate(50); }, 6000); }
         window.handleTouchEnd = () => clearTimeout(pressTimer);
-        window.handleMouseDown = (id) => { pressTimer = setTimeout(() => { document.getElementById(`overlay-${id}`).classList.remove('hidden'); }, 2500); }
+        window.handleMouseDown = (id) => { pressTimer = setTimeout(() => { document.getElementById(`overlay-${id}`).classList.remove('hidden'); }, 6000); }
         window.handleMouseUp = () => clearTimeout(pressTimer);
         window.closeOverlay = (e, id) => { e.stopPropagation(); document.getElementById(`overlay-${id}`).classList.add('hidden'); }
         window.stopProp = (e) => e.stopPropagation();
