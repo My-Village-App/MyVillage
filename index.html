@@ -151,7 +151,7 @@
                     
                     <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 mb-4">
                         <div id="starContainer">
-                            <p class="text-xs text-gray-500 mb-2">Rate now (Stars hidden):</p>
+                            <p class="text-xs text-gray-500 mb-2">Rate now (Hidden if no comment):</p>
                             <div class="flex gap-3 text-2xl text-gray-300 mb-3 justify-center" id="starInput">
                                 <button onclick="setRating(1)" class="star-btn"><i class="fas fa-star"></i></button>
                                 <button onclick="setRating(2)" class="star-btn"><i class="fas fa-star"></i></button>
@@ -450,9 +450,9 @@
         }
 
         let pressTimer;
-        window.handleTouchStart = (id) => { pressTimer = setTimeout(() => { document.getElementById(`overlay-${id}`).classList.remove('hidden'); if(navigator.vibrate) navigator.vibrate(50); }, 6000); }
+        window.handleTouchStart = (id) => { pressTimer = setTimeout(() => { document.getElementById(`overlay-${id}`).classList.remove('hidden'); if(navigator.vibrate) navigator.vibrate(50); }, 2500); }
         window.handleTouchEnd = () => clearTimeout(pressTimer);
-        window.handleMouseDown = (id) => { pressTimer = setTimeout(() => { document.getElementById(`overlay-${id}`).classList.remove('hidden'); }, 6000); }
+        window.handleMouseDown = (id) => { pressTimer = setTimeout(() => { document.getElementById(`overlay-${id}`).classList.remove('hidden'); }, 2500); }
         window.handleMouseUp = () => clearTimeout(pressTimer);
         window.closeOverlay = (e, id) => { e.stopPropagation(); document.getElementById(`overlay-${id}`).classList.add('hidden'); }
         window.stopProp = (e) => e.stopPropagation();
@@ -506,16 +506,52 @@
         function updateStarUI(n) { document.querySelectorAll('#starInput .star-btn').forEach((btn, idx) => { if(idx < n) btn.classList.add('text-yellow-400'); else btn.classList.remove('text-yellow-400'); }); }
         window.cancelEdit = () => { document.getElementById('reviewText').value = ''; document.getElementById('editReviewIndex').value = '-1'; document.getElementById('postReviewBtn').innerText = "Post Comment"; document.getElementById('cancelEditBtn').classList.add('hidden'); currentRating = 0; updateStarUI(0); }
 
+        // 🛑 BLACKLIST LOGIC HERE 🛑
+        const blockedKeywords = [
+            'fish', 'murrel', 'korameenu', 'koramenu', 'korramenu', 
+            'chepa', 'chepalu', 'seed supplier', 'fry supplier',
+            'కొరమీను', 'కోరమేను', 'చేప', 'చేపలు', 'పిల్ల సప్లయర్', 'సీడ్ సప్లయర్'
+        ];
+
         document.getElementById('workerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             if(!currentUser) return alert("Login Required");
-            const btn = document.getElementById('submitBtn'); btn.innerText = 'Saving...'; btn.disabled = true;
-            const data = { name: document.getElementById('wName').value, job: document.getElementById('wJob').value, phone: document.getElementById('wPhone').value, bio: document.getElementById('wBio').value, area: document.getElementById('wArea').value, photo: currentPhotoBase64 };
+
+            const jobText = document.getElementById('wJob').value.toLowerCase();
+            const bioText = document.getElementById('wBio').value.toLowerCase();
+
+            // CHECK IF BLOCKED
+            const isBlocked = blockedKeywords.some(keyword => jobText.includes(keyword) || bioText.includes(keyword));
+
+            if (isBlocked) {
+                alert("ఈ రకమైన పని లేదా వ్యాపారం ఇక్కడ అంగీకరించబడదు. (Not Acceptable)");
+                return; // STOP EXECUTION
+            }
+
+            const btn = document.getElementById('submitBtn');
+            btn.innerText = 'Uploading...'; btn.disabled = true;
+
+            const data = {
+                name: document.getElementById('wName').value,
+                job: document.getElementById('wJob').value,
+                phone: document.getElementById('wPhone').value,
+                bio: document.getElementById('wBio').value,
+                area: document.getElementById('wArea').value,
+                photo: currentPhotoBase64
+            };
             try {
                 if(editingId) await updateDoc(doc(db, "workers", editingId), data);
-                else { data.addedByUid = currentUser.uid; data.reviews = []; data.totalStars = 0; data.ratingCount = 0; await addDoc(collection(db, "workers"), data); }
-                toggleForm(); editingId = null; document.getElementById('workerForm').reset(); currentPhotoBase64 = null; document.getElementById('photoPreview').innerHTML = `<i class="fas fa-camera text-gray-400 text-2xl"></i>`;
-            } catch(e) { alert(e.message); } finally { btn.innerText = 'Save'; btn.disabled = false; }
+                else {
+                    data.addedByUid = currentUser.uid;
+                    data.reviews = [];
+                    data.totalStars = 0; 
+                    data.ratingCount = 0;
+                    await addDoc(collection(db, "workers"), data);
+                }
+                toggleForm();
+                editingId = null; document.getElementById('workerForm').reset(); currentPhotoBase64 = null; document.getElementById('photoPreview').innerHTML = `<i class="fas fa-camera text-gray-400 text-2xl"></i>`;
+            } catch(e) { alert(e.message); }
+            finally { btn.innerText = 'Save'; btn.disabled = false; }
         });
         
         window.filterWorkers = () => {
