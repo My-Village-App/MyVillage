@@ -6,8 +6,7 @@
     
     <!-- SEO TAGS -->
     <title>మన ఊరి సేవలు (Mana Oori Sevalu)</title>
-    <meta name="description" content="Local Workers Directory with Ads functionality.">
-    <!-- Google Verification -->
+    <meta name="description" content="Local Workers Directory with Dynamic Ads.">
     <meta name="google-site-verification" content="oFcdua6fdfc1HBbQ9gqGTAIB-mgNMCF1saFyyufHx-M" />
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -31,7 +30,6 @@
         <div class="max-w-3xl mx-auto flex justify-between items-center">
             <h1 class="text-lg font-bold tracking-wide flex items-center gap-2"><i class="fas fa-city text-yellow-300"></i> మన ఊరి సేవలు</h1>
             <div class="flex items-center gap-3">
-                <!-- Login/User Btn -->
                 <button id="authBtn" onclick="handleAuthAction()" class="bg-white text-blue-700 px-3 py-1 rounded-full text-xs font-bold shadow active:scale-95 transition">Login</button>
             </div>
         </div>
@@ -39,20 +37,24 @@
 
     <div class="max-w-3xl mx-auto p-4 pb-20">
         
-        <!-- 📢 ADVERTISEMENT BANNER (SLIDER) 📢 -->
-        <!-- ఇక్కడ మనం యాడ్స్ చూపిస్తాం -->
-        <div class="relative w-full h-40 bg-gray-200 rounded-xl overflow-hidden shadow-lg mb-6 group cursor-pointer">
-            <img id="adImage" src="https://via.placeholder.com/800x400/3b82f6/ffffff?text=Advertise+Here+9505329034" class="w-full h-full object-cover transition-opacity duration-500" onclick="handleAdClick()">
+        <!-- 📢 DYNAMIC AD BANNER 📢 -->
+        <div class="relative w-full h-44 bg-gray-200 rounded-xl overflow-hidden shadow-lg mb-6 group">
+            <img id="adImage" src="https://via.placeholder.com/800x400/3b82f6/ffffff?text=Welcome+to+Mana+Oori+Sevalu" class="w-full h-full object-cover transition-opacity duration-500" onclick="handleAdClick()">
             
             <!-- Ad Badge -->
-            <div class="absolute top-2 right-2 bg-black/50 text-white text-[10px] px-2 py-0.5 rounded backdrop-blur-sm">Ad</div>
+            <div class="absolute top-2 right-2 bg-black/50 text-white text-[10px] px-2 py-0.5 rounded backdrop-blur-sm pointer-events-none">Ad</div>
             
+            <!-- Admin Edit Button (Visible only to Admin) -->
+            <button id="editAdsBtn" onclick="openAdManager()" class="hidden absolute top-2 left-2 bg-white text-blue-600 px-3 py-1 rounded-full text-xs font-bold shadow-lg z-20 hover:bg-gray-100">
+                <i class="fas fa-cog"></i> Edit Ads
+            </button>
+
             <!-- Dots -->
-            <div class="absolute bottom-2 left-0 right-0 flex justify-center gap-2" id="adDots"></div>
+            <div class="absolute bottom-2 left-0 right-0 flex justify-center gap-2 z-10" id="adDots"></div>
         </div>
 
         <div class="flex justify-between items-center mb-4">
-            <p class="text-xs text-gray-400 italic flex items-center gap-1"><i class="fas fa-info-circle"></i> Long press card to Edit/Delete</p>
+            <p class="text-xs text-gray-400 italic flex items-center gap-1"><i class="fas fa-info-circle"></i> Long press to Edit/Delete</p>
             <button onclick="checkAuthAndAdd()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow hover:bg-blue-700 active:scale-95 transition flex items-center gap-2">
                 <i class="fas fa-plus"></i> Add Info
             </button>
@@ -70,20 +72,54 @@
         <div id="noDataMsg" class="hidden text-center py-10 text-gray-400">No workers found.</div>
     </div>
 
-    <!-- MODALS (Add Form, Profile) remain similar but optimized -->
-    <!-- ADD FORM -->
+    <!-- 🛠️ ADMIN AD MANAGER MODAL 🛠️ -->
+    <div id="adManagerModal" class="hidden fixed inset-0 bg-black/80 z-[80] flex items-center justify-center p-4 fade-in backdrop-blur-sm">
+        <div class="bg-white p-6 rounded-2xl shadow-2xl w-full max-w-md relative max-h-[90vh] overflow-y-auto">
+            <button onclick="document.getElementById('adManagerModal').classList.add('hidden')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><i class="fas fa-times text-xl"></i></button>
+            <h2 class="text-xl font-bold mb-4 text-gray-800 border-b pb-2">📢 Manage Ads</h2>
+            
+            <!-- Existing Ads List -->
+            <div id="adminAdsList" class="space-y-3 mb-6 max-h-40 overflow-y-auto bg-gray-50 p-2 rounded">
+                <p class="text-xs text-gray-400 text-center">Loading ads...</p>
+            </div>
+
+            <!-- Add New Ad Form -->
+            <div class="border-t pt-4">
+                <h3 class="text-sm font-bold text-blue-600 mb-3">Add New Ad</h3>
+                <div class="space-y-3">
+                    <!-- Photo Upload -->
+                    <label class="block w-full p-2 border-2 border-dashed border-gray-300 rounded-lg text-center cursor-pointer hover:bg-gray-50">
+                        <span class="text-xs text-gray-500"><i class="fas fa-image"></i> Select Ad Banner Image</span>
+                        <input type="file" accept="image/*" class="hidden" onchange="previewAdImage(this)">
+                    </label>
+                    <div id="adPreviewBox" class="hidden w-full h-24 bg-gray-100 rounded-lg overflow-hidden">
+                        <img id="newAdImgPreview" class="w-full h-full object-cover">
+                    </div>
+
+                    <!-- Type Selector -->
+                    <div class="flex gap-2">
+                        <select id="adType" class="p-2 border rounded-lg text-sm bg-white flex-1">
+                            <option value="tel:">Phone Call</option>
+                            <option value="https://wa.me/91">WhatsApp</option>
+                        </select>
+                        <input type="tel" id="adNumber" placeholder="Number (e.g. 95053...)" class="p-2 border rounded-lg text-sm flex-1">
+                    </div>
+                    
+                    <button onclick="saveNewAd()" id="saveAdBtn" class="w-full bg-green-600 text-white py-2 rounded-lg font-bold shadow hover:bg-green-700">Add Banner</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- WORKER ADD FORM -->
     <div id="addForm" class="hidden fixed inset-0 bg-black/60 z-[60] flex items-center justify-center p-4 fade-in backdrop-blur-sm">
         <div class="bg-white p-6 rounded-2xl shadow-2xl w-full max-w-md relative max-h-[90vh] overflow-y-auto">
             <button onclick="toggleForm()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><i class="fas fa-times text-xl"></i></button>
             <h2 class="text-xl font-bold mb-6 text-gray-800"><span id="formTitle">Add Details</span></h2>
-            
             <form id="workerForm" class="space-y-4">
-                <!-- Photo Input -->
                 <div class="flex justify-center mb-4">
                     <label class="cursor-pointer relative">
-                        <div id="photoPreview" class="w-20 h-20 rounded-full bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden">
-                            <i class="fas fa-camera text-gray-400 text-2xl"></i>
-                        </div>
+                        <div id="photoPreview" class="w-20 h-20 rounded-full bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden"><i class="fas fa-camera text-gray-400 text-2xl"></i></div>
                         <input type="file" accept="image/*" class="hidden" onchange="previewImage(this)">
                     </label>
                 </div>
@@ -102,9 +138,7 @@
         <div class="bg-white w-full sm:w-[450px] sm:rounded-2xl rounded-t-3xl shadow-2xl overflow-hidden relative max-h-[90vh] overflow-y-auto flex flex-col">
             <div class="bg-blue-50 p-6 pb-2 text-center relative">
                 <button onclick="closeProfile()" class="absolute top-4 right-4 bg-white/50 w-8 h-8 rounded-full hover:bg-white"><i class="fas fa-times"></i></button>
-                <div id="pIconContainer" class="w-20 h-20 rounded-full mx-auto bg-white shadow mb-3 flex items-center justify-center overflow-hidden">
-                    <i class="fas fa-user text-3xl text-gray-400"></i>
-                </div>
+                <div id="pIconContainer" class="w-20 h-20 rounded-full mx-auto bg-white shadow mb-3 flex items-center justify-center overflow-hidden"></div>
                 <h2 id="pName" class="text-2xl font-bold">Name</h2>
                 <p id="pJob" class="text-blue-600 font-medium">Job</p>
                 <div class="flex justify-center items-center gap-1 text-yellow-500 mt-1">
@@ -114,8 +148,6 @@
             <div class="p-6 pt-2 space-y-4 flex-1 overflow-y-auto">
                 <div class="bg-gray-50 p-3 rounded text-sm italic text-gray-600" id="pBio">Bio...</div>
                 <a id="pCallBtn" href="#" class="block bg-green-500 text-white text-center py-3 rounded-xl font-bold shadow">Call Now</a>
-                
-                <!-- Reviews -->
                 <div class="border-t pt-4">
                     <h3 class="font-bold mb-2">Reviews</h3>
                     <div class="bg-gray-50 p-3 rounded mb-3">
@@ -159,74 +191,17 @@
         const auth = getAuth(app);
         const provider = new GoogleAuthProvider();
 
+        // 🔒 ADMIN EMAIL (Replace this with your exact Gmail)
+        const ADMIN_EMAIL = "josephyesebu37@gmail.com";
+
         let currentUser = null;
         let allWorkers = [];
+        let allAds = []; // Stores dynamic ads
         let editingId = null;
         let currentRating = 0;
         let openProfileId = null;
         let currentPhotoBase64 = null;
-
-        // --- 📢 ADVERTISEMENT LOGIC 📢 ---
-        // ఇక్కడ 3 వేరు వేరు వ్యక్తుల కోసం సెట్టింగ్ చేశాను. నంబర్లు మార్చుకో.
-        const ads = [
-            { 
-                // 1. PERSON - 1 (Phone Call)
-                // 'tel:' అని పెడితే ఫోన్ కాల్ వెళ్తుంది
-                img: "https://drive.google.com/file/d/145BUQ2muxshlTW0JHTYt-tckENgfFMNA/view?usp=drivesdk", 
-                link: "tel:9505329034" 
-            },
-            { 
-                // 2. PERSON - 2 (WhatsApp)
-                // 'https://wa.me/91' అని పెడితే వాట్సాప్ వెళ్తుంది (91 కచ్చితంగా ఉండాలి)
-                img: "https://drive.google.com/file/d/145BUQ2muxshlTW0JHTYt-tckENgfFMNA/view?usp=drivesdk", 
-                link: "https://wa.me/919876543210" 
-            },
-            { 
-                // 3. PERSON - 3 (Phone Call)
-                img: "https://via.placeholder.com/800x400/ea580c/ffffff?text=Call+Person+3", 
-                link: "tel:9123456789" 
-            }
-        ];
-
-        let currentAdIndex = 0;
-        const adImage = document.getElementById('adImage');
-        const adDots = document.getElementById('adDots');
-
-        // Initialize Ads
-        function initAds() {
-            // Create dots
-            adDots.innerHTML = ads.map((_, i) => `<div class="w-2 h-2 rounded-full ${i===0?'bg-white':'bg-white/50'}"></div>`).join('');
-            startAdLoop();
-        }
-
-        function showAd(index) {
-            adImage.style.opacity = '0'; // Fade out
-            setTimeout(() => {
-                adImage.src = ads[index].img;
-                adImage.style.opacity = '1'; // Fade in
-                // Update dots
-                Array.from(adDots.children).forEach((dot, i) => {
-                    dot.className = `w-2 h-2 rounded-full ${i===index?'bg-white':'bg-white/50'}`;
-                });
-            }, 500);
-        }
-
-        function startAdLoop() {
-            setInterval(() => {
-                currentAdIndex = (currentAdIndex + 1) % ads.length;
-                showAd(currentAdIndex);
-            }, 4000); // Change every 4 seconds
-        }
-
-        // Make Ad Clickable globally
-        window.handleAdClick = () => {
-            const link = ads[currentAdIndex].link;
-            if(link && link !== "#") window.location.href = link;
-        }
-
-        // Start Ads on Load
-        initAds();
-        // -----------------------------------
+        let newAdBase64 = null;
 
         // Auth
         onAuthStateChanged(auth, (user) => {
@@ -235,10 +210,18 @@
                 currentUser = user;
                 btn.innerText = "Logout";
                 btn.classList.replace('text-blue-700', 'text-red-600');
+                
+                // CHECK IF ADMIN
+                if(user.email === ADMIN_EMAIL) {
+                    document.getElementById('editAdsBtn').classList.remove('hidden');
+                } else {
+                    document.getElementById('editAdsBtn').classList.add('hidden');
+                }
             } else {
                 currentUser = null;
                 btn.innerText = "Login";
                 btn.classList.replace('text-red-600', 'text-blue-700');
+                document.getElementById('editAdsBtn').classList.add('hidden');
             }
         });
 
@@ -247,43 +230,148 @@
             else { signInWithPopup(auth, provider).catch(e => alert(e.message)); }
         }
 
-        // Logic to Add
-        window.checkAuthAndAdd = async () => {
-            if (!currentUser) return alert("Login First!");
-            
-            // Limit Check
-            const btn = document.querySelector('button[onclick="checkAuthAndAdd()"]');
-            btn.innerText = "...";
-            try {
-                const q = query(collection(db, "workers"), where("addedByUid", "==", currentUser.uid));
-                const snap = await getDocs(q);
-                
-                // Reset Form
-                editingId = null; 
-                document.getElementById('workerForm').reset();
-                document.getElementById('formTitle').innerText = "Add Details";
-                document.getElementById('photoPreview').innerHTML = `<i class="fas fa-camera text-gray-400 text-2xl"></i>`;
-                currentPhotoBase64 = null;
+        // --- 📢 DYNAMIC ADS LOGIC (FIRESTORE) 📢 ---
+        const adsRef = collection(db, "banners");
+        onSnapshot(adsRef, (snapshot) => {
+            allAds = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            initAdsDisplay(); // Refresh Banner
+            if(!document.getElementById('adManagerModal').classList.contains('hidden')) {
+                renderAdminAdsList(); // Refresh Admin List if open
+            }
+        });
 
-                if (!snap.empty) {
-                    const pass = prompt("One entry allowed free. Admin password for more:");
-                    if (pass === "admin123") toggleForm();
-                    else if(pass !== null) alert("Wrong password");
-                } else {
-                    toggleForm();
-                }
-            } catch(e) { alert(e.message); }
-            btn.innerHTML = '<i class="fas fa-plus"></i> Add Info';
+        let currentAdIndex = 0;
+        const adImage = document.getElementById('adImage');
+        const adDots = document.getElementById('adDots');
+
+        function initAdsDisplay() {
+            // Default placeholder if no ads
+            if(allAds.length === 0) {
+                adImage.src = "https://via.placeholder.com/800x400/3b82f6/ffffff?text=Advertise+Here";
+                adDots.innerHTML = "";
+                return;
+            }
+            // Render Dots
+            adDots.innerHTML = allAds.map((_, i) => `<div class="w-2 h-2 rounded-full ${i===0?'bg-white':'bg-white/50'}"></div>`).join('');
+            
+            // Show first ad
+            showAd(0);
         }
 
-        // Data
+        function showAd(index) {
+            if(allAds.length === 0) return;
+            adImage.style.opacity = '0';
+            setTimeout(() => {
+                adImage.src = allAds[index].img;
+                adImage.style.opacity = '1';
+                Array.from(adDots.children).forEach((dot, i) => {
+                    dot.className = `w-2 h-2 rounded-full ${i===index?'bg-white':'bg-white/50'}`;
+                });
+            }, 500);
+        }
+
+        // Auto Scroll
+        setInterval(() => {
+            if(allAds.length > 1) {
+                currentAdIndex = (currentAdIndex + 1) % allAds.length;
+                showAd(currentAdIndex);
+            }
+        }, 4000);
+
+        window.handleAdClick = () => {
+            if(allAds.length > 0) {
+                const link = allAds[currentAdIndex].link;
+                if(link && link !== "#") window.location.href = link;
+            }
+        }
+
+        // --- 🛠️ ADMIN AD MANAGER FUNCTIONS 🛠️ ---
+        window.openAdManager = () => {
+            const pass = prompt("🔐 Enter Admin Password:");
+            if(pass !== "admin123") return alert("Wrong Password!");
+            
+            document.getElementById('adManagerModal').classList.remove('hidden');
+            renderAdminAdsList();
+        }
+
+        function renderAdminAdsList() {
+            const list = document.getElementById('adminAdsList');
+            list.innerHTML = "";
+            if(allAds.length === 0) list.innerHTML = `<p class="text-xs text-gray-400 text-center">No active ads.</p>`;
+            
+            allAds.forEach(ad => {
+                list.innerHTML += `
+                    <div class="flex items-center gap-3 bg-white p-2 rounded shadow-sm border">
+                        <img src="${ad.img}" class="w-16 h-10 object-cover rounded">
+                        <div class="flex-1 min-w-0">
+                            <p class="text-[10px] text-gray-500 truncate">${ad.link}</p>
+                        </div>
+                        <button onclick="deleteAd('${ad.id}')" class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button>
+                    </div>
+                `;
+            });
+        }
+
+        window.previewAdImage = (input) => {
+            const file = input.files[0];
+            if(!file) return;
+            const r = new FileReader();
+            r.onload = (e) => {
+                const img = new Image(); img.src = e.target.result;
+                img.onload = () => {
+                    const c = document.createElement('canvas');
+                    const scale = 800 / img.width; // Resize for banner width
+                    c.width = 800; c.height = img.height * scale;
+                    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+                    newAdBase64 = c.toDataURL('image/jpeg', 0.8); // High quality for banner
+                    document.getElementById('newAdImgPreview').src = newAdBase64;
+                    document.getElementById('adPreviewBox').classList.remove('hidden');
+                }
+            };
+            r.readAsDataURL(file);
+        }
+
+        window.saveNewAd = async () => {
+            if(!newAdBase64) return alert("Select an image first!");
+            const type = document.getElementById('adType').value;
+            const num = document.getElementById('adNumber').value;
+            if(!num) return alert("Enter number!");
+
+            const btn = document.getElementById('saveAdBtn');
+            btn.innerText = "Saving..."; btn.disabled = true;
+
+            const finalLink = type + num; // Combine "tel:" + "95053..."
+
+            try {
+                await addDoc(collection(db, "banners"), {
+                    img: newAdBase64,
+                    link: finalLink,
+                    createdAt: new Date().toISOString()
+                });
+                // Reset Form
+                newAdBase64 = null;
+                document.getElementById('adNumber').value = "";
+                document.getElementById('adPreviewBox').classList.add('hidden');
+                alert("Banner Added!");
+            } catch(e) { alert("Error: " + e.message); }
+            finally { btn.innerText = "Add Banner"; btn.disabled = false; }
+        }
+
+        window.deleteAd = async (id) => {
+            if(confirm("Delete this banner?")) {
+                await deleteDoc(doc(db, "banners", id));
+            }
+        }
+        // ---------------------------------------------
+
+        // Worker Data & Other Logic (Same as before)
         const q = collection(db, "workers");
         onSnapshot(q, (snapshot) => {
             allWorkers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             allWorkers.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
             renderWorkers(allWorkers);
             document.getElementById('loader').classList.add('hidden');
-            if(openProfileId) { // Refresh profile if open
+            if(openProfileId) {
                 const w = allWorkers.find(x => x.id === openProfileId);
                 if(w) openProfile(w.id, true);
             }
@@ -298,7 +386,6 @@
             data.forEach(worker => {
                 const style = getIconByJob(worker.job);
                 const rating = worker.ratingCount > 0 ? (worker.totalStars / worker.ratingCount).toFixed(1) : "New";
-                
                 let avatarHtml = `<div class="w-12 h-12 rounded-full ${style.color} flex items-center justify-center text-xl shrink-0"><i class="fas ${style.icon}"></i></div>`;
                 if(worker.photo) avatarHtml = `<img src="${worker.photo}" class="w-12 h-12 rounded-full object-cover shrink-0 border border-gray-200">`;
 
@@ -331,35 +418,24 @@
             });
         }
 
-        // Profile & Reviews
         window.openProfile = (id, isRefresh=false) => {
             if(!isRefresh && document.getElementById(`overlay-${id}`)?.classList.contains('hidden') === false) return;
             const w = allWorkers.find(x => x.id === id);
             if(!w) return;
             openProfileId = id;
-
             document.getElementById('pName').innerText = w.name;
             document.getElementById('pJob').innerText = w.job;
             document.getElementById('pBio').innerText = w.bio || "No details.";
             document.getElementById('pCallBtn').href = `tel:${w.phone}`;
-            
             const iconC = document.getElementById('pIconContainer');
             if(w.photo) iconC.innerHTML = `<img src="${w.photo}" class="w-full h-full object-cover">`;
-            else {
-                const s = getIconByJob(w.job);
-                iconC.innerHTML = `<i class="fas ${s.icon} text-3xl text-gray-400"></i>`;
-            }
-
+            else { const s = getIconByJob(w.job); iconC.innerHTML = `<i class="fas ${s.icon} text-3xl text-gray-400"></i>`; }
             const avg = w.ratingCount > 0 ? (w.totalStars / w.ratingCount).toFixed(1) : "0.0";
             document.getElementById('pAvgRating').innerText = avg;
             document.getElementById('pReviewCount').innerText = `(${w.ratingCount||0})`;
-
-            // Check if rated
             const hasRated = currentUser && w.reviews?.some(r => r.uid === currentUser.uid && r.rating > 0);
             if(hasRated) document.getElementById('starInput').classList.add('opacity-50', 'pointer-events-none');
             else document.getElementById('starInput').classList.remove('opacity-50', 'pointer-events-none');
-
-            // Render comments
             const cList = document.getElementById('commentsList');
             cList.innerHTML = '';
             if(w.reviews?.length) {
@@ -369,11 +445,11 @@
                         const date = r.date ? new Date(r.date).toLocaleDateString() : '';
                         const editBtn = isMe ? `<button onclick="editReview(${w.reviews.length - 1 - i})" class="text-blue-500 ml-2 text-[10px]">Edit</button>` : '';
                         const delBtn = `<button onclick="adminDelReview('${w.id}', '${r.date}')" class="text-gray-300 hover:text-red-500 ml-auto"><i class="fas fa-trash"></i></button>`;
-                        
+                        let displayName = r.user || "User"; if(isMe) displayName = "You (Me)";
                         cList.innerHTML += `
                         <div class="bg-gray-50 p-2 rounded border border-gray-100 text-sm mb-2 flex justify-between group">
                             <div>
-                                <p class="font-bold text-xs flex items-center">${isMe ? 'You' : (r.user||'User')} ${editBtn}</p>
+                                <p class="font-bold text-xs flex items-center">${displayName} ${editBtn}</p>
                                 <p class="text-gray-600 mt-0.5 leading-snug">${r.comment}</p>
                                 <p class="text-[9px] text-gray-400 mt-1">${date}</p>
                             </div>
@@ -382,50 +458,33 @@
                     }
                 });
             } else { cList.innerHTML = '<p class="text-center text-xs text-gray-400">No reviews.</p>'; }
-
             if(!isRefresh) document.getElementById('profileModal').classList.remove('hidden');
         }
 
-        // --- REVIEW ACTIONS ---
         window.setRating = (n) => { currentRating = n; updateStars(n); }
         function updateStars(n) { document.querySelectorAll('#starInput button').forEach((b,i) => b.classList.toggle('text-yellow-400', i<n)); }
-        
         window.submitReview = async () => {
             if(!currentUser) return alert("Login to review");
             const txt = document.getElementById('reviewText').value.trim();
             const idx = parseInt(document.getElementById('editReviewIndex').value);
             if(!txt && currentRating === 0) return alert("Write something");
-            
             const btn = document.getElementById('postReviewBtn'); btn.innerText="..."; btn.disabled=true;
             try {
                 const ref = doc(db, "workers", openProfileId);
                 const w = allWorkers.find(x => x.id === openProfileId);
                 let revs = w.reviews || [];
-                
-                if(idx > -1) {
-                    revs[idx].comment = txt; // Edit comment only
-                } else {
+                if(idx > -1) { revs[idx].comment = txt; } 
+                else {
                     const rated = revs.some(r => r.uid === currentUser.uid && r.rating > 0);
                     if(currentRating > 0 && rated) { alert("Already rated!"); currentRating = 0; }
-                    revs.push({
-                        uid: currentUser.uid,
-                        user: currentUser.displayName,
-                        rating: currentRating,
-                        comment: txt,
-                        date: new Date().toISOString()
-                    });
+                    revs.push({ uid: currentUser.uid, user: currentUser.displayName, rating: currentRating, comment: txt, date: new Date().toISOString() });
                 }
-                
-                // Recalc stats
-                let s=0, c=0;
-                revs.forEach(r => { if(r.rating>0){ s+=r.rating; c++; } });
-                
+                let s=0, c=0; revs.forEach(r => { if(r.rating>0){ s+=r.rating; c++; } });
                 await updateDoc(ref, { reviews: revs, totalStars: s, ratingCount: c });
                 cancelEdit();
             } catch(e){alert(e.message)}
             finally{ btn.innerText="Post"; btn.disabled=false; }
         }
-
         window.editReview = (idx) => {
             const w = allWorkers.find(x => x.id === openProfileId);
             document.getElementById('reviewText').value = w.reviews[idx].comment;
@@ -440,7 +499,6 @@
             document.getElementById('cancelEditBtn').classList.add('hidden');
             currentRating=0; updateStars(0);
         }
-        
         window.adminDelReview = async (wid, rdate) => {
             const p = prompt("Admin Pass:");
             if(p !== "admin123") return;
@@ -453,7 +511,6 @@
             } catch(e) { alert(e.message); }
         }
 
-        // Helpers
         window.previewImage = (input) => {
             const file = input.files[0];
             if(!file) return;
@@ -472,36 +529,39 @@
             r.readAsDataURL(file);
         }
 
-        // Spam Filter
+        window.checkAuthAndAdd = async () => {
+            if (!currentUser) return alert("Login First!");
+            const btn = document.querySelector('button[onclick="checkAuthAndAdd()"]'); btn.innerText = "...";
+            try {
+                const q = query(collection(db, "workers"), where("addedByUid", "==", currentUser.uid));
+                const snap = await getDocs(q);
+                editingId = null; 
+                document.getElementById('workerForm').reset();
+                document.getElementById('formTitle').innerText = "Add Details";
+                document.getElementById('photoPreview').innerHTML = `<i class="fas fa-camera text-gray-400 text-2xl"></i>`;
+                currentPhotoBase64 = null;
+                if (!snap.empty) {
+                    const pass = prompt("One entry allowed free. Admin password for more:");
+                    if (pass === "admin123") toggleForm(); else if(pass !== null) alert("Wrong password");
+                } else { toggleForm(); }
+            } catch(e) { alert(e.message); }
+            btn.innerHTML = '<i class="fas fa-plus"></i> Add Info';
+        }
+
         const badWords = ['fish', 'murrel', 'korameenu', 'seed', 'chepa'];
         document.getElementById('workerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const job = document.getElementById('wJob').value.toLowerCase();
             if(badWords.some(w => job.includes(w))) return alert("This service is not allowed.");
-            
             const btn = document.getElementById('submitBtn'); btn.disabled=true; btn.innerText="...";
-            const data = {
-                name: document.getElementById('wName').value,
-                job: document.getElementById('wJob').value,
-                phone: document.getElementById('wPhone').value,
-                area: document.getElementById('wArea').value,
-                bio: document.getElementById('wBio').value,
-                photo: currentPhotoBase64
-            };
-
+            const data = { name: document.getElementById('wName').value, job: document.getElementById('wJob').value, phone: document.getElementById('wPhone').value, area: document.getElementById('wArea').value, bio: document.getElementById('wBio').value, photo: currentPhotoBase64 };
             try {
                 if(editingId) await updateDoc(doc(db, "workers", editingId), data);
-                else {
-                    data.addedByUid = currentUser.uid;
-                    data.reviews = []; data.totalStars=0; data.ratingCount=0;
-                    await addDoc(collection(db, "workers"), data);
-                }
+                else { data.addedByUid = currentUser.uid; data.reviews = []; data.totalStars=0; data.ratingCount=0; await addDoc(collection(db, "workers"), data); }
                 toggleForm();
-            } catch(e){alert(e.message)}
-            finally{btn.disabled=false; btn.innerText="Save";}
+            } catch(e){alert(e.message)} finally{btn.disabled=false; btn.innerText="Save";}
         });
 
-        // Basic helpers
         function getIconByJob(job) {
             const j = (job||'').toLowerCase();
             if(j.includes('auto')) return {icon:'fa-taxi', color:'bg-yellow-100 text-yellow-600'};
@@ -509,7 +569,6 @@
             return {icon:'fa-briefcase', color:'bg-gray-100 text-gray-500'};
         }
         
-        // Touch logic
         let pt;
         window.handleTouchStart = (id) => { pt = setTimeout(() => document.getElementById(`overlay-${id}`).classList.remove('hidden'), 2500); }
         window.handleTouchEnd = () => clearTimeout(pt);
@@ -522,7 +581,6 @@
             if(w.addedByUid !== currentUser.uid && prompt("Admin Pass:") !== "admin123") return;
             editingId = id;
             document.getElementById('wName').value = w.name;
-            // ... populate other fields (simplified for brevity) ...
             document.getElementById('wJob').value = w.job;
             document.getElementById('wPhone').value = w.phone;
             currentPhotoBase64 = w.photo;
@@ -545,4 +603,4 @@
         }
     </script>
 </body>
-</html>
+    </html>
