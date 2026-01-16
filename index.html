@@ -6,7 +6,7 @@
     
     <!-- SEO TAGS -->
     <title>మన ఊరి సేవలు (Mana Oori Sevalu)</title>
-    <meta name="description" content="Local Workers Directory with Dynamic Ads.">
+    <meta name="description" content="Local Workers Directory.">
     <meta name="google-site-verification" content="oFcdua6fdfc1HBbQ9gqGTAIB-mgNMCF1saFyyufHx-M" />
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -26,11 +26,11 @@
 <body class="text-slate-800 bg-slate-50">
 
     <!-- HEADER -->
-    <div class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white p-4 sticky top-0 z-50 shadow-md">
+    <div class="bg-gradient-to-r from-blue-900 to-slate-900 text-white p-4 sticky top-0 z-50 shadow-md">
         <div class="max-w-3xl mx-auto flex justify-between items-center">
-            <h1 class="text-lg font-bold tracking-wide flex items-center gap-2"><i class="fas fa-city text-yellow-300"></i> మన ఊరి సేవలు</h1>
+            <h1 class="text-lg font-bold tracking-wide flex items-center gap-2"><i class="fas fa-city text-[#FFD700]"></i> మన ఊరి సేవలు</h1>
             <div class="flex items-center gap-3">
-                <button id="authBtn" onclick="handleAuthAction()" class="bg-white text-blue-700 px-3 py-1 rounded-full text-xs font-bold shadow active:scale-95 transition">Login</button>
+                <button id="authBtn" onclick="handleAuthAction()" class="bg-white text-blue-900 px-3 py-1 rounded-full text-xs font-bold shadow active:scale-95 transition">Login</button>
             </div>
         </div>
     </div>
@@ -38,73 +38,56 @@
     <div class="max-w-3xl mx-auto p-4 pb-20">
         
         <!-- 📢 DYNAMIC AD BANNER 📢 -->
-        <div class="relative w-full h-44 bg-gray-200 rounded-xl overflow-hidden shadow-lg mb-6 group">
-            <img id="adImage" src="https://via.placeholder.com/800x400/3b82f6/ffffff?text=Welcome+to+Mana+Oori+Sevalu" class="w-full h-full object-cover transition-opacity duration-500" onclick="handleAdClick()">
-            
-            <!-- Ad Badge -->
-            <div class="absolute top-2 right-2 bg-black/50 text-white text-[10px] px-2 py-0.5 rounded backdrop-blur-sm pointer-events-none">Ad</div>
-            
-            <!-- Admin Edit Button (Visible only to Admin) -->
-            <button id="editAdsBtn" onclick="openAdManager()" class="hidden absolute top-2 left-2 bg-white text-blue-600 px-3 py-1 rounded-full text-xs font-bold shadow-lg z-20 hover:bg-gray-100">
+        <div class="relative w-full h-44 bg-gray-800 rounded-xl overflow-hidden shadow-lg mb-6 group">
+            <img id="adImage" src="https://via.placeholder.com/800x400/1e293b/FFD700?text=Welcome+to+Mana+Oori+Sevalu" class="w-full h-full object-cover transition-opacity duration-500" onclick="handleAdClick()">
+            <div class="absolute top-2 right-2 bg-black/50 text-[#FFD700] text-[10px] px-2 py-0.5 rounded backdrop-blur-sm pointer-events-none border border-[#FFD700]/30">Ad</div>
+            <!-- Admin Edit Button -->
+            <button id="editAdsBtn" onclick="openAdManager()" class="hidden absolute top-2 left-2 bg-white text-blue-900 px-3 py-1 rounded-full text-xs font-bold shadow-lg z-20 hover:bg-gray-100">
                 <i class="fas fa-cog"></i> Edit Ads
             </button>
-
-            <!-- Dots -->
             <div class="absolute bottom-2 left-0 right-0 flex justify-center gap-2 z-10" id="adDots"></div>
         </div>
 
         <div class="flex justify-between items-center mb-4">
-            <p class="text-xs text-gray-400 italic flex items-center gap-1"><i class="fas fa-info-circle"></i> Long press to Edit/Delete</p>
-            <button onclick="checkAuthAndAdd()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow hover:bg-blue-700 active:scale-95 transition flex items-center gap-2">
-                <i class="fas fa-plus"></i> Add Info
+            <p class="text-xs text-gray-500 italic flex items-center gap-1">
+                <!-- Info text removed/changed since long press is gone -->
+                <i class="fas fa-check-circle text-green-500"></i> Verified Contacts
+            </p>
+            <button onclick="checkAuthAndAdd()" class="bg-blue-900 text-white px-4 py-2 rounded-lg text-sm font-bold shadow hover:bg-blue-800 active:scale-95 transition flex items-center gap-2 border border-[#FFD700]/50">
+                <i class="fas fa-plus text-[#FFD700]"></i> Add Info
             </button>
         </div>
 
         <!-- SEARCH -->
         <div class="relative mb-6">
             <i class="fas fa-search absolute left-4 top-3.5 text-gray-400"></i>
-            <input type="text" id="searchInput" onkeyup="filterWorkers()" placeholder="Search workers..." class="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <input type="text" id="searchInput" onkeyup="filterWorkers()" placeholder="Search workers..." class="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#FFD700] focus:border-transparent">
         </div>
 
         <!-- LIST -->
-        <div id="loader" class="flex justify-center my-10"><div class="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div></div>
+        <div id="loader" class="flex justify-center my-10"><div class="w-8 h-8 border-4 border-[#FFD700] border-t-transparent rounded-full animate-spin"></div></div>
         <div id="workersList" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
         <div id="noDataMsg" class="hidden text-center py-10 text-gray-400">No workers found.</div>
     </div>
 
-    <!-- 🛠️ ADMIN AD MANAGER MODAL 🛠️ -->
+    <!-- ADMIN AD MANAGER MODAL -->
     <div id="adManagerModal" class="hidden fixed inset-0 bg-black/80 z-[80] flex items-center justify-center p-4 fade-in backdrop-blur-sm">
         <div class="bg-white p-6 rounded-2xl shadow-2xl w-full max-w-md relative max-h-[90vh] overflow-y-auto">
             <button onclick="document.getElementById('adManagerModal').classList.add('hidden')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><i class="fas fa-times text-xl"></i></button>
             <h2 class="text-xl font-bold mb-4 text-gray-800 border-b pb-2">📢 Manage Ads</h2>
-            
-            <!-- Existing Ads List -->
-            <div id="adminAdsList" class="space-y-3 mb-6 max-h-40 overflow-y-auto bg-gray-50 p-2 rounded">
-                <p class="text-xs text-gray-400 text-center">Loading ads...</p>
-            </div>
-
-            <!-- Add New Ad Form -->
+            <div id="adminAdsList" class="space-y-3 mb-6 max-h-40 overflow-y-auto bg-gray-50 p-2 rounded"></div>
             <div class="border-t pt-4">
                 <h3 class="text-sm font-bold text-blue-600 mb-3">Add New Ad</h3>
                 <div class="space-y-3">
-                    <!-- Photo Upload -->
                     <label class="block w-full p-2 border-2 border-dashed border-gray-300 rounded-lg text-center cursor-pointer hover:bg-gray-50">
-                        <span class="text-xs text-gray-500"><i class="fas fa-image"></i> Select Ad Banner Image</span>
+                        <span class="text-xs text-gray-500"><i class="fas fa-image"></i> Select Image</span>
                         <input type="file" accept="image/*" class="hidden" onchange="previewAdImage(this)">
                     </label>
-                    <div id="adPreviewBox" class="hidden w-full h-24 bg-gray-100 rounded-lg overflow-hidden">
-                        <img id="newAdImgPreview" class="w-full h-full object-cover">
-                    </div>
-
-                    <!-- Type Selector -->
+                    <div id="adPreviewBox" class="hidden w-full h-24 bg-gray-100 rounded-lg overflow-hidden"><img id="newAdImgPreview" class="w-full h-full object-cover"></div>
                     <div class="flex gap-2">
-                        <select id="adType" class="p-2 border rounded-lg text-sm bg-white flex-1">
-                            <option value="tel:">Phone Call</option>
-                            <option value="https://wa.me/91">WhatsApp</option>
-                        </select>
-                        <input type="tel" id="adNumber" placeholder="Number (e.g. 95053...)" class="p-2 border rounded-lg text-sm flex-1">
+                        <select id="adType" class="p-2 border rounded-lg text-sm bg-white flex-1"><option value="tel:">Phone Call</option><option value="https://wa.me/91">WhatsApp</option></select>
+                        <input type="tel" id="adNumber" placeholder="Number..." class="p-2 border rounded-lg text-sm flex-1">
                     </div>
-                    
                     <button onclick="saveNewAd()" id="saveAdBtn" class="w-full bg-green-600 text-white py-2 rounded-lg font-bold shadow hover:bg-green-700">Add Banner</button>
                 </div>
             </div>
@@ -123,12 +106,16 @@
                         <input type="file" accept="image/*" class="hidden" onchange="previewImage(this)">
                     </label>
                 </div>
-                <input type="text" id="wName" placeholder="Name" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500" required>
-                <input type="text" id="wJob" placeholder="Job (Ex: Auto)" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500" required>
-                <input type="text" id="wArea" placeholder="Area" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
-                <input type="tel" id="wPhone" placeholder="Phone" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500" required>
-                <textarea id="wBio" rows="2" placeholder="Bio..." class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500"></textarea>
-                <button type="submit" id="submitBtn" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold">Save</button>
+                <input type="text" id="wName" placeholder="Name" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-[#FFD700]" required>
+                <input type="text" id="wJob" placeholder="Job (Ex: Auto)" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-[#FFD700]" required>
+                <input type="text" id="wArea" placeholder="Area" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-[#FFD700]">
+                <input type="tel" id="wPhone" placeholder="Phone" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-[#FFD700]" required>
+                <textarea id="wBio" rows="2" placeholder="Bio..." class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-[#FFD700]"></textarea>
+                
+                <!-- OWNER DELETE BUTTON (Visible only when editing) -->
+                <button type="button" id="deleteEntryBtn" onclick="deleteMyEntry()" class="hidden w-full bg-red-100 text-red-600 py-2 rounded-xl font-bold border border-red-200 mb-2">Delete My Entry</button>
+
+                <button type="submit" id="submitBtn" class="w-full bg-blue-900 text-white py-3 rounded-xl font-bold border border-[#FFD700]">Save</button>
             </form>
         </div>
     </div>
@@ -136,21 +123,30 @@
     <!-- PROFILE MODAL -->
     <div id="profileModal" class="hidden fixed inset-0 bg-black/80 z-[70] flex items-end sm:items-center justify-center fade-in backdrop-blur-md">
         <div class="bg-white w-full sm:w-[450px] sm:rounded-2xl rounded-t-3xl shadow-2xl overflow-hidden relative max-h-[90vh] overflow-y-auto flex flex-col">
-            <div class="bg-blue-50 p-6 pb-2 text-center relative">
-                <button onclick="closeProfile()" class="absolute top-4 right-4 bg-white/50 w-8 h-8 rounded-full hover:bg-white"><i class="fas fa-times"></i></button>
-                <div id="pIconContainer" class="w-20 h-20 rounded-full mx-auto bg-white shadow mb-3 flex items-center justify-center overflow-hidden"></div>
-                <h2 id="pName" class="text-2xl font-bold">Name</h2>
-                <p id="pJob" class="text-blue-600 font-medium">Job</p>
-                <div class="flex justify-center items-center gap-1 text-yellow-500 mt-1">
-                    <span id="pAvgRating" class="font-bold text-black">0.0</span> <i class="fas fa-star"></i> <span id="pReviewCount" class="text-gray-400 text-xs">(0)</span>
+            <div class="bg-gradient-to-b from-blue-900 to-slate-900 p-6 pb-2 text-center relative text-white">
+                <button onclick="closeProfile()" class="absolute top-4 right-4 bg-white/20 w-8 h-8 rounded-full hover:bg-white/40"><i class="fas fa-times"></i></button>
+                
+                <!-- OWNER EDIT BUTTON (Injected via JS) -->
+                <div id="ownerControls" class="absolute top-4 left-4"></div>
+
+                <div id="pIconContainer" class="w-24 h-24 rounded-full mx-auto bg-white shadow-lg mb-3 flex items-center justify-center overflow-hidden border-4 border-[#FFD700]"></div>
+                <h2 id="pName" class="text-2xl font-bold tracking-wide">Name</h2>
+                
+                <!-- GOLD TEXT FOR JOB IN PROFILE -->
+                <p id="pJob" class="text-[#FFD700] font-bold text-lg uppercase tracking-wider mt-1">Job</p>
+                
+                <div class="flex justify-center items-center gap-1 text-[#FFD700] mt-2 bg-white/10 py-1 px-3 rounded-full mx-auto w-max">
+                    <span id="pAvgRating" class="font-bold">0.0</span> <i class="fas fa-star"></i> <span id="pReviewCount" class="text-gray-300 text-xs">(0)</span>
                 </div>
             </div>
-            <div class="p-6 pt-2 space-y-4 flex-1 overflow-y-auto">
-                <div class="bg-gray-50 p-3 rounded text-sm italic text-gray-600" id="pBio">Bio...</div>
-                <a id="pCallBtn" href="#" class="block bg-green-500 text-white text-center py-3 rounded-xl font-bold shadow">Call Now</a>
+            <div class="p-6 pt-4 space-y-4 flex-1 overflow-y-auto bg-white">
+                <div class="bg-blue-50 p-4 rounded-xl text-sm italic text-gray-700 border-l-4 border-[#FFD700]" id="pBio">Bio...</div>
+                <a id="pCallBtn" href="#" class="block bg-green-600 text-white text-center py-3 rounded-xl font-bold shadow hover:bg-green-700">Call Now</a>
+                
+                <!-- Reviews -->
                 <div class="border-t pt-4">
-                    <h3 class="font-bold mb-2">Reviews</h3>
-                    <div class="bg-gray-50 p-3 rounded mb-3">
+                    <h3 class="font-bold mb-2 text-gray-700">Reviews</h3>
+                    <div class="bg-gray-50 p-3 rounded mb-3 border border-gray-200">
                         <p class="text-xs text-gray-500 mb-2">Rate (Stars Hidden):</p>
                         <div class="flex gap-2 text-2xl text-gray-300 justify-center mb-2" id="starInput">
                             <button onclick="setRating(1)" class="star-btn"><i class="fas fa-star"></i></button>
@@ -160,8 +156,8 @@
                             <button onclick="setRating(5)" class="star-btn"><i class="fas fa-star"></i></button>
                         </div>
                         <input type="hidden" id="editReviewIndex" value="-1">
-                        <textarea id="reviewText" placeholder="Write a review..." class="w-full p-2 border rounded text-sm mb-2"></textarea>
-                        <button onclick="submitReview()" id="postReviewBtn" class="w-full bg-blue-600 text-white py-1.5 rounded text-sm font-bold">Post</button>
+                        <textarea id="reviewText" placeholder="Write a review..." class="w-full p-2 border rounded text-sm mb-2 focus:ring-1 focus:ring-[#FFD700] outline-none"></textarea>
+                        <button onclick="submitReview()" id="postReviewBtn" class="w-full bg-blue-900 text-white py-1.5 rounded text-sm font-bold">Post</button>
                         <button onclick="cancelEdit()" id="cancelEditBtn" class="hidden w-full text-gray-500 text-xs mt-1 underline">Cancel Edit</button>
                     </div>
                     <div id="commentsList" class="space-y-3"></div>
@@ -190,301 +186,191 @@
         const db = getFirestore(app);
         const auth = getAuth(app);
         const provider = new GoogleAuthProvider();
-
-        // 🔒 ADMIN EMAIL (Replace this with your exact Gmail)
         const ADMIN_EMAIL = "josephyesebu37@gmail.com";
 
-        let currentUser = null;
-        let allWorkers = [];
-        let allAds = []; // Stores dynamic ads
-        let editingId = null;
-        let currentRating = 0;
-        let openProfileId = null;
-        let currentPhotoBase64 = null;
-        let newAdBase64 = null;
+        let currentUser = null, allWorkers = [], allAds = [], editingId = null, currentRating = 0, openProfileId = null, currentPhotoBase64 = null, newAdBase64 = null;
 
-        // Auth
         onAuthStateChanged(auth, (user) => {
             const btn = document.getElementById('authBtn');
             if (user) {
                 currentUser = user;
                 btn.innerText = "Logout";
-                btn.classList.replace('text-blue-700', 'text-red-600');
-                
-                // CHECK IF ADMIN
-                if(user.email === ADMIN_EMAIL) {
-                    document.getElementById('editAdsBtn').classList.remove('hidden');
-                } else {
-                    document.getElementById('editAdsBtn').classList.add('hidden');
-                }
+                if(user.email === ADMIN_EMAIL) document.getElementById('editAdsBtn').classList.remove('hidden');
+                else document.getElementById('editAdsBtn').classList.add('hidden');
             } else {
                 currentUser = null;
                 btn.innerText = "Login";
-                btn.classList.replace('text-red-600', 'text-blue-700');
                 document.getElementById('editAdsBtn').classList.add('hidden');
             }
         });
 
-        window.handleAuthAction = () => {
-            if(currentUser) { if(confirm("Logout?")) signOut(auth); }
-            else { signInWithPopup(auth, provider).catch(e => alert(e.message)); }
-        }
+        window.handleAuthAction = () => { currentUser ? (confirm("Logout?") && signOut(auth)) : signInWithPopup(auth, provider).catch(e => alert(e.message)); }
 
-        // --- 📢 DYNAMIC ADS LOGIC (FIRESTORE) 📢 ---
+        // Ads Logic
         const adsRef = collection(db, "banners");
-        onSnapshot(adsRef, (snapshot) => {
-            allAds = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            initAdsDisplay(); // Refresh Banner
-            if(!document.getElementById('adManagerModal').classList.contains('hidden')) {
-                renderAdminAdsList(); // Refresh Admin List if open
-            }
-        });
-
+        onSnapshot(adsRef, (s) => { allAds = s.docs.map(d => ({ id: d.id, ...d.data() })); initAdsDisplay(); if(!document.getElementById('adManagerModal').classList.contains('hidden')) renderAdminAdsList(); });
         let currentAdIndex = 0;
         const adImage = document.getElementById('adImage');
         const adDots = document.getElementById('adDots');
-
         function initAdsDisplay() {
-            // Default placeholder if no ads
-            if(allAds.length === 0) {
-                adImage.src = "https://via.placeholder.com/800x400/3b82f6/ffffff?text=Advertise+Here";
-                adDots.innerHTML = "";
-                return;
-            }
-            // Render Dots
-            adDots.innerHTML = allAds.map((_, i) => `<div class="w-2 h-2 rounded-full ${i===0?'bg-white':'bg-white/50'}"></div>`).join('');
-            
-            // Show first ad
+            if(allAds.length === 0) { adImage.src = "https://via.placeholder.com/800x400/1e293b/FFD700?text=Advertise+Here"; adDots.innerHTML = ""; return; }
+            adDots.innerHTML = allAds.map((_, i) => `<div class="w-2 h-2 rounded-full ${i===0?'bg-[#FFD700]':'bg-white/50'}"></div>`).join('');
             showAd(0);
         }
-
         function showAd(index) {
             if(allAds.length === 0) return;
             adImage.style.opacity = '0';
             setTimeout(() => {
                 adImage.src = allAds[index].img;
                 adImage.style.opacity = '1';
-                Array.from(adDots.children).forEach((dot, i) => {
-                    dot.className = `w-2 h-2 rounded-full ${i===index?'bg-white':'bg-white/50'}`;
-                });
+                Array.from(adDots.children).forEach((dot, i) => dot.className = `w-2 h-2 rounded-full ${i===index?'bg-[#FFD700]':'bg-white/50'}`);
             }, 500);
         }
+        setInterval(() => { if(allAds.length > 1) { currentAdIndex = (currentAdIndex + 1) % allAds.length; showAd(currentAdIndex); } }, 4000);
+        window.handleAdClick = () => { if(allAds.length > 0 && allAds[currentAdIndex].link && allAds[currentAdIndex].link !== "#") window.location.href = allAds[currentAdIndex].link; }
 
-        // Auto Scroll
-        setInterval(() => {
-            if(allAds.length > 1) {
-                currentAdIndex = (currentAdIndex + 1) % allAds.length;
-                showAd(currentAdIndex);
-            }
-        }, 4000);
-
-        window.handleAdClick = () => {
-            if(allAds.length > 0) {
-                const link = allAds[currentAdIndex].link;
-                if(link && link !== "#") window.location.href = link;
-            }
-        }
-
-        // --- 🛠️ ADMIN AD MANAGER FUNCTIONS 🛠️ ---
-        window.openAdManager = () => {
-            const pass = prompt("🔐 Enter Admin Password:");
-            if(pass !== "admin123") return alert("Wrong Password!");
-            
-            document.getElementById('adManagerModal').classList.remove('hidden');
-            renderAdminAdsList();
-        }
-
+        // Admin Ad Logic
+        window.openAdManager = () => { if(prompt("🔐 Admin Password:") === "admin123") { document.getElementById('adManagerModal').classList.remove('hidden'); renderAdminAdsList(); } else alert("Wrong Password!"); }
         function renderAdminAdsList() {
             const list = document.getElementById('adminAdsList');
-            list.innerHTML = "";
-            if(allAds.length === 0) list.innerHTML = `<p class="text-xs text-gray-400 text-center">No active ads.</p>`;
-            
+            list.innerHTML = allAds.length === 0 ? `<p class="text-xs text-gray-400 text-center">No ads.</p>` : "";
             allAds.forEach(ad => {
-                list.innerHTML += `
-                    <div class="flex items-center gap-3 bg-white p-2 rounded shadow-sm border">
-                        <img src="${ad.img}" class="w-16 h-10 object-cover rounded">
-                        <div class="flex-1 min-w-0">
-                            <p class="text-[10px] text-gray-500 truncate">${ad.link}</p>
-                        </div>
-                        <button onclick="deleteAd('${ad.id}')" class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button>
-                    </div>
-                `;
+                list.innerHTML += `<div class="flex items-center gap-3 bg-white p-2 rounded shadow-sm border"><img src="${ad.img}" class="w-16 h-10 object-cover rounded"><div class="flex-1 min-w-0"><p class="text-[10px] text-gray-500 truncate">${ad.link}</p></div><button onclick="deleteAd('${ad.id}')" class="text-red-500"><i class="fas fa-trash"></i></button></div>`;
             });
         }
-
-        window.previewAdImage = (input) => {
-            const file = input.files[0];
-            if(!file) return;
-            const r = new FileReader();
-            r.onload = (e) => {
-                const img = new Image(); img.src = e.target.result;
-                img.onload = () => {
-                    const c = document.createElement('canvas');
-                    const scale = 800 / img.width; // Resize for banner width
-                    c.width = 800; c.height = img.height * scale;
-                    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
-                    newAdBase64 = c.toDataURL('image/jpeg', 0.8); // High quality for banner
-                    document.getElementById('newAdImgPreview').src = newAdBase64;
-                    document.getElementById('adPreviewBox').classList.remove('hidden');
-                }
-            };
-            r.readAsDataURL(file);
-        }
-
-        window.saveNewAd = async () => {
-            if(!newAdBase64) return alert("Select an image first!");
-            const type = document.getElementById('adType').value;
-            const num = document.getElementById('adNumber').value;
-            if(!num) return alert("Enter number!");
-
-            const btn = document.getElementById('saveAdBtn');
-            btn.innerText = "Saving..."; btn.disabled = true;
-
-            const finalLink = type + num; // Combine "tel:" + "95053..."
-
-            try {
-                await addDoc(collection(db, "banners"), {
-                    img: newAdBase64,
-                    link: finalLink,
-                    createdAt: new Date().toISOString()
-                });
-                // Reset Form
-                newAdBase64 = null;
-                document.getElementById('adNumber').value = "";
-                document.getElementById('adPreviewBox').classList.add('hidden');
-                alert("Banner Added!");
-            } catch(e) { alert("Error: " + e.message); }
-            finally { btn.innerText = "Add Banner"; btn.disabled = false; }
-        }
-
-        window.deleteAd = async (id) => {
-            if(confirm("Delete this banner?")) {
-                await deleteDoc(doc(db, "banners", id));
+        window.previewAdImage = (i) => {
+            if(i.files && i.files[0]) {
+                const r = new FileReader();
+                r.onload = (e) => {
+                    const img = new Image(); img.src = e.target.result;
+                    img.onload = () => {
+                        const c = document.createElement('canvas');
+                        const s = 800/img.width; c.width=800; c.height=img.height*s;
+                        c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+                        newAdBase64 = c.toDataURL('image/jpeg', 0.8);
+                        document.getElementById('newAdImgPreview').src = newAdBase64;
+                        document.getElementById('adPreviewBox').classList.remove('hidden');
+                    }
+                };
+                r.readAsDataURL(i.files[0]);
             }
         }
-        // ---------------------------------------------
+        window.saveNewAd = async () => {
+            if(!newAdBase64) return alert("Image required");
+            const btn = document.getElementById('saveAdBtn'); btn.innerText="Saving..."; btn.disabled=true;
+            try { await addDoc(collection(db, "banners"), { img: newAdBase64, link: document.getElementById('adType').value + document.getElementById('adNumber').value, createdAt: new Date().toISOString() }); newAdBase64=null; document.getElementById('adNumber').value=""; document.getElementById('adPreviewBox').classList.add('hidden'); alert("Added!"); } catch(e){alert(e.message)} finally{btn.innerText="Add Banner"; btn.disabled=false;}
+        }
+        window.deleteAd = async(id) => { if(confirm("Delete?")) await deleteDoc(doc(db, "banners", id)); }
 
-        // Worker Data & Other Logic (Same as before)
+        // Data & Render
         const q = collection(db, "workers");
-        onSnapshot(q, (snapshot) => {
-            allWorkers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        onSnapshot(q, (s) => {
+            allWorkers = s.docs.map(d => ({ id: d.id, ...d.data() }));
             allWorkers.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
             renderWorkers(allWorkers);
             document.getElementById('loader').classList.add('hidden');
-            if(openProfileId) {
-                const w = allWorkers.find(x => x.id === openProfileId);
-                if(w) openProfile(w.id, true);
-            }
+            if(openProfileId) { const w = allWorkers.find(x => x.id === openProfileId); if(w) openProfile(w.id, true); }
         });
 
         function renderWorkers(data) {
             const list = document.getElementById('workersList');
-            list.innerHTML = '';
-            if (data.length === 0) { document.getElementById('noDataMsg').classList.remove('hidden'); return; }
-            document.getElementById('noDataMsg').classList.add('hidden');
+            list.innerHTML = data.length === 0 ? "" : "";
+            document.getElementById('noDataMsg').classList.toggle('hidden', data.length > 0);
 
             data.forEach(worker => {
                 const style = getIconByJob(worker.job);
                 const rating = worker.ratingCount > 0 ? (worker.totalStars / worker.ratingCount).toFixed(1) : "New";
-                let avatarHtml = `<div class="w-12 h-12 rounded-full ${style.color} flex items-center justify-center text-xl shrink-0"><i class="fas ${style.icon}"></i></div>`;
-                if(worker.photo) avatarHtml = `<img src="${worker.photo}" class="w-12 h-12 rounded-full object-cover shrink-0 border border-gray-200">`;
+                let avatarHtml = worker.photo ? `<img src="${worker.photo}" class="w-12 h-12 rounded-full object-cover shrink-0 border border-gray-200">` : `<div class="w-12 h-12 rounded-full ${style.color} flex items-center justify-center text-xl shrink-0"><i class="fas ${style.icon}"></i></div>`;
 
                 const html = `
                     <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex items-center gap-3 relative group active:scale-[0.98] transition cursor-pointer overflow-hidden select-none"
-                         oncontextmenu="return false;"
-                         ontouchstart="handleTouchStart('${worker.id}')"
-                         ontouchend="handleTouchEnd()"
-                         onmousedown="handleMouseDown('${worker.id}')"
-                         onmouseup="handleMouseUp()"
+                         onclick="openProfile('${worker.id}')"
                     >
-                        <div id="overlay-${worker.id}" class="hidden absolute inset-0 bg-slate-900/90 z-20 flex items-center justify-center gap-2 fade-in" ontouchstart="stopProp(event)" onmousedown="stopProp(event)">
-                            <button onclick="handleEditWorker(event, '${worker.id}')" class="bg-blue-600 text-white px-3 py-1 rounded text-xs font-bold">Edit</button>
-                            <button onclick="confirmDelete(event, '${worker.id}')" class="bg-red-500 text-white px-3 py-1 rounded text-xs font-bold">Delete</button>
-                            <button onclick="closeOverlay(event, '${worker.id}')" class="text-white text-xs underline ml-1">X</button>
-                        </div>
                         ${avatarHtml}
                         <div class="flex-1 min-w-0">
                             <h3 class="font-bold text-gray-800 text-base truncate capitalize">${worker.name}</h3>
-                            <p class="text-xs text-blue-600 font-semibold truncate mb-0.5">${worker.job}</p>
+                            <p class="text-xs text-[#FFD700] font-bold truncate mb-0.5 uppercase tracking-wide" style="text-shadow: 0.5px 0.5px 0px rgba(0,0,0,0.1);">${worker.job}</p>
                             <div class="flex items-center gap-1 text-[10px] text-gray-500">
                                 <span class="bg-yellow-100 text-yellow-700 px-1 rounded flex items-center"><i class="fas fa-star text-[8px] mr-0.5"></i>${rating}</span>
                                 <span>${worker.area || ''}</span>
                             </div>
                         </div>
-                        <button onclick="openProfile('${worker.id}')" class="w-8 h-8 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center z-10" onclick="stopProp(event)"><i class="fas fa-chevron-right"></i></button>
+                        <button class="w-8 h-8 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center z-10"><i class="fas fa-chevron-right"></i></button>
                     </div>
                 `;
                 list.innerHTML += html;
             });
         }
 
+        // Profile, Reviews & Helpers
         window.openProfile = (id, isRefresh=false) => {
-            if(!isRefresh && document.getElementById(`overlay-${id}`)?.classList.contains('hidden') === false) return;
-            const w = allWorkers.find(x => x.id === id);
-            if(!w) return;
-            openProfileId = id;
+            const w = allWorkers.find(x => x.id === id); if(!w) return; openProfileId = id;
             document.getElementById('pName').innerText = w.name;
             document.getElementById('pJob').innerText = w.job;
             document.getElementById('pBio').innerText = w.bio || "No details.";
             document.getElementById('pCallBtn').href = `tel:${w.phone}`;
-            const iconC = document.getElementById('pIconContainer');
-            if(w.photo) iconC.innerHTML = `<img src="${w.photo}" class="w-full h-full object-cover">`;
-            else { const s = getIconByJob(w.job); iconC.innerHTML = `<i class="fas ${s.icon} text-3xl text-gray-400"></i>`; }
+            const ic = document.getElementById('pIconContainer');
+            if(w.photo) ic.innerHTML=`<img src="${w.photo}" class="w-full h-full object-cover">`;
+            else { const s=getIconByJob(w.job); ic.innerHTML=`<i class="fas ${s.icon} text-4xl text-blue-900"></i>`; }
+            
             const avg = w.ratingCount > 0 ? (w.totalStars / w.ratingCount).toFixed(1) : "0.0";
             document.getElementById('pAvgRating').innerText = avg;
             document.getElementById('pReviewCount').innerText = `(${w.ratingCount||0})`;
+            
+            // --- OWNER EDIT BUTTON LOGIC ---
+            const ownerDiv = document.getElementById('ownerControls');
+            ownerDiv.innerHTML = ""; // Clear old buttons
+            if (currentUser && (currentUser.uid === w.addedByUid || currentUser.email === ADMIN_EMAIL)) {
+                ownerDiv.innerHTML = `
+                    <button onclick="handleEditWorker('${w.id}')" class="bg-white/20 text-white hover:bg-white/30 px-3 py-1 rounded text-xs font-bold flex items-center gap-1">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                `;
+            }
+
             const hasRated = currentUser && w.reviews?.some(r => r.uid === currentUser.uid && r.rating > 0);
-            if(hasRated) document.getElementById('starInput').classList.add('opacity-50', 'pointer-events-none');
-            else document.getElementById('starInput').classList.remove('opacity-50', 'pointer-events-none');
-            const cList = document.getElementById('commentsList');
-            cList.innerHTML = '';
+            document.getElementById('starInput').classList.toggle('opacity-50', hasRated);
+            document.getElementById('starInput').classList.toggle('pointer-events-none', hasRated);
+
+            const cList = document.getElementById('commentsList'); cList.innerHTML = '';
             if(w.reviews?.length) {
                 w.reviews.slice().reverse().forEach((r, i) => {
                     if(r.comment?.trim()) {
                         const isMe = currentUser && r.uid === currentUser.uid;
-                        const date = r.date ? new Date(r.date).toLocaleDateString() : '';
                         const editBtn = isMe ? `<button onclick="editReview(${w.reviews.length - 1 - i})" class="text-blue-500 ml-2 text-[10px]">Edit</button>` : '';
                         const delBtn = `<button onclick="adminDelReview('${w.id}', '${r.date}')" class="text-gray-300 hover:text-red-500 ml-auto"><i class="fas fa-trash"></i></button>`;
-                        let displayName = r.user || "User"; if(isMe) displayName = "You (Me)";
-                        cList.innerHTML += `
-                        <div class="bg-gray-50 p-2 rounded border border-gray-100 text-sm mb-2 flex justify-between group">
-                            <div>
-                                <p class="font-bold text-xs flex items-center">${displayName} ${editBtn}</p>
-                                <p class="text-gray-600 mt-0.5 leading-snug">${r.comment}</p>
-                                <p class="text-[9px] text-gray-400 mt-1">${date}</p>
-                            </div>
-                            <div class="opacity-0 group-hover:opacity-100">${delBtn}</div>
-                        </div>`;
+                        let dName = isMe ? "You (Me)" : (r.user || "App User");
+                        cList.innerHTML += `<div class="bg-gray-50 p-2 rounded border border-gray-100 text-sm mb-2 flex justify-between group"><div><p class="font-bold text-xs flex items-center">${dName} ${editBtn}</p><p class="text-gray-600 mt-0.5 leading-snug">${r.comment}</p></div><div class="opacity-0 group-hover:opacity-100">${delBtn}</div></div>`;
                     }
                 });
-            } else { cList.innerHTML = '<p class="text-center text-xs text-gray-400">No reviews.</p>'; }
+            } else cList.innerHTML = '<p class="text-center text-xs text-gray-400">No reviews.</p>';
             if(!isRefresh) document.getElementById('profileModal').classList.remove('hidden');
         }
 
         window.setRating = (n) => { currentRating = n; updateStars(n); }
-        function updateStars(n) { document.querySelectorAll('#starInput button').forEach((b,i) => b.classList.toggle('text-yellow-400', i<n)); }
+        function updateStars(n) { document.querySelectorAll('#starInput button').forEach((b,i) => b.classList.toggle('text-[#FFD700]', i<n)); }
+        
         window.submitReview = async () => {
-            if(!currentUser) return alert("Login to review");
+            if(!currentUser) return alert("Login First");
             const txt = document.getElementById('reviewText').value.trim();
             const idx = parseInt(document.getElementById('editReviewIndex').value);
-            if(!txt && currentRating === 0) return alert("Write something");
+            if(!txt && currentRating===0) return alert("Write something");
             const btn = document.getElementById('postReviewBtn'); btn.innerText="..."; btn.disabled=true;
             try {
                 const ref = doc(db, "workers", openProfileId);
                 const w = allWorkers.find(x => x.id === openProfileId);
                 let revs = w.reviews || [];
-                if(idx > -1) { revs[idx].comment = txt; } 
+                if(idx > -1) revs[idx].comment = txt;
                 else {
-                    const rated = revs.some(r => r.uid === currentUser.uid && r.rating > 0);
-                    if(currentRating > 0 && rated) { alert("Already rated!"); currentRating = 0; }
-                    revs.push({ uid: currentUser.uid, user: currentUser.displayName, rating: currentRating, comment: txt, date: new Date().toISOString() });
+                    if(currentRating>0 && revs.some(r=>r.uid===currentUser.uid && r.rating>0)) { alert("Already rated!"); currentRating=0; }
+                    revs.push({ uid:currentUser.uid, user:currentUser.displayName, rating:currentRating, comment:txt, date:new Date().toISOString() });
                 }
                 let s=0, c=0; revs.forEach(r => { if(r.rating>0){ s+=r.rating; c++; } });
                 await updateDoc(ref, { reviews: revs, totalStars: s, ratingCount: c });
                 cancelEdit();
-            } catch(e){alert(e.message)}
-            finally{ btn.innerText="Post"; btn.disabled=false; }
+            } catch(e){alert(e.message)} finally{btn.innerText="Post"; btn.disabled=false;}
         }
+        
         window.editReview = (idx) => {
             const w = allWorkers.find(x => x.id === openProfileId);
             document.getElementById('reviewText').value = w.reviews[idx].comment;
@@ -492,74 +378,56 @@
             document.getElementById('postReviewBtn').innerText = "Update";
             document.getElementById('cancelEditBtn').classList.remove('hidden');
         }
-        window.cancelEdit = () => {
-            document.getElementById('reviewText').value = '';
-            document.getElementById('editReviewIndex').value = -1;
-            document.getElementById('postReviewBtn').innerText = "Post";
-            document.getElementById('cancelEditBtn').classList.add('hidden');
-            currentRating=0; updateStars(0);
-        }
-        window.adminDelReview = async (wid, rdate) => {
-            const p = prompt("Admin Pass:");
-            if(p !== "admin123") return;
-            try {
-                const ref = doc(db, "workers", wid);
-                const w = allWorkers.find(x => x.id === wid);
-                const newRevs = w.reviews.filter(r => r.date !== rdate);
-                let s=0, c=0; newRevs.forEach(r => { if(r.rating>0){ s+=r.rating; c++; } });
-                await updateDoc(ref, { reviews: newRevs, totalStars: s, ratingCount: c });
-            } catch(e) { alert(e.message); }
-        }
+        window.cancelEdit = () => { document.getElementById('reviewText').value=""; document.getElementById('editReviewIndex').value=-1; document.getElementById('postReviewBtn').innerText="Post"; document.getElementById('cancelEditBtn').classList.add('hidden'); currentRating=0; updateStars(0); }
+        
+        window.adminDelReview = async(wid, rdate) => { if(prompt("Admin Pass:")==="admin123") { const ref=doc(db,"workers",wid); const w=allWorkers.find(x=>x.id===wid); const nr=w.reviews.filter(r=>r.date!==rdate); let s=0,c=0; nr.forEach(r=>{if(r.rating>0){s+=r.rating;c++}}); await updateDoc(ref,{reviews:nr,totalStars:s,ratingCount:c}); } }
 
         window.previewImage = (input) => {
-            const file = input.files[0];
-            if(!file) return;
-            const r = new FileReader();
-            r.onload = (e) => {
-                const img = new Image(); img.src = e.target.result;
-                img.onload = () => {
-                    const c = document.createElement('canvas');
-                    const scale = 150 / img.width;
-                    c.width = 150; c.height = img.height * scale;
-                    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
-                    currentPhotoBase64 = c.toDataURL('image/jpeg', 0.6);
-                    document.getElementById('photoPreview').innerHTML = `<img src="${currentPhotoBase64}" class="w-full h-full object-cover">`;
-                }
-            };
-            r.readAsDataURL(file);
+            if(input.files && input.files[0]) {
+                const r = new FileReader();
+                r.onload = (e) => {
+                    const i = new Image(); i.src = e.target.result;
+                    i.onload = () => {
+                        const c = document.createElement('canvas');
+                        const s = 800/i.width; c.width=800; c.height=i.height*s;
+                        c.getContext('2d').drawImage(i,0,0,c.width,c.height);
+                        newAdBase64 = c.toDataURL('image/jpeg', 0.8);
+                        document.getElementById('newAdImgPreview').src = newAdBase64;
+                        document.getElementById('adPreviewBox').classList.remove('hidden');
+                    }
+                };
+                r.readAsDataURL(input.files[0]);
+            }
         }
 
         window.checkAuthAndAdd = async () => {
-            if (!currentUser) return alert("Login First!");
-            const btn = document.querySelector('button[onclick="checkAuthAndAdd()"]'); btn.innerText = "...";
+            if(!currentUser) return alert("Login First");
+            const btn = document.querySelector('button[onclick="checkAuthAndAdd()"]'); btn.innerText="...";
             try {
                 const q = query(collection(db, "workers"), where("addedByUid", "==", currentUser.uid));
                 const snap = await getDocs(q);
-                editingId = null; 
-                document.getElementById('workerForm').reset();
-                document.getElementById('formTitle').innerText = "Add Details";
-                document.getElementById('photoPreview').innerHTML = `<i class="fas fa-camera text-gray-400 text-2xl"></i>`;
-                currentPhotoBase64 = null;
-                if (!snap.empty) {
-                    const pass = prompt("One entry allowed free. Admin password for more:");
-                    if (pass === "admin123") toggleForm(); else if(pass !== null) alert("Wrong password");
-                } else { toggleForm(); }
-            } catch(e) { alert(e.message); }
-            btn.innerHTML = '<i class="fas fa-plus"></i> Add Info';
+                editingId=null; document.getElementById('workerForm').reset(); 
+                document.getElementById('formTitle').innerText="Add Details"; 
+                document.getElementById('photoPreview').innerHTML=`<i class="fas fa-camera text-gray-400 text-2xl"></i>`; 
+                document.getElementById('deleteEntryBtn').classList.add('hidden'); // Hide delete on add
+                currentPhotoBase64=null;
+                if(!snap.empty && prompt("Limit reached. Admin Pass:")!=="admin123") return alert("Wrong Password");
+                toggleForm();
+            } catch(e){alert(e.message)} finally{btn.innerHTML='<i class="fas fa-plus text-[#FFD700]"></i> Add Info';}
         }
 
         const badWords = ['fish', 'murrel', 'korameenu', 'seed', 'chepa'];
         document.getElementById('workerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const job = document.getElementById('wJob').value.toLowerCase();
-            if(badWords.some(w => job.includes(w))) return alert("This service is not allowed.");
-            const btn = document.getElementById('submitBtn'); btn.disabled=true; btn.innerText="...";
-            const data = { name: document.getElementById('wName').value, job: document.getElementById('wJob').value, phone: document.getElementById('wPhone').value, area: document.getElementById('wArea').value, bio: document.getElementById('wBio').value, photo: currentPhotoBase64 };
+            if(badWords.some(w => document.getElementById('wJob').value.toLowerCase().includes(w))) return alert("Service not allowed");
+            const btn = document.getElementById('submitBtn'); btn.innerText="Saving..."; btn.disabled=true;
+            const data = { name:document.getElementById('wName').value, job:document.getElementById('wJob').value, phone:document.getElementById('wPhone').value, area:document.getElementById('wArea').value, bio:document.getElementById('wBio').value, photo:currentPhotoBase64 };
             try {
-                if(editingId) await updateDoc(doc(db, "workers", editingId), data);
-                else { data.addedByUid = currentUser.uid; data.reviews = []; data.totalStars=0; data.ratingCount=0; await addDoc(collection(db, "workers"), data); }
+                if(editingId) await updateDoc(doc(db,"workers",editingId), data);
+                else { data.addedByUid=currentUser.uid; data.reviews=[]; data.totalStars=0; data.ratingCount=0; await addDoc(collection(db,"workers"),data); }
                 toggleForm();
-            } catch(e){alert(e.message)} finally{btn.disabled=false; btn.innerText="Save";}
+                closeProfile(); // Close profile after edit
+            } catch(e){alert(e.message)} finally{btn.innerText="Save"; btn.disabled=false;}
         });
 
         function getIconByJob(job) {
@@ -569,38 +437,40 @@
             return {icon:'fa-briefcase', color:'bg-gray-100 text-gray-500'};
         }
         
-        let pt;
-        window.handleTouchStart = (id) => { pt = setTimeout(() => document.getElementById(`overlay-${id}`).classList.remove('hidden'), 2500); }
-        window.handleTouchEnd = () => clearTimeout(pt);
-        window.handleMouseDown = (id) => { pt = setTimeout(() => document.getElementById(`overlay-${id}`).classList.remove('hidden'), 2500); }
-        window.handleMouseUp = () => clearTimeout(pt);
-        
-        window.handleEditWorker = (e, id) => {
-            e.stopPropagation();
+        // --- OWNER EDIT/DELETE LOGIC ---
+        window.handleEditWorker = (id) => {
             const w = allWorkers.find(x => x.id === id);
-            if(w.addedByUid !== currentUser.uid && prompt("Admin Pass:") !== "admin123") return;
             editingId = id;
             document.getElementById('wName').value = w.name;
             document.getElementById('wJob').value = w.job;
             document.getElementById('wPhone').value = w.phone;
+            document.getElementById('wBio').value = w.bio || '';
+            document.getElementById('wArea').value = w.area || '';
             currentPhotoBase64 = w.photo;
             if(w.photo) document.getElementById('photoPreview').innerHTML = `<img src="${w.photo}" class="w-full h-full object-cover">`;
-            document.getElementById(`overlay-${id}`).classList.add('hidden');
+            document.getElementById('formTitle').innerText = "Update";
+            document.getElementById('submitBtn').innerText = "Update";
+            
+            // Show Delete Button inside Edit Form
+            const delBtn = document.getElementById('deleteEntryBtn');
+            delBtn.classList.remove('hidden');
+            // Attach delete logic with closure to capture ID
+            delBtn.onclick = () => deleteMyEntry(id);
+
             toggleForm();
         }
         
-        window.confirmDelete = async (e, id) => {
-            e.stopPropagation();
-            if(prompt("Admin Pass:") === "admin123") await deleteDoc(doc(db, "workers", id));
+        window.deleteMyEntry = async (id) => {
+            if(confirm("Permanently Delete?")) {
+                await deleteDoc(doc(db, "workers", id));
+                toggleForm();
+                closeProfile();
+            }
         }
 
         window.toggleForm = () => document.getElementById('addForm').classList.toggle('hidden');
         window.closeProfile = () => { document.getElementById('profileModal').classList.add('hidden'); openProfileId=null; cancelEdit(); }
-        window.stopProp = (e) => e.stopPropagation();
-        window.filterWorkers = () => {
-             const t = document.getElementById('searchInput').value.toLowerCase();
-             renderWorkers(allWorkers.filter(w => w.name.toLowerCase().includes(t) || w.job.toLowerCase().includes(t)));
-        }
+        window.filterWorkers = () => { const t = document.getElementById('searchInput').value.toLowerCase(); renderWorkers(allWorkers.filter(w => w.name.toLowerCase().includes(t) || w.job.toLowerCase().includes(t))); }
     </script>
 </body>
     </html>
