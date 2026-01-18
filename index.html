@@ -1,526 +1,165 @@
-<!DOCTYPE html>
-<html lang="te">
+<!DOCTYPE html><html lang="te">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    
-    <!-- SEO TAGS -->
-    <title>మన ఊరి సేవలు (Mana Oori Sevalu)</title>
-    <meta name="description" content="Local Workers Directory with Ads functionality.">
-    <meta name="google-site-verification" content="oFcdua6fdfc1HBbQ9gqGTAIB-mgNMCF1saFyyufHx-M" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>మన ఊరి సేవలు - Pro UI</title>  <!-- Tailwind -->  <script src="https://cdn.tailwindcss.com"></script>  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">  <style>
+    body { background: #f8fafc; }
 
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Ramabhadra&family=Roboto:wght@400;500;700&display=swap');
-        body { font-family: 'Roboto', sans-serif; background-color: #f0f4f8; -webkit-tap-highlight-color: transparent; }
-        h1, h2, h3 { font-family: 'Ramabhadra', sans-serif; }
-        .no-select { -webkit-user-select: none; user-select: none; }
-        .fade-in { animation: fadeIn 0.4s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .star-btn { transition: transform 0.1s; }
-        .star-btn:active { transform: scale(1.3); }
-    </style>
-</head>
-<body class="text-slate-800 bg-slate-50">
+    /* Toast */
+    .toast {
+      position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(20px);
+      background: #0f172a; color: white; padding: 10px 18px; border-radius: 999px;
+      font-size: 14px; opacity: 0; transition: all 0.3s ease; z-index: 9999;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-    <!-- HEADER -->
-    <div class="bg-gradient-to-r from-blue-900 to-slate-900 text-white p-4 sticky top-0 z-50 shadow-md">
-        <div class="max-w-3xl mx-auto flex justify-between items-center">
-            <h1 class="text-lg font-bold tracking-wide flex items-center gap-2"><i class="fas fa-city text-[#FFD700]"></i> మన ఊరి సేవలు</h1>
-            <div class="flex items-center gap-3">
-                <button id="authBtn" onclick="handleAuthAction()" class="bg-white text-blue-900 px-3 py-1 rounded-full text-xs font-bold shadow active:scale-95 transition">Login</button>
-            </div>
+    /* Skeleton loader */
+    .skeleton { background: linear-gradient(90deg, #eee, #f5f5f5, #eee); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+    /* Modal animation */
+    .fade-scale { animation: fadeScale 0.25s ease-out; }
+    @keyframes fadeScale { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+  </style></head>
+<body class="text-slate-800"><!-- Toast --><div id="toast" class="toast"></div><!-- Header --><header class="sticky top-0 bg-gradient-to-r from-blue-900 to-indigo-900 text-white p-4 shadow z-50">
+  <div class="max-w-4xl mx-auto flex justify-between items-center">
+    <h1 class="font-bold text-lg flex items-center gap-2">
+      <i class="fas fa-city text-yellow-400"></i> మన ఊరి సేవలు
+    </h1>
+    <button id="authBtn" onclick="handleAuthAction()" class="bg-white text-blue-900 px-3 py-1 rounded-full text-sm font-bold">Login</button>
+  </div>
+</header><!-- Container --><main class="max-w-4xl mx-auto p-4">  <!-- Hero Search -->  <div class="bg-white p-5 rounded-2xl shadow mb-6">
+    <h2 class="text-xl font-bold mb-2">🔍 మీ సేవలను వెతకండి</h2>
+    <input id="searchInput" placeholder="Electrician, Auto, Plumber..." class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-yellow-400 outline-none" />
+  </div>  <!-- Add Button -->  <div class="flex justify-end mb-4">
+    <button onclick="toggleForm()" class="bg-blue-900 text-white px-5 py-2 rounded-xl shadow hover:bg-blue-800">➕ Add Worker</button>
+  </div>  <!-- Workers Grid -->  <div id="workersList" class="grid sm:grid-cols-2 gap-4"></div>
+</main><!-- Add Worker Modal --><div id="addForm" class="hidden fixed inset-0 bg-black/60 flex justify-center items-center p-4 z-50">
+  <div class="bg-white p-6 rounded-2xl w-full max-w-md fade-scale">
+    <h2 class="text-xl font-bold mb-4">Add Worker</h2><input type="file" id="photoInput" accept="image/*" onchange="previewImage(this)" class="mb-3" />
+<div id="photoPreview" class="w-24 h-24 bg-gray-100 rounded-full mb-3 overflow-hidden"></div>
+
+<input id="wName" placeholder="Name" class="w-full p-2 border rounded mb-2" />
+<input id="wJob" placeholder="Job" class="w-full p-2 border rounded mb-2" />
+<input id="wPhone" placeholder="Phone" class="w-full p-2 border rounded mb-2" />
+
+<button onclick="saveWorker()" class="w-full bg-blue-900 text-white py-2 rounded">Save</button>
+<button onclick="toggleForm()" class="w-full mt-2 text-sm text-gray-500">Cancel</button>
+
+  </div>
+</div><!-- Firebase --><script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBfonEUIssxYV5BFxOEsTIA9alYzISEOGU",
+    authDomain: "myvillage-app-c3550.firebaseapp.com",
+    projectId: "myvillage-app-c3550",
+    storageBucket: "myvillage-app-c3550.appspot.com",
+    messagingSenderId: "1081682544474",
+    appId: "1:1081682544474:web:c844c928e69915013b1563"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
+  const storage = getStorage(app);
+  const provider = new GoogleAuthProvider();
+
+  let currentUser = null;
+  let selectedFile = null;
+  let allWorkers = [];
+
+  const toast = (msg) => {
+    const t = document.getElementById('toast');
+    t.innerText = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  };
+
+  onAuthStateChanged(auth, user => {
+    currentUser = user;
+    document.getElementById('authBtn').innerText = user ? 'Logout' : 'Login';
+  });
+
+  window.handleAuthAction = () => {
+    currentUser ? signOut(auth) : signInWithPopup(auth, provider);
+  };
+
+  window.toggleForm = () => document.getElementById('addForm').classList.toggle('hidden');
+
+  window.previewImage = (input) => {
+    selectedFile = input.files[0];
+    const reader = new FileReader();
+    reader.onload = e => {
+      document.getElementById('photoPreview').innerHTML = `<img src="${e.target.result}" class="w-full h-full object-cover"/>`;
+    };
+    reader.readAsDataURL(selectedFile);
+  };
+
+  async function uploadImage(file) {
+    const storageRef = ref(storage, `workers/${Date.now()}_${file.name}`);
+    await uploadBytes(storageRef, file);
+    return await getDownloadURL(storageRef);
+  }
+
+  window.saveWorker = async () => {
+    if (!currentUser) return toast('Login first');
+    if (!selectedFile) return toast('Select image');
+
+    const imgUrl = await uploadImage(selectedFile);
+
+    await addDoc(collection(db, 'workers'), {
+      name: document.getElementById('wName').value,
+      job: document.getElementById('wJob').value,
+      phone: document.getElementById('wPhone').value,
+      photo: imgUrl,
+      uid: currentUser.uid
+    });
+
+    toast('Saved successfully');
+    toggleForm();
+  };
+
+  // Skeleton loader initially
+  const list = document.getElementById('workersList');
+  for(let i=0;i<4;i++){
+    list.innerHTML += `<div class="bg-white p-4 rounded-xl shadow flex items-center gap-3"><div class="w-14 h-14 rounded-full skeleton"></div><div class="flex-1 space-y-2"><div class="h-4 skeleton rounded"></div><div class="h-3 skeleton rounded w-1/2"></div></div></div>`;
+  }
+
+  onSnapshot(collection(db, 'workers'), snap => {
+    allWorkers = snap.docs.map(d => d.data());
+    renderWorkers(allWorkers);
+  });
+
+  function renderWorkers(data) {
+    const list = document.getElementById('workersList');
+    list.innerHTML = '';
+
+    data.forEach(w => {
+      list.innerHTML += `
+        <div class="bg-white p-4 rounded-xl shadow flex items-center gap-3">
+          <img loading="lazy" src="${w.photo}" class="w-14 h-14 rounded-full object-cover" />
+          <div>
+            <h3 class="font-bold">${w.name}</h3>
+            <p class="text-sm text-yellow-600">${w.job}</p>
+            <p class="text-xs text-gray-500">📞 ${w.phone}</p>
+          </div>
         </div>
-    </div>
+      `;
+    });
+  }
 
-    <div class="max-w-3xl mx-auto p-4 pb-20">
-        
-        <!-- 📢 DYNAMIC AD BANNER WITH CLICK TRACKING 📢 -->
-        <div class="relative w-full h-44 bg-gray-800 rounded-xl overflow-hidden shadow-lg mb-6 group">
-            <!-- Image gets populated by JS -->
-            <img id="adImage" src="https://via.placeholder.com/800x400/1e293b/FFD700?text=Loading+Ads..." class="w-full h-full object-cover transition-opacity duration-500 cursor-pointer">
-            
-            <div class="absolute top-2 right-2 bg-black/50 text-[#FFD700] text-[10px] px-2 py-0.5 rounded backdrop-blur-sm pointer-events-none border border-[#FFD700]/30">Ad</div>
-            
-            <!-- Admin Stats Button (Visible Only to Admin) -->
-            <button id="editAdsBtn" onclick="openAdManager()" class="hidden absolute top-2 left-2 bg-white text-blue-900 px-3 py-1 rounded-full text-xs font-bold shadow-lg z-20 hover:bg-gray-100 border border-blue-200">
-                <i class="fas fa-chart-line"></i> Manage Ads
-            </button>
-            
-            <div class="absolute bottom-2 left-0 right-0 flex justify-center gap-2 z-10" id="adDots"></div>
-        </div>
-
-        <!-- Action Bar -->
-        <div class="flex justify-between items-center mb-4">
-            <p class="text-xs text-gray-500 italic flex items-center gap-1"><i class="fas fa-check-circle text-green-500"></i> Verified Contacts</p>
-            <button onclick="checkAuthAndAdd()" class="bg-blue-900 text-white px-4 py-2 rounded-lg text-sm font-bold shadow hover:bg-blue-800 active:scale-95 transition flex items-center gap-2 border border-[#FFD700]/50">
-                <i class="fas fa-plus text-[#FFD700]"></i> Add Info
-            </button>
-        </div>
-
-        <!-- SEARCH -->
-        <div class="relative mb-6">
-            <i class="fas fa-search absolute left-4 top-3.5 text-gray-400"></i>
-            <input type="text" id="searchInput" onkeyup="filterWorkers()" placeholder="Search workers..." class="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#FFD700] focus:border-transparent">
-        </div>
-
-        <!-- LIST -->
-        <div id="loader" class="flex justify-center my-10"><div class="w-8 h-8 border-4 border-[#FFD700] border-t-transparent rounded-full animate-spin"></div></div>
-        <div id="workersList" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
-        <div id="noDataMsg" class="hidden text-center py-10 text-gray-400">No workers found.</div>
-    </div>
-
-    <!-- 🛠️ ADMIN AD MANAGER MODAL (With Stats) 🛠️ -->
-    <div id="adManagerModal" class="hidden fixed inset-0 bg-black/80 z-[80] flex items-center justify-center p-4 fade-in backdrop-blur-sm">
-        <div class="bg-white p-6 rounded-2xl shadow-2xl w-full max-w-md relative max-h-[90vh] overflow-y-auto">
-            <button onclick="document.getElementById('adManagerModal').classList.add('hidden')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><i class="fas fa-times text-xl"></i></button>
-            <h2 class="text-xl font-bold mb-4 text-gray-800 border-b pb-2 flex items-center gap-2">
-                <i class="fas fa-bullhorn text-blue-600"></i> Ad Performance
-            </h2>
-            
-            <!-- STATS SUMMARY -->
-            <div class="bg-blue-50 p-3 rounded-lg mb-4 text-center border border-blue-100">
-                <p class="text-xs text-blue-500 uppercase font-bold">Total Clicks</p>
-                <h3 id="totalAdClicks" class="text-3xl font-black text-blue-900">0</h3>
-            </div>
-
-            <!-- Existing Ads List -->
-            <div id="adminAdsList" class="space-y-3 mb-6 max-h-60 overflow-y-auto p-1">
-                <p class="text-xs text-gray-400 text-center">Loading ads...</p>
-            </div>
-
-            <!-- Add New Ad Form -->
-            <div class="border-t pt-4">
-                <h3 class="text-sm font-bold text-gray-700 mb-3">Upload New Banner</h3>
-                <div class="space-y-3">
-                    <label class="block w-full p-2 border-2 border-dashed border-gray-300 rounded-lg text-center cursor-pointer hover:bg-gray-50 transition">
-                        <span class="text-xs text-gray-500"><i class="fas fa-cloud-upload-alt"></i> Select Image</span>
-                        <input type="file" accept="image/*" class="hidden" onchange="previewAdImage(this)">
-                    </label>
-                    <div id="adPreviewBox" class="hidden w-full h-24 bg-gray-100 rounded-lg overflow-hidden relative">
-                        <img id="newAdImgPreview" class="w-full h-full object-cover">
-                    </div>
-                    <div class="flex gap-2">
-                        <select id="adType" class="p-2 border rounded-lg text-sm bg-white flex-1 outline-none"><option value="tel:">Phone Call</option><option value="https://wa.me/91">WhatsApp</option></select>
-                        <input type="tel" id="adNumber" placeholder="Number..." class="p-2 border rounded-lg text-sm flex-1 outline-none">
-                    </div>
-                    <button onclick="saveNewAd()" id="saveAdBtn" class="w-full bg-green-600 text-white py-2.5 rounded-lg font-bold shadow hover:bg-green-700 transition">Publish Ad</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- WORKER ADD FORM -->
-    <div id="addForm" class="hidden fixed inset-0 bg-black/60 z-[60] flex items-center justify-center p-4 fade-in backdrop-blur-sm">
-        <div class="bg-white p-6 rounded-2xl shadow-2xl w-full max-w-md relative max-h-[90vh] overflow-y-auto">
-            <button onclick="toggleForm()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><i class="fas fa-times text-xl"></i></button>
-            <h2 class="text-xl font-bold mb-6 text-gray-800"><span id="formTitle">Add Details</span></h2>
-            <form id="workerForm" class="space-y-4">
-                <div class="flex justify-center mb-4">
-                    <label class="cursor-pointer relative">
-                        <div id="photoPreview" class="w-20 h-20 rounded-full bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden"><i class="fas fa-camera text-gray-400 text-2xl"></i></div>
-                        <input type="file" accept="image/*" class="hidden" onchange="previewImage(this)">
-                    </label>
-                </div>
-                <input type="text" id="wName" placeholder="Name" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-[#FFD700]" required>
-                <input type="text" id="wJob" placeholder="Job (Ex: Auto)" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-[#FFD700]" required>
-                <input type="text" id="wArea" placeholder="Area" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-[#FFD700]">
-                <input type="tel" id="wPhone" placeholder="Phone" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-[#FFD700]" required>
-                <textarea id="wBio" rows="2" placeholder="Bio..." class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-[#FFD700]"></textarea>
-                
-                <!-- Delete Button for Owner -->
-                <button type="button" id="deleteEntryBtn" onclick="deleteMyEntry()" class="hidden w-full bg-red-100 text-red-600 py-2 rounded-xl font-bold border border-red-200 mb-2">Delete My Entry</button>
-
-                <button type="submit" id="submitBtn" class="w-full bg-blue-900 text-white py-3 rounded-xl font-bold border border-[#FFD700]">Save</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- PROFILE MODAL (Same as before) -->
-    <div id="profileModal" class="hidden fixed inset-0 bg-black/80 z-[70] flex items-end sm:items-center justify-center fade-in backdrop-blur-md">
-        <div class="bg-white w-full sm:w-[450px] sm:rounded-2xl rounded-t-3xl shadow-2xl overflow-hidden relative max-h-[90vh] overflow-y-auto flex flex-col">
-            <div class="bg-gradient-to-b from-blue-900 to-slate-900 p-6 pb-2 text-center relative text-white">
-                <button onclick="closeProfile()" class="absolute top-4 right-4 bg-white/20 w-8 h-8 rounded-full hover:bg-white/40"><i class="fas fa-times"></i></button>
-                <div id="ownerControls" class="absolute top-4 left-4"></div> <!-- Owner Edit Button -->
-                <div id="pIconContainer" class="w-24 h-24 rounded-full mx-auto bg-white shadow-lg mb-3 flex items-center justify-center overflow-hidden border-4 border-[#FFD700]"></div>
-                <h2 id="pName" class="text-2xl font-bold tracking-wide">Name</h2>
-                <p id="pJob" class="text-[#FFD700] font-bold text-lg uppercase tracking-wider mt-1">Job</p>
-                <div class="flex justify-center items-center gap-1 text-[#FFD700] mt-2 bg-white/10 py-1 px-3 rounded-full mx-auto w-max">
-                    <span id="pAvgRating" class="font-bold">0.0</span> <i class="fas fa-star"></i> <span id="pReviewCount" class="text-gray-300 text-xs">(0)</span>
-                </div>
-            </div>
-            <div class="p-6 pt-4 space-y-4 flex-1 overflow-y-auto bg-white">
-                <div class="bg-blue-50 p-4 rounded-xl text-sm italic text-gray-700 border-l-4 border-[#FFD700]" id="pBio">Bio...</div>
-                <a id="pCallBtn" href="#" class="block bg-green-600 text-white text-center py-3 rounded-xl font-bold shadow hover:bg-green-700">Call Now</a>
-                <div class="border-t pt-4">
-                    <h3 class="font-bold mb-2 text-gray-700">Reviews</h3>
-                    <div class="bg-gray-50 p-3 rounded mb-3 border border-gray-200">
-                        <p class="text-xs text-gray-500 mb-2">Rate (Stars Hidden):</p>
-                        <div class="flex gap-2 text-2xl text-gray-300 justify-center mb-2" id="starInput">
-                            <button onclick="setRating(1)" class="star-btn"><i class="fas fa-star"></i></button>
-                            <button onclick="setRating(2)" class="star-btn"><i class="fas fa-star"></i></button>
-                            <button onclick="setRating(3)" class="star-btn"><i class="fas fa-star"></i></button>
-                            <button onclick="setRating(4)" class="star-btn"><i class="fas fa-star"></i></button>
-                            <button onclick="setRating(5)" class="star-btn"><i class="fas fa-star"></i></button>
-                        </div>
-                        <input type="hidden" id="editReviewIndex" value="-1">
-                        <textarea id="reviewText" placeholder="Write a review..." class="w-full p-2 border rounded text-sm mb-2 focus:ring-1 focus:ring-[#FFD700] outline-none"></textarea>
-                        <button onclick="submitReview()" id="postReviewBtn" class="w-full bg-blue-900 text-white py-1.5 rounded text-sm font-bold">Post</button>
-                        <button onclick="cancelEdit()" id="cancelEditBtn" class="hidden w-full text-gray-500 text-xs mt-1 underline">Cancel Edit</button>
-                    </div>
-                    <div id="commentsList" class="space-y-3"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- SCRIPT -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc, getDoc, query, where, getDocs, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        
-        const firebaseConfig = {
-          apiKey: "AIzaSyBfonEUIssxYV5BFxOEsTIA9alYzISEOGU",
-          authDomain: "myvillage-app-c3550.firebaseapp.com",
-          projectId: "myvillage-app-c3550",
-          storageBucket: "myvillage-app-c3550.firebasestorage.app",
-          messagingSenderId: "1081682544474",
-          appId: "1:1081682544474:web:c844c928e69915013b1563",
-          measurementId: "G-6Q5425DBFS"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
-        const provider = new GoogleAuthProvider();
-        const ADMIN_EMAIL = "josephyesebu37@gmail.com";
-
-        let currentUser = null, allWorkers = [], allAds = [], editingId = null, currentRating = 0, openProfileId = null, currentPhotoBase64 = null, newAdBase64 = null;
-
-        onAuthStateChanged(auth, (user) => {
-            const btn = document.getElementById('authBtn');
-            if (user) {
-                currentUser = user;
-                btn.innerText = "Logout";
-                if(user.email === ADMIN_EMAIL) document.getElementById('editAdsBtn').classList.remove('hidden');
-            } else {
-                currentUser = null;
-                btn.innerText = "Login";
-                document.getElementById('editAdsBtn').classList.add('hidden');
-            }
-        });
-
-        window.handleAuthAction = () => { currentUser ? (confirm("Logout?") && signOut(auth)) : signInWithPopup(auth, provider).catch(e => alert(e.message)); }
-
-        // --- 📢 DYNAMIC ADS WITH CLICK TRACKING 📢 ---
-        const adsRef = collection(db, "banners");
-        onSnapshot(adsRef, (s) => { 
-            allAds = s.docs.map(d => ({ id: d.id, ...d.data() })); 
-            initAdsDisplay(); 
-            if(!document.getElementById('adManagerModal').classList.contains('hidden')) renderAdminAdsList(); 
-        });
-        
-        let currentAdIndex = 0;
-        const adImage = document.getElementById('adImage');
-        const adDots = document.getElementById('adDots');
-
-        function initAdsDisplay() {
-            if(allAds.length === 0) { 
-                adImage.src = "https://via.placeholder.com/800x400/1e293b/FFD700?text=Advertise+Here"; 
-                adDots.innerHTML = ""; 
-                adImage.onclick = null;
-                return; 
-            }
-            adDots.innerHTML = allAds.map((_, i) => `<div class="w-2 h-2 rounded-full ${i===0?'bg-[#FFD700]':'bg-white/50'}"></div>`).join('');
-            showAd(0);
-        }
-
-        function showAd(index) {
-            if(allAds.length === 0) return;
-            adImage.style.opacity = '0';
-            setTimeout(() => {
-                adImage.src = allAds[index].img;
-                adImage.style.opacity = '1';
-                Array.from(adDots.children).forEach((dot, i) => dot.className = `w-2 h-2 rounded-full ${i===index?'bg-[#FFD700]':'bg-white/50'}`);
-                
-                // Update Click Handler for Current Ad
-                adImage.onclick = () => trackAdClick(allAds[index].id, allAds[index].link);
-            }, 500);
-        }
-        setInterval(() => { if(allAds.length > 1) { currentAdIndex = (currentAdIndex + 1) % allAds.length; showAd(currentAdIndex); } }, 5000);
-
-        // 🔥 CLICK TRACKING LOGIC 🔥
-        window.trackAdClick = async (adId, link) => {
-            if(!link || link === "#") return;
-            
-            // 1. Open Link Immediately (UX)
-            window.location.href = link;
-            
-            // 2. Count Click in Background
-            try {
-                const adDocRef = doc(db, "banners", adId);
-                await updateDoc(adDocRef, { clicks: increment(1) });
-            } catch(e) { console.log("Tracking Error", e); }
-        }
-
-        // --- 🛠️ ADMIN AD MANAGER 🛠️ ---
-        window.openAdManager = () => { 
-            if(prompt("🔐 Admin Password:") === "admin123") { 
-                document.getElementById('adManagerModal').classList.remove('hidden'); 
-                renderAdminAdsList(); 
-            } else alert("Wrong Password!"); 
-        }
-
-        function renderAdminAdsList() {
-            const list = document.getElementById('adminAdsList');
-            list.innerHTML = allAds.length === 0 ? `<p class="text-xs text-gray-400 text-center">No ads active.</p>` : "";
-            
-            // Calculate Total Clicks
-            let totalClicks = allAds.reduce((sum, ad) => sum + (ad.clicks || 0), 0);
-            document.getElementById('totalAdClicks').innerText = totalClicks;
-
-            allAds.forEach(ad => {
-                list.innerHTML += `
-                    <div class="flex items-center gap-3 bg-white p-3 rounded-lg shadow-sm border border-gray-100">
-                        <img src="${ad.img}" class="w-16 h-10 object-cover rounded bg-gray-200">
-                        <div class="flex-1 min-w-0">
-                            <p class="text-[10px] text-gray-400 font-mono truncate">${ad.link}</p>
-                            <p class="text-xs font-bold text-blue-600">👁️ ${ad.clicks || 0} Clicks</p>
-                        </div>
-                        <button onclick="deleteAd('${ad.id}')" class="text-red-500 hover:text-red-700 bg-red-50 p-2 rounded-full"><i class="fas fa-trash"></i></button>
-                    </div>
-                `;
-            });
-        }
-
-        window.previewAdImage = (i) => {
-            if(i.files && i.files[0]) {
-                const r = new FileReader();
-                r.onload = (e) => {
-                    const img = new Image(); img.src = e.target.result;
-                    img.onload = () => {
-                        const c = document.createElement('canvas');
-                        const s = 800/img.width; c.width=800; c.height=img.height*s;
-                        c.getContext('2d').drawImage(img,0,0,c.width,c.height);
-                        newAdBase64 = c.toDataURL('image/jpeg', 0.8);
-                        document.getElementById('newAdImgPreview').src = newAdBase64;
-                        document.getElementById('adPreviewBox').classList.remove('hidden');
-                    }
-                };
-                r.readAsDataURL(i.files[0]);
-            }
-        }
-        window.saveNewAd = async () => {
-            if(!newAdBase64) return alert("Image required");
-            const btn = document.getElementById('saveAdBtn'); btn.innerText="Saving..."; btn.disabled=true;
-            try { 
-                await addDoc(collection(db, "banners"), { 
-                    img: newAdBase64, 
-                    link: document.getElementById('adType').value + document.getElementById('adNumber').value, 
-                    clicks: 0, // Init clicks
-                    createdAt: new Date().toISOString() 
-                }); 
-                newAdBase64=null; document.getElementById('adNumber').value=""; document.getElementById('adPreviewBox').classList.add('hidden'); alert("Added!"); 
-            } catch(e){alert(e.message)} finally{btn.innerText="Add Banner"; btn.disabled=false;}
-        }
-        window.deleteAd = async(id) => { if(confirm("Delete?")) await deleteDoc(doc(db, "banners", id)); }
-
-        // --- MAIN WORKER DATA ---
-        const q = collection(db, "workers");
-        onSnapshot(q, (s) => {
-            allWorkers = s.docs.map(d => ({ id: d.id, ...d.data() }));
-            allWorkers.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
-            renderWorkers(allWorkers);
-            document.getElementById('loader').classList.add('hidden');
-            if(openProfileId) { const w = allWorkers.find(x => x.id === openProfileId); if(w) openProfile(w.id, true); }
-        });
-
-        function renderWorkers(data) {
-            const list = document.getElementById('workersList');
-            list.innerHTML = data.length === 0 ? "" : "";
-            document.getElementById('noDataMsg').classList.toggle('hidden', data.length > 0);
-
-            data.forEach(worker => {
-                const style = getIconByJob(worker.job);
-                const rating = worker.ratingCount > 0 ? (worker.totalStars / worker.ratingCount).toFixed(1) : "New";
-                let avatarHtml = worker.photo ? `<img src="${worker.photo}" class="w-12 h-12 rounded-full object-cover shrink-0 border border-gray-200">` : `<div class="w-12 h-12 rounded-full ${style.color} flex items-center justify-center text-xl shrink-0"><i class="fas ${style.icon}"></i></div>`;
-
-                const html = `
-                    <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex items-center gap-3 relative group active:scale-[0.98] transition cursor-pointer overflow-hidden select-none"
-                         onclick="openProfile('${worker.id}')"
-                    >
-                        ${avatarHtml}
-                        <div class="flex-1 min-w-0">
-                            <h3 class="font-bold text-gray-800 text-base truncate capitalize">${worker.name}</h3>
-                            <p class="text-xs text-[#FFD700] font-bold truncate mb-0.5 uppercase tracking-wide" style="text-shadow: 0.5px 0.5px 0px rgba(0,0,0,0.1);">${worker.job}</p>
-                            <div class="flex items-center gap-1 text-[10px] text-gray-500">
-                                <span class="bg-yellow-100 text-yellow-700 px-1 rounded flex items-center"><i class="fas fa-star text-[8px] mr-0.5"></i>${rating}</span>
-                                <span>${worker.area || ''}</span>
-                            </div>
-                        </div>
-                        <button class="w-8 h-8 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center z-10"><i class="fas fa-chevron-right"></i></button>
-                    </div>
-                `;
-                list.innerHTML += html;
-            });
-        }
-
-        // Profile & Reviews
-        window.openProfile = (id, isRefresh=false) => {
-            const w = allWorkers.find(x => x.id === id); if(!w) return; openProfileId = id;
-            document.getElementById('pName').innerText = w.name;
-            document.getElementById('pJob').innerText = w.job;
-            document.getElementById('pBio').innerText = w.bio || "No details.";
-            document.getElementById('pCallBtn').href = `tel:${w.phone}`;
-            const ic = document.getElementById('pIconContainer');
-            if(w.photo) ic.innerHTML=`<img src="${w.photo}" class="w-full h-full object-cover">`;
-            else { const s=getIconByJob(w.job); ic.innerHTML=`<i class="fas ${s.icon} text-4xl text-blue-900"></i>`; }
-            
-            const avg = w.ratingCount > 0 ? (w.totalStars / w.ratingCount).toFixed(1) : "0.0";
-            document.getElementById('pAvgRating').innerText = avg;
-            document.getElementById('pReviewCount').innerText = `(${w.ratingCount||0})`;
-            
-            const ownerDiv = document.getElementById('ownerControls');
-            ownerDiv.innerHTML = ""; 
-            if (currentUser && (currentUser.uid === w.addedByUid || currentUser.email === ADMIN_EMAIL)) {
-                ownerDiv.innerHTML = `<button onclick="handleEditWorker('${w.id}')" class="bg-white/20 text-white hover:bg-white/30 px-3 py-1 rounded text-xs font-bold flex items-center gap-1"><i class="fas fa-edit"></i> Edit</button>`;
-            }
-
-            const hasRated = currentUser && w.reviews?.some(r => r.uid === currentUser.uid && r.rating > 0);
-            document.getElementById('starInput').classList.toggle('opacity-50', hasRated);
-            document.getElementById('starInput').classList.toggle('pointer-events-none', hasRated);
-
-            const cList = document.getElementById('commentsList'); cList.innerHTML = '';
-            if(w.reviews?.length) {
-                w.reviews.slice().reverse().forEach((r, i) => {
-                    if(r.comment?.trim()) {
-                        const isMe = currentUser && r.uid === currentUser.uid;
-                        const editBtn = isMe ? `<button onclick="editReview(${w.reviews.length - 1 - i})" class="text-blue-500 ml-2 text-[10px]">Edit</button>` : '';
-                        let dName = isMe ? "You (Me)" : (r.user || "App User");
-                        cList.innerHTML += `<div class="bg-gray-50 p-2 rounded border border-gray-100 text-sm mb-2 flex justify-between group"><div><p class="font-bold text-xs flex items-center">${dName} ${editBtn}</p><p class="text-gray-600 mt-0.5 leading-snug">${r.comment}</p></div></div>`;
-                    }
-                });
-            } else cList.innerHTML = '<p class="text-center text-xs text-gray-400">No reviews.</p>';
-            if(!isRefresh) document.getElementById('profileModal').classList.remove('hidden');
-        }
-
-        // Logic Helpers
-        window.setRating = (n) => { currentRating = n; updateStars(n); }
-        function updateStars(n) { document.querySelectorAll('#starInput button').forEach((b,i) => b.classList.toggle('text-[#FFD700]', i<n)); }
-        
-        window.submitReview = async () => {
-            if(!currentUser) return alert("Login First");
-            const txt = document.getElementById('reviewText').value.trim();
-            const idx = parseInt(document.getElementById('editReviewIndex').value);
-            if(!txt && currentRating===0) return alert("Write something");
-            const btn = document.getElementById('postReviewBtn'); btn.innerText="..."; btn.disabled=true;
-            try {
-                const ref = doc(db, "workers", openProfileId);
-                const w = allWorkers.find(x => x.id === openProfileId);
-                let revs = w.reviews || [];
-                if(idx > -1) revs[idx].comment = txt;
-                else {
-                    if(currentRating>0 && revs.some(r=>r.uid===currentUser.uid && r.rating>0)) { alert("Already rated!"); currentRating=0; }
-                    revs.push({ uid:currentUser.uid, user:currentUser.displayName, rating:currentRating, comment:txt, date:new Date().toISOString() });
-                }
-                let s=0, c=0; revs.forEach(r => { if(r.rating>0){ s+=r.rating; c++; } });
-                await updateDoc(ref, { reviews: revs, totalStars: s, ratingCount: c });
-                cancelEdit();
-            } catch(e){alert(e.message)} finally{btn.innerText="Post"; btn.disabled=false;}
-        }
-        
-        window.editReview = (idx) => {
-            const w = allWorkers.find(x => x.id === openProfileId);
-            document.getElementById('reviewText').value = w.reviews[idx].comment;
-            document.getElementById('editReviewIndex').value = idx;
-            document.getElementById('postReviewBtn').innerText = "Update";
-            document.getElementById('cancelEditBtn').classList.remove('hidden');
-        }
-        window.cancelEdit = () => { document.getElementById('reviewText').value=""; document.getElementById('editReviewIndex').value=-1; document.getElementById('postReviewBtn').innerText="Post"; document.getElementById('cancelEditBtn').classList.add('hidden'); currentRating=0; updateStars(0); }
-
-        window.previewImage = (input) => {
-            if(input.files && input.files[0]) {
-                const r = new FileReader();
-                r.onload = (e) => {
-                    const i = new Image(); i.src = e.target.result;
-                    i.onload = () => {
-                        const c = document.createElement('canvas');
-                        const s = 800/i.width; c.width=800; c.height=i.height*s;
-                        c.getContext('2d').drawImage(i,0,0,c.width,c.height);
-                        if(input.id === 'wPhotoInput') currentPhotoBase64 = c.toDataURL('image/jpeg', 0.7);
-                        else newAdBase64 = c.toDataURL('image/jpeg', 0.8);
-                        
-                        // Update respective preview
-                        if(input.id === 'wPhotoInput') document.getElementById('photoPreview').innerHTML = `<img src="${currentPhotoBase64}" class="w-full h-full object-cover">`;
-                        else {
-                            document.getElementById('newAdImgPreview').src = newAdBase64;
-                            document.getElementById('adPreviewBox').classList.remove('hidden');
-                        }
-                    }
-                };
-                r.readAsDataURL(input.files[0]);
-            }
-        }
-
-        window.checkAuthAndAdd = async () => {
-            if(!currentUser) return alert("Login First");
-            const btn = document.querySelector('button[onclick="checkAuthAndAdd()"]'); btn.innerText="...";
-            try {
-                const q = query(collection(db, "workers"), where("addedByUid", "==", currentUser.uid));
-                const snap = await getDocs(q);
-                editingId=null; document.getElementById('workerForm').reset(); 
-                document.getElementById('formTitle').innerText="Add Details"; 
-                document.getElementById('photoPreview').innerHTML=`<i class="fas fa-camera text-gray-400 text-2xl"></i>`; 
-                document.getElementById('deleteEntryBtn').classList.add('hidden'); 
-                currentPhotoBase64=null;
-                if(!snap.empty && prompt("Limit reached. Admin Pass:")!=="admin123") return alert("Wrong Password");
-                toggleForm();
-            } catch(e){alert(e.message)} finally{btn.innerHTML='<i class="fas fa-plus text-[#FFD700]"></i> Add Info';}
-        }
-
-        const badWords = ['fish', 'murrel', 'korameenu', 'seed', 'chepa'];
-        document.getElementById('workerForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            if(badWords.some(w => document.getElementById('wJob').value.toLowerCase().includes(w))) return alert("Service not allowed");
-            const btn = document.getElementById('submitBtn'); btn.innerText="Saving..."; btn.disabled=true;
-            const data = { name:document.getElementById('wName').value, job:document.getElementById('wJob').value, phone:document.getElementById('wPhone').value, area:document.getElementById('wArea').value, bio:document.getElementById('wBio').value, photo:currentPhotoBase64 };
-            try {
-                if(editingId) await updateDoc(doc(db,"workers",editingId), data);
-                else { data.addedByUid=currentUser.uid; data.reviews=[]; data.totalStars=0; data.ratingCount=0; await addDoc(collection(db,"workers"),data); }
-                toggleForm();
-                closeProfile();
-            } catch(e){alert(e.message)} finally{btn.innerText="Save"; btn.disabled=false;}
-        });
-
-        function getIconByJob(job) {
-            const j = (job||'').toLowerCase();
-            if(j.includes('auto')) return {icon:'fa-taxi', color:'bg-yellow-100 text-yellow-600'};
-            if(j.includes('elect')) return {icon:'fa-bolt', color:'bg-yellow-100 text-yellow-600'};
-            return {icon:'fa-briefcase', color:'bg-gray-100 text-gray-500'};
-        }
-        
-        window.handleEditWorker = (id) => {
-            const w = allWorkers.find(x => x.id === id);
-            editingId = id;
-            document.getElementById('wName').value = w.name;
-            document.getElementById('wJob').value = w.job;
-            document.getElementById('wPhone').value = w.phone;
-            document.getElementById('wBio').value = w.bio || '';
-            document.getElementById('wArea').value = w.area || '';
-            currentPhotoBase64 = w.photo;
-            if(w.photo) document.getElementById('photoPreview').innerHTML = `<img src="${w.photo}" class="w-full h-full object-cover">`;
-            document.getElementById('formTitle').innerText = "Update";
-            document.getElementById('submitBtn').innerText = "Update";
-            const delBtn = document.getElementById('deleteEntryBtn'); delBtn.classList.remove('hidden'); delBtn.onclick = () => deleteMyEntry(id);
-            toggleForm();
-        }
-        
-        window.deleteMyEntry = async (id) => { if(confirm("Permanently Delete?")) { await deleteDoc(doc(db, "workers", id)); toggleForm(); closeProfile(); } }
-        window.toggleForm = () => document.getElementById('addForm').classList.toggle('hidden');
-        window.closeProfile = () => { document.getElementById('profileModal').classList.add('hidden'); openProfileId=null; cancelEdit(); }
-        window.filterWorkers = () => { const t = document.getElementById('searchInput').value.toLowerCase(); renderWorkers(allWorkers.filter(w => w.name.toLowerCase().includes(t) || w.job.toLowerCase().includes(t))); }
-    </script>
-</body>
-                </html>
+  // Debounced search
+  let timer;
+  document.getElementById('searchInput').addEventListener('input', e => {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      const t = e.target.value.toLowerCase();
+      renderWorkers(allWorkers.filter(w => w.name.toLowerCase().includes(t) || w.job.toLowerCase().includes(t)));
+    }, 300);
+  });
+</script></body>
+</html>
