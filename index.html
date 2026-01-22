@@ -151,7 +151,7 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, where, getDocs, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-    import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBfonEUIssxYV5BFxOEsTIA9alYzISEOGU",
@@ -167,10 +167,18 @@
     const auth = getAuth(app);
     let allServices = [], currentUser = null, filterDiscountOnly = false;
 
-    window.handleAuth = () => { if(!currentUser) signInWithPopup(auth, new GoogleAuthProvider()); }
+    // UPDATED AUTH LOGIC WITH LOGOUT
+    window.handleAuth = () => { 
+        if(!currentUser) {
+            signInWithPopup(auth, new GoogleAuthProvider()); 
+        } else {
+            if(confirm("Do you want to logout?")) signOut(auth);
+        }
+    }
+    
     onAuthStateChanged(auth, u => {
         currentUser = u;
-        document.getElementById('authBtn').innerHTML = u ? `<img src="${u.photoURL}" class="w-6 h-6 rounded-full">` : "Login";
+        document.getElementById('authBtn').innerHTML = u ? `<img src="${u.photoURL}" class="w-6 h-6 rounded-full border border-slate-300">` : "Login";
     });
 
     const q = query(collection(db, "workers"), orderBy("name"));
@@ -235,22 +243,20 @@
     document.getElementById('searchInput').addEventListener('input', renderApp);
 
     // ==========================================
-    // NEW ROBUST OTP LOGIC (NO DUPLICATES)
+    // OTP LOGIC
     // ==========================================
     window.generateOTP = async (shopId, shopName) => {
         if(!currentUser) { toast("Please Login to get Offers"); handleAuth(); return; }
         
-        // 1. Loading Indicator
         const btn = document.activeElement; 
         if(btn) btn.innerText = "Checking...";
 
         try {
-            // 2. CHECK: ఈ యూజర్ కి ఈ షాప్ లో ఆల్రెడీ Active కోడ్ ఉందా?
             const q = query(
                 collection(db, "otpCodes"),
                 where("userId", "==", currentUser.uid),
                 where("shopId", "==", shopId),
-                where("status", "==", "active"), // వాడని కోడ్స్ మాత్రమే
+                where("status", "==", "active"),
                 limit(1)
             );
 
@@ -259,16 +265,11 @@
             let code, createdTime;
 
             if (!snap.empty) {
-                // 3. ఆల్రెడీ ఉంది! దాన్నే వాడుకుందాం
                 const data = snap.docs[0].data();
                 code = data.code;
                 createdTime = data.timestamp ? data.timestamp.toMillis() : Date.now();
                 
-                if (Date.now() - createdTime > 300000) {
-                     // Expired Logic (Optional: For now showing old code is fine as shopkeeper will reject it)
-                }
             } else {
-                // 4. లేదు! అయితే కొత్తది పుట్టించు
                 code = Math.floor(1000 + Math.random() * 9000).toString();
                 createdTime = Date.now();
                 
@@ -282,12 +283,10 @@
                 });
             }
 
-            // 5. UI చూపించు
             document.getElementById('otpShopName').innerText = shopName;
             document.getElementById('otpDisplay').innerText = code;
             document.getElementById('otpModal').classList.remove('hidden');
             
-            // Timer Logic
             const timePassed = Date.now() - createdTime;
             let timeLeft = Math.max(0, Math.floor((300000 - timePassed) / 1000));
             
@@ -332,4 +331,4 @@
     window.toast = (msg) => { const t = document.getElementById('toast'); t.querySelector('span').innerText = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2000); }
 </script>
 </body>
-</html>
+  </html>
