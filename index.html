@@ -11,7 +11,7 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Ramabhadra&family=Inter:wght@400;600;700;800&display=swap');
     body { font-family: 'Inter', sans-serif; background: #f1f5f9; -webkit-tap-highlight-color: transparent; }
-    h1, h2, h3, .telugu-font { font-family: 'Ramabhadra', sans-serif; }
+    h1, h2, h3 { font-family: 'Ramabhadra', sans-serif; }
 
     /* Toast Animation */
     .toast {
@@ -27,7 +27,6 @@
     
     .filter-active { background-color: #dbeafe !important; border-color: #2563eb !important; color: #1d4ed8 !important; }
     
-    /* Highlight for Discount Cards */
     .discount-card { border: 1px solid #fcd34d; background: linear-gradient(to bottom right, #ffffff, #fffbeb); }
   </style>
 </head>
@@ -52,15 +51,13 @@
 
 <main class="max-w-md mx-auto p-4 space-y-6">
 
-  <!-- 3) OFFERS SECTION (Horizontal Scroll) -->
+  <!-- Offers Section -->
   <div id="offersSection" class="hidden">
       <div class="flex items-center justify-between mb-2 px-1">
           <h2 class="text-base font-bold text-slate-800 flex items-center gap-2"><i class="fas fa-gift text-pink-500 animate-bounce"></i> Offers Near You</h2>
           <button onclick="toggleDiscountFilter(true)" class="text-xs text-blue-600 font-bold">View All</button>
       </div>
-      <div id="offersList" class="flex gap-3 overflow-x-auto pb-4 snap-x hide-scrollbar" style="scrollbar-width: none;">
-          <!-- Offer Cards Injected Here -->
-      </div>
+      <div id="offersList" class="flex gap-3 overflow-x-auto pb-4 snap-x hide-scrollbar" style="scrollbar-width: none;"></div>
   </div>
 
   <!-- Search & Filters -->
@@ -70,7 +67,6 @@
             <i class="fas fa-search absolute left-3 top-3.5 text-slate-400"></i>
             <input id="searchInput" class="w-full pl-10 pr-3 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none font-medium text-sm" placeholder="Search (e.g. Mechanic)..." />
           </div>
-          <!-- 4) DISCOUNT FILTER BUTTON -->
           <button id="discountFilterBtn" onclick="toggleDiscountFilter()" class="bg-white border border-slate-200 text-slate-500 px-3 rounded-xl shadow-sm font-bold text-xs flex flex-col items-center justify-center min-w-[60px] active:scale-95 transition">
               <i class="fas fa-percent text-sm mb-0.5"></i>
               <span>Offers</span>
@@ -78,23 +74,22 @@
       </div>
   </div>
 
-  <!-- 1) SERVICE CARDS LIST -->
+  <!-- Main List -->
   <div id="mainList" class="space-y-4">
-      <!-- Loading Skeleton -->
       <div class="animate-pulse space-y-4">
           <div class="h-32 bg-slate-200 rounded-2xl"></div>
           <div class="h-32 bg-slate-200 rounded-2xl"></div>
       </div>
   </div>
 
-  <!-- Add Button (Floating) -->
+  <!-- Add Button -->
   <button onclick="openAddModal()" class="fixed bottom-6 right-6 w-14 h-14 bg-blue-600 text-white rounded-full shadow-2xl shadow-blue-400 flex items-center justify-center text-2xl z-40 active:scale-90 transition border-4 border-slate-100">
       <i class="fas fa-plus"></i>
   </button>
 
 </main>
 
-<!-- 6) OTP GENERATION MODAL -->
+<!-- OTP MODAL -->
 <div id="otpModal" class="hidden fixed inset-0 bg-black/80 z-[60] flex items-center justify-center p-4 fade-scale backdrop-blur-sm">
     <div class="bg-white w-full max-w-sm rounded-3xl p-6 text-center relative overflow-hidden">
         <button onclick="closeOtp()" class="absolute top-4 right-4 w-8 h-8 bg-slate-100 rounded-full text-slate-500"><i class="fas fa-times"></i></button>
@@ -105,12 +100,8 @@
             <p class="text-xs text-slate-500">Show this code to the shopkeeper</p>
         </div>
 
-        <div id="otpDisplay" class="bg-slate-900 text-white text-4xl font-mono font-bold py-6 rounded-xl tracking-[0.5em] mb-4 shadow-inner">
-            ----
-        </div>
-
+        <div id="otpDisplay" class="bg-slate-900 text-white text-4xl font-mono font-bold py-6 rounded-xl tracking-[0.5em] mb-4 shadow-inner">----</div>
         <div class="text-xs text-slate-400 font-mono mb-4">Valid for <span id="timer">05:00</span> minutes</div>
-        
         <div class="bg-yellow-50 border border-yellow-100 p-3 rounded-xl text-xs text-yellow-800 mb-4 text-left">
             <i class="fas fa-info-circle mr-1"></i> <span id="otpShopName" class="font-bold">Shop Name</span> verifies this code to give your discount.
         </div>
@@ -120,18 +111,13 @@
 <!-- ADD WORKER MODAL -->
 <div id="addModal" class="hidden fixed inset-0 bg-slate-900/60 z-[60] flex items-end sm:items-center justify-center sm:p-4 backdrop-blur-sm">
     <div class="bg-white w-full sm:max-w-md h-[85vh] sm:h-auto sm:rounded-3xl rounded-t-3xl p-6 relative flex flex-col shadow-2xl">
-        <div class="flex justify-between items-center mb-6">
-            <h2 class="text-xl font-bold">Add Service</h2>
-            <button onclick="document.getElementById('addModal').classList.add('hidden')" class="w-8 h-8 bg-slate-100 rounded-full"><i class="fas fa-times"></i></button>
-        </div>
-        
+        <button onclick="document.getElementById('addModal').classList.add('hidden')" class="absolute top-4 right-4 w-8 h-8 bg-slate-100 rounded-full"><i class="fas fa-times"></i></button>
+        <h2 class="text-xl font-bold mb-4">Add Service</h2>
         <form id="addForm" class="space-y-4 overflow-y-auto flex-1 pb-10">
             <input id="iName" class="w-full p-3 bg-slate-50 border rounded-xl font-bold" placeholder="Shop/Person Name" required>
             <input id="iJob" class="w-full p-3 bg-slate-50 border rounded-xl" placeholder="Category (e.g. Mechanic)" required>
             <input id="iArea" class="w-full p-3 bg-slate-50 border rounded-xl" placeholder="Area / Village" required>
             <input id="iPhone" type="tel" class="w-full p-3 bg-slate-50 border rounded-xl font-bold tracking-widest" placeholder="Phone Number" required>
-            
-            <!-- 2) DISCOUNT FIELDS -->
             <div class="border border-blue-100 bg-blue-50 p-4 rounded-xl">
                 <div class="flex items-center justify-between mb-2">
                     <label class="font-bold text-blue-900 text-sm flex items-center gap-2"><i class="fas fa-tags"></i> Enable Offer?</label>
@@ -141,7 +127,6 @@
                     <input id="iOfferText" class="w-full p-2 text-sm border border-blue-200 rounded-lg" placeholder="Ex: 10% Off for villagers">
                 </div>
             </div>
-
             <button type="submit" class="w-full bg-blue-600 text-white py-3.5 rounded-xl font-bold text-lg shadow-lg shadow-blue-200">Save Profile</button>
         </form>
     </div>
@@ -152,7 +137,6 @@
     import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
     import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-    // CONFIG
     const firebaseConfig = {
       apiKey: "AIzaSyBfonEUIssxYV5BFxOEsTIA9alYzISEOGU",
       authDomain: "myvillage-app-c3550.firebaseapp.com",
@@ -165,150 +149,89 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const auth = getAuth(app);
-    
-    let allServices = [];
-    let currentUser = null;
-    let filterDiscountOnly = false;
+    let allServices = [], currentUser = null, filterDiscountOnly = false;
 
-    // AUTH
     window.handleAuth = () => { if(!currentUser) signInWithPopup(auth, new GoogleAuthProvider()); }
     onAuthStateChanged(auth, u => {
         currentUser = u;
         document.getElementById('authBtn').innerHTML = u ? `<img src="${u.photoURL}" class="w-6 h-6 rounded-full">` : "Login";
     });
 
-    // LOAD DATA
-    const q = query(collection(db, "workers"), orderBy("name")); // Using 'workers' to keep compatibility with your existing data
+    const q = query(collection(db, "workers"), orderBy("name"));
     onSnapshot(q, (snap) => {
         allServices = snap.docs.map(d => ({id: d.id, ...d.data()}));
         renderApp();
     });
 
-    // RENDER LOGIC
     function renderApp() {
         const term = document.getElementById('searchInput').value.toLowerCase();
-        
-        // Filter Logic
         const filtered = allServices.filter(s => {
             const matchesSearch = s.name.toLowerCase().includes(term) || s.job.toLowerCase().includes(term);
             const matchesFilter = filterDiscountOnly ? (s.hasDiscount === true) : true;
             return matchesSearch && matchesFilter;
         });
 
-        // 3) Render Offers Header (Only those with discounts)
         const offers = allServices.filter(s => s.hasDiscount);
         const offersSec = document.getElementById('offersSection');
-        const offersList = document.getElementById('offersList');
-        
         if(offers.length > 0 && !term && !filterDiscountOnly) {
             offersSec.classList.remove('hidden');
-            offersList.innerHTML = offers.map(s => `
-                <div class="min-w-[260px] bg-gradient-to-br from-slate-900 to-slate-800 p-4 rounded-2xl text-white shadow-lg relative snap-center">
+            document.getElementById('offersList').innerHTML = offers.map(s => `
+                <div class="min-w-[260px] bg-slate-900 p-4 rounded-2xl text-white shadow-lg relative snap-center">
                     <div class="absolute top-0 right-0 bg-yellow-400 text-black text-[10px] font-bold px-2 py-1 rounded-bl-xl rounded-tr-xl">OFFER</div>
                     <h3 class="font-bold text-lg truncate">${s.name}</h3>
-                    <p class="text-slate-300 text-xs mb-3">${s.offerText || 'Special discount available'}</p>
-                    <button onclick="generateOTP('${s.id}', '${s.name}')" class="w-full bg-white text-slate-900 font-bold py-2 rounded-lg text-xs shadow hover:bg-slate-100">
-                        <i class="fas fa-ticket-alt text-yellow-600 mr-1"></i> Get Code
-                    </button>
+                    <p class="text-slate-300 text-xs mb-3">${s.offerText || 'Discount available'}</p>
+                    <button onclick="generateOTP('${s.id}', '${s.name}')" class="w-full bg-white text-slate-900 font-bold py-2 rounded-lg text-xs hover:bg-slate-100">Get Code</button>
                 </div>
             `).join('');
         } else {
             offersSec.classList.add('hidden');
         }
 
-        // 1) Render Main List
         const list = document.getElementById('mainList');
-        if(filtered.length === 0) {
-            list.innerHTML = `<div class="text-center py-10 text-slate-400">No services found</div>`;
-            return;
-        }
+        if(filtered.length === 0) { list.innerHTML = `<div class="text-center py-10 text-slate-400">No services found</div>`; return; }
 
         list.innerHTML = filtered.map(s => {
-            // Badge Logic
-            const badge = s.hasDiscount 
-                ? `<div class="absolute -top-3 -right-2 bg-yellow-400 text-slate-900 text-[10px] px-2 py-1 rounded shadow-md font-bold border border-white z-10">
-                     <i class="fas fa-percentage"></i> ${s.offerText || 'OFFER'}
-                   </div>` 
-                : '';
-            
-            const cardClass = s.hasDiscount ? 'discount-card shadow-md' : 'bg-white border-slate-100 shadow-sm';
-            
-            // 5) Claim Offer Button Logic
+            const badge = s.hasDiscount ? `<div class="absolute -top-3 -right-2 bg-yellow-400 text-slate-900 text-[10px] px-2 py-1 rounded shadow-md font-bold border border-white z-10">OFFER</div>` : '';
             const actionBtn = s.hasDiscount
-                ? `<button onclick="generateOTP('${s.id}', '${s.name}')" class="flex-1 bg-slate-900 text-white py-3 rounded-xl font-bold text-sm shadow-lg shadow-slate-200 active:scale-95 transition">
-                     <i class="fas fa-gift text-yellow-400 animate-pulse"></i> Claim Offer
-                   </button>`
-                : `<a href="tel:${s.phone}" class="flex-1 bg-blue-50 text-blue-700 py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 border border-blue-100">
-                     <i class="fas fa-phone"></i> Call Now
-                   </a>`;
+                ? `<button onclick="generateOTP('${s.id}', '${s.name}')" class="flex-1 bg-slate-900 text-white py-3 rounded-xl font-bold text-sm shadow-lg shadow-slate-200 active:scale-95 transition">Get Discount Code</button>`
+                : `<a href="tel:${s.phone}" class="flex-1 bg-blue-50 text-blue-700 py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 border border-blue-100"><i class="fas fa-phone"></i> Call Now</a>`;
 
             return `
-            <div class="relative ${cardClass} p-4 rounded-2xl border flex flex-col gap-3">
+            <div class="relative ${s.hasDiscount ? 'discount-card shadow-md' : 'bg-white border-slate-100 shadow-sm'} p-4 rounded-2xl border flex flex-col gap-3">
                 ${badge}
                 <div class="flex gap-4 items-center">
-                    <div class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-xl text-slate-400 shrink-0">
-                        <i class="fas fa-store"></i>
-                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-xl text-slate-400 shrink-0"><i class="fas fa-store"></i></div>
                     <div class="min-w-0">
                         <h3 class="font-bold text-slate-800 text-lg leading-tight truncate">${s.name}</h3>
                         <p class="text-xs text-slate-500 uppercase tracking-wide font-bold">${s.job} • ${s.area}</p>
                     </div>
                 </div>
-
-                <!-- Action Row -->
-                <div class="flex gap-2 mt-1">
-                    ${actionBtn}
-                    <a href="https://wa.me/91${s.phone}" class="w-12 bg-green-100 text-green-600 rounded-xl flex items-center justify-center text-xl border border-green-200">
-                        <i class="fab fa-whatsapp"></i>
-                    </a>
-                </div>
+                <div class="flex gap-2 mt-1">${actionBtn}</div>
             </div>`;
         }).join('');
     }
 
-    // 4) DISCOUNT FILTER LOGIC
     window.toggleDiscountFilter = (forceTrue) => {
         filterDiscountOnly = forceTrue ? true : !filterDiscountOnly;
-        const btn = document.getElementById('discountFilterBtn');
-        if(filterDiscountOnly) btn.classList.add('filter-active');
-        else btn.classList.remove('filter-active');
+        document.getElementById('discountFilterBtn').classList.toggle('filter-active', filterDiscountOnly);
         renderApp();
     }
-    
     document.getElementById('searchInput').addEventListener('input', renderApp);
 
-    // 6) OTP GENERATION LOGIC
     window.generateOTP = async (shopId, shopName) => {
         if(!currentUser) { toast("Please Login to get Offers"); handleAuth(); return; }
-        
-        // Random 4 digit code
         const code = Math.floor(1000 + Math.random() * 9000).toString();
         
-        // Save to Firestore (7. Database Structure)
         await addDoc(collection(db, "otpCodes"), {
-            code: code,
-            shopId: shopId,
-            userId: currentUser.uid,
-            userName: currentUser.displayName,
-            timestamp: serverTimestamp(),
-            status: 'active', // active, used
-            expiresAt: Date.now() + (5 * 60 * 1000) // 5 mins
-        });
-        
-        // Also track Lead (5. Claim Offer Tracking)
-        addDoc(collection(db, "claims"), {
-            userId: currentUser.uid,
-            shopId: shopId,
-            timestamp: serverTimestamp()
+            code: code, shopId: shopId, userId: currentUser.uid, 
+            timestamp: serverTimestamp(), status: 'active'
         });
 
-        // Show UI
         document.getElementById('otpShopName').innerText = shopName;
         document.getElementById('otpDisplay').innerText = code;
         document.getElementById('otpModal').classList.remove('hidden');
         
-        // Simple Timer
-        let timeLeft = 300; // 5 mins
+        let timeLeft = 300;
         const timerEl = document.getElementById('timer');
         const interval = setInterval(() => {
             timeLeft--;
@@ -320,45 +243,20 @@
     }
 
     window.closeOtp = () => document.getElementById('otpModal').classList.add('hidden');
-
-    // ADD FORM
-    window.openAddModal = () => {
-        if(!currentUser) { toast("Login Required"); handleAuth(); return; }
-        document.getElementById('addModal').classList.remove('hidden');
-    }
-    
-    window.toggleOfferInput = (cb) => {
-        document.getElementById('offerInputBox').classList.toggle('hidden', !cb.checked);
-    }
+    window.openAddModal = () => currentUser ? document.getElementById('addModal').classList.remove('hidden') : (toast("Login Required"), handleAuth());
+    window.toggleOfferInput = (cb) => document.getElementById('offerInputBox').classList.toggle('hidden', !cb.checked);
 
     document.getElementById('addForm').addEventListener('submit', async (e) => {
         e.preventDefault();
-        const btn = e.target.querySelector('button');
-        btn.disabled = true; btn.innerText = "Saving...";
-        
         await addDoc(collection(db, "workers"), {
-            name: document.getElementById('iName').value,
-            job: document.getElementById('iJob').value,
-            area: document.getElementById('iArea').value,
-            phone: document.getElementById('iPhone').value,
-            hasDiscount: document.getElementById('iHasDiscount').checked,
-            offerText: document.getElementById('iOfferText').value,
-            addedBy: currentUser.uid,
-            createdAt: serverTimestamp()
+            name: document.getElementById('iName').value, job: document.getElementById('iJob').value,
+            area: document.getElementById('iArea').value, phone: document.getElementById('iPhone').value,
+            hasDiscount: document.getElementById('iHasDiscount').checked, offerText: document.getElementById('iOfferText').value,
+            addedBy: currentUser.uid, createdAt: serverTimestamp()
         });
-        
-        document.getElementById('addModal').classList.add('hidden');
-        e.target.reset();
-        btn.disabled = false; btn.innerText = "Save Profile";
-        toast("Service Added!");
+        document.getElementById('addModal').classList.add('hidden'); e.target.reset(); toast("Service Added!");
     });
-
-    window.toast = (msg) => {
-        const t = document.getElementById('toast');
-        t.querySelector('span').innerText = msg;
-        t.classList.add('show');
-        setTimeout(() => t.classList.remove('show'), 2000);
-    }
+    window.toast = (msg) => { const t = document.getElementById('toast'); t.querySelector('span').innerText = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2000); }
 </script>
 </body>
-    </html>
+</html>
