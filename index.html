@@ -44,7 +44,7 @@
       <span><i class="fas fa-shield-alt mr-1"></i> <b>Admin Mode:</b> You can verify or delete shops.</span>
   </div>
 
-  <!-- Offers Section -->
+  <!-- Offers Section (Carousel) -->
   <div id="offersSection" class="hidden">
       <div class="flex items-center justify-between mb-2 px-1">
           <h2 class="text-base font-bold text-slate-800 flex items-center gap-2"><i class="fas fa-gift text-pink-500 animate-bounce"></i> Offers Near You</h2>
@@ -182,7 +182,8 @@
         
         const filtered = allServices.filter(s => {
             const matchesSearch = s.name.toLowerCase().includes(term) || s.job.toLowerCase().includes(term);
-            const matchesDiscount = filterDiscountOnly ? (s.hasDiscount === true) : true;
+            // Relaxed check: check for truthy value to catch boolean or string 'true'
+            const matchesDiscount = filterDiscountOnly ? (!!s.hasDiscount) : true;
             
             // SECURITY LOGIC: Verified or Undefined (Old Data) OR Admin
             const isVerified = (s.verified === true) || (s.verified === undefined);
@@ -192,9 +193,11 @@
         });
 
         // Update Offers (Apply same verified logic)
-        const offers = allServices.filter(s => s.hasDiscount && ((s.verified === true || s.verified === undefined) || isAdmin));
+        const offers = allServices.filter(s => !!s.hasDiscount && ((s.verified === true || s.verified === undefined) || isAdmin));
         const offersSec = document.getElementById('offersSection');
         
+        // If we are filtering, we generally hide the carousel to show the list, UNLESS list is empty and user might be confused
+        // But for consistency:
         if(offers.length > 0 && !term && !filterDiscountOnly) {
             offersSec.classList.remove('hidden');
             document.getElementById('offersList').innerHTML = offers.map(s => `
@@ -210,7 +213,19 @@
         }
 
         const list = document.getElementById('mainList');
-        if(filtered.length === 0) { list.innerHTML = `<div class="text-center py-10 text-slate-400">No services found</div>`; return; }
+        if(filtered.length === 0) { 
+            // Better No Data Message
+            if(filterDiscountOnly) {
+                 list.innerHTML = `<div class="text-center py-10 text-slate-400 flex flex-col items-center">
+                    <i class="fas fa-tags text-4xl mb-3 opacity-50"></i>
+                    <p>No offers found.</p>
+                    <p class="text-xs mt-1 text-slate-400">Note: New offers require Admin approval.</p>
+                 </div>`;
+            } else {
+                 list.innerHTML = `<div class="text-center py-10 text-slate-400">No services found</div>`; 
+            }
+            return; 
+        }
 
         list.innerHTML = filtered.map(s => {
             const isVerified = (s.verified === true) || (s.verified === undefined);
@@ -351,6 +366,13 @@
             toast("🗑 Deleted!");
         }
     }
+
+    window.toggleDiscountFilter = (forceTrue) => {
+        filterDiscountOnly = forceTrue === true ? true : !filterDiscountOnly;
+        document.getElementById('discountFilterBtn').classList.toggle('filter-active', filterDiscountOnly);
+        renderApp();
+    }
+    document.getElementById('searchInput').addEventListener('input', renderApp);
 
     window.closeOtp = () => document.getElementById('otpModal').classList.add('hidden');
     window.openAddModal = () => currentUser ? document.getElementById('addModal').classList.remove('hidden') : (toast("Login Required"), handleAuth());
