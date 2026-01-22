@@ -8,44 +8,31 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         body { font-family: sans-serif; background: #0f172a; color: white; }
-        .blink { animation: blinker 1s linear infinite; }
-        @keyframes blinker { 50% { opacity: 0; } }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-6">
 
     <div class="w-full max-w-sm">
-        <!-- Header -->
         <div class="text-center mb-10">
             <div class="inline-block bg-blue-600 text-xs font-bold px-3 py-1 rounded-full mb-3 uppercase tracking-widest">Merchant Tool</div>
             <h1 class="text-3xl font-bold text-white mb-2">Verify Customer</h1>
             <p class="text-slate-400">కస్టమర్ మొబైల్ లో ఉన్న కోడ్ ఎంటర్ చేయండి</p>
         </div>
 
-        <!-- Verification Box -->
         <div class="bg-slate-800 p-8 rounded-3xl shadow-2xl border border-slate-700">
             <label class="text-xs text-slate-500 font-bold uppercase mb-2 block">Enter 4-Digit OTP</label>
-            
-            <input type="tel" id="otpInput" maxlength="4" class="w-full bg-slate-900 border-2 border-slate-700 text-white text-center text-5xl font-bold py-6 rounded-2xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 focus:outline-none tracking-[0.5em] mb-6 placeholder:tracking-normal shadow-inner transition-all" placeholder="0000" autofocus>
-            
-            <button onclick="verifyCode()" id="verifyBtn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl transition text-lg shadow-lg shadow-blue-900/50 active:scale-95 flex items-center justify-center gap-2">
+            <input type="tel" id="otpInput" maxlength="4" class="w-full bg-slate-900 border-2 border-slate-700 text-white text-center text-5xl font-bold py-6 rounded-2xl focus:border-blue-500 focus:outline-none tracking-[0.5em] mb-6 placeholder:tracking-normal shadow-inner" placeholder="0000" autofocus>
+            <button onclick="verifyCode()" id="verifyBtn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl transition text-lg shadow-lg flex items-center justify-center gap-2">
                 <span>Check Code</span> <i class="fas fa-arrow-right"></i>
             </button>
-            
-            <!-- Results Area -->
             <div id="result" class="mt-6 text-center hidden p-4 rounded-xl bg-slate-900 border border-slate-700"></div>
         </div>
-        
-        <p class="text-center text-slate-600 text-xs mt-8">
-            <i class="fas fa-lock"></i> Secure Verification System
-        </p>
     </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getFirestore, collection, query, where, getDocs, updateDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    // మీ Firebase Config (ఇది user app లో ఉన్నదే వాడాలి)
     const firebaseConfig = {
       apiKey: "AIzaSyBfonEUIssxYV5BFxOEsTIA9alYzISEOGU",
       authDomain: "myvillage-app-c3550.firebaseapp.com",
@@ -65,74 +52,45 @@
 
         if(code.length !== 4) return alert("దయచేసి 4 అంకెలు ఎంటర్ చేయండి");
 
-        // Loading State
-        btn.disabled = true; 
-        btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Checking...`;
+        btn.disabled = true; btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Checking...`;
         res.classList.add('hidden');
 
         try {
-            // 1. Check if OTP exists and is ACTIVE
-            // (Login అవసరం లేదు, ఎందుకంటే మనం డైరెక్ట్ గా DB ని అడుగుతున్నాం)
-            const q = query(
-                collection(db, "otpCodes"), 
-                where("code", "==", code),
-                where("status", "==", "active")
-            );
-            
+            const q = query(collection(db, "otpCodes"), where("code", "==", code), where("status", "==", "active"));
             const snap = await getDocs(q);
 
             if(snap.empty) {
-                // Code తప్పు లేదా ఆల్రెడీ వాడేశారు
                 showResult(false, "Invalid Code", "ఈ కోడ్ తప్పు లేదా చెల్లదు.");
             } else {
                 const otpDoc = snap.docs[0];
                 const data = otpDoc.data();
-                
-                // 2. Check Time (5 నిమిషాలు దాటిందా?)
                 const createdTime = data.timestamp ? data.timestamp.toMillis() : Date.now();
-                const timeDiff = Date.now() - createdTime;
 
-                if(timeDiff > 300000) { // 5 mins in ms
-                    showResult(false, "Expired", "ఈ కోడ్ టైం అయిపోయింది (Expired).");
+                if(Date.now() - createdTime > 300000) {
+                    showResult(false, "Expired", "ఈ కోడ్ టైం అయిపోయింది.");
                 } else {
-                    // 3. Success! కోడ్ ని 'used' అని మార్చు (మళ్ళీ వాడకుండా)
                     await updateDoc(doc(db, "otpCodes", otpDoc.id), { status: 'used' });
-                    showResult(true, "Success!", "✅ వెరిఫికేషన్ సక్సెస్!");
+                    // SUCCESS - Showing Shop Name Here
+                    showResult(true, "✅ Verified!", `Valid for: <b class="text-white">${data.shopName || 'Unknown Shop'}</b><br><span class="text-xs">User: ${data.userName || 'Customer'}</span>`);
                 }
             }
         } catch(e) {
             console.error(e);
-            // Permission Error వస్తే Firebase Rules మార్చాలి అని అర్థం
-            if(e.code === 'permission-denied') {
-                showResult(false, "Error", "Permission Denied. (Check Firestore Rules)");
-            } else {
-                showResult(false, "Error", "System Error. Try again.");
-            }
+            showResult(false, "Error", "System Error. Try again.");
         }
-        
         btn.disabled = false; btn.innerHTML = `<span>Check Code</span> <i class="fas fa-arrow-right"></i>`;
     };
 
     function showResult(success, title, msg) {
         const div = document.getElementById('result');
         div.classList.remove('hidden');
-        
         if(success) {
             div.className = "mt-6 text-center p-4 rounded-xl border border-green-500/30 bg-green-500/10";
-            div.innerHTML = `
-                <div class="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center text-3xl mx-auto mb-2 text-white shadow-lg shadow-green-500/40"><i class="fas fa-check"></i></div>
-                <h3 class="text-green-400 font-bold text-xl uppercase tracking-wider">${title}</h3>
-                <p class="text-green-200 text-sm mt-1">${msg}</p>
-            `;
-            // Clear input on success
+            div.innerHTML = `<h3 class="text-green-400 font-bold text-xl uppercase tracking-wider">${title}</h3><p class="text-green-200 text-sm mt-1">${msg}</p>`;
             document.getElementById('otpInput').value = "";
         } else {
             div.className = "mt-6 text-center p-4 rounded-xl border border-red-500/30 bg-red-500/10";
-            div.innerHTML = `
-                <div class="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center text-xl mx-auto mb-2 text-white"><i class="fas fa-times"></i></div>
-                <h3 class="text-red-400 font-bold text-lg uppercase">${title}</h3>
-                <p class="text-red-200 text-sm mt-1">${msg}</p>
-            `;
+            div.innerHTML = `<h3 class="text-red-400 font-bold text-lg uppercase">${title}</h3><p class="text-red-200 text-sm mt-1">${msg}</p>`;
         }
     }
 </script>
