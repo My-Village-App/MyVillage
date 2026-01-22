@@ -196,15 +196,14 @@
         const offers = allServices.filter(s => !!s.hasDiscount && ((s.verified === true || s.verified === undefined) || isAdmin));
         const offersSec = document.getElementById('offersSection');
         
-        // If we are filtering, we generally hide the carousel to show the list, UNLESS list is empty and user might be confused
-        // But for consistency:
         if(offers.length > 0 && !term && !filterDiscountOnly) {
             offersSec.classList.remove('hidden');
             document.getElementById('offersList').innerHTML = offers.map(s => `
                 <div class="min-w-[260px] bg-slate-900 p-4 rounded-2xl text-white shadow-lg relative snap-center">
                     <div class="absolute top-0 right-0 bg-yellow-400 text-black text-[10px] font-bold px-2 py-1 rounded-bl-xl rounded-tr-xl">OFFER</div>
-                    <h3 class="font-bold text-lg truncate">${s.name}</h3>
-                    <p class="text-slate-300 text-xs mb-3">${s.offerText || 'Discount available'}</p>
+                    <h3 class="font-bold text-lg truncate text-yellow-400 uppercase tracking-wide">${s.job}</h3>
+                    <p class="text-sm text-slate-300 truncate font-semibold">${s.name}</p>
+                    <p class="text-slate-400 text-xs mt-1 mb-3">${s.offerText || 'Discount available'}</p>
                     <button onclick="generateOTP('${s.id}', '${s.name}')" class="w-full bg-white text-slate-900 font-bold py-2 rounded-lg text-xs hover:bg-slate-100">Get Code</button>
                 </div>
             `).join('');
@@ -255,10 +254,11 @@
                 ${badge}
                 ${deleteBtn}
                 <div class="flex gap-4 items-center">
-                    <div class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-xl text-slate-400 shrink-0"><i class="fas fa-store"></i></div>
+                    <div class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-xl text-slate-400 shrink-0 shadow-sm"><i class="fas fa-store"></i></div>
                     <div class="min-w-0">
-                        <h3 class="font-bold text-slate-800 text-lg leading-tight truncate">${s.name}</h3>
-                        <p class="text-xs text-slate-500 uppercase tracking-wide font-bold">${s.job} • ${s.area}</p>
+                        <h3 class="font-bold text-blue-700 text-lg leading-tight truncate uppercase tracking-wide">${s.job}</h3>
+                        <p class="text-sm text-slate-800 font-semibold truncate">${s.name}</p>
+                        <p class="text-xs text-slate-500 mt-1"><i class="fas fa-map-marker-alt text-[10px] mr-1"></i> ${s.area}</p>
                     </div>
                 </div>
                 ${isVerified ? `<div class="flex gap-2 mt-1">${actionBtn}</div>` : adminActions}
@@ -393,4 +393,4 @@
     window.toast = (msg) => { const t = document.getElementById('toast'); t.querySelector('span').innerText = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2000); }
 </script>
 </body>
-</html>
+  </html>
