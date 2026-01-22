@@ -5,40 +5,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Mana Oori Sevalu - Offers</title>
   
-  <!-- Tailwind & Icons -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Ramabhadra&family=Inter:wght@400;600;700;800&display=swap');
     body { font-family: 'Inter', sans-serif; background: #f1f5f9; -webkit-tap-highlight-color: transparent; }
     h1, h2, h3 { font-family: 'Ramabhadra', sans-serif; }
-
-    /* Toast Animation */
-    .toast {
-      position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px);
-      background: #1e293b; color: white; padding: 12px 24px; border-radius: 99px;
-      font-size: 14px; opacity: 0; transition: all 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55); z-index: 9999;
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); display: flex; align-items: center; gap: 8px;
-    }
+    .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); background: #1e293b; color: white; padding: 12px 24px; border-radius: 99px; font-size: 14px; opacity: 0; transition: all 0.4s; z-index: 9999; display: flex; align-items: center; gap: 8px; }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
     .fade-scale { animation: fadeScale 0.2s ease-out forwards; }
     @keyframes fadeScale { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-    
     .filter-active { background-color: #dbeafe !important; border-color: #2563eb !important; color: #1d4ed8 !important; }
     .discount-card { border: 1px solid #fcd34d; background: linear-gradient(to bottom right, #ffffff, #fffbeb); }
     .otp-digit { font-variant-numeric: tabular-nums; letter-spacing: 0.2em; }
-    
-    /* Unverified Style */
     .grayscale-card { filter: grayscale(1); opacity: 0.8; border: 1px dashed #94a3b8; }
   </style>
 </head>
 <body class="text-slate-800 pb-24">
 
-<!-- Toast -->
 <div id="toast" class="toast"><i class="fas fa-check-circle text-green-400"></i> <span>Message</span></div>
 
-<!-- Header -->
 <header class="sticky top-0 bg-white/95 backdrop-blur-md border-b border-slate-200 z-50 shadow-sm">
   <div class="max-w-md mx-auto px-4 py-3 flex justify-between items-center">
     <div class="flex items-center gap-2">
@@ -53,13 +39,10 @@
 </header>
 
 <main class="max-w-md mx-auto p-4 space-y-6">
-
-  <!-- Admin Notification -->
   <div id="adminPanel" class="hidden bg-red-50 border border-red-200 p-3 rounded-xl mb-4 text-xs text-red-800 flex items-center justify-between">
-      <span><i class="fas fa-shield-alt mr-1"></i> <b>Admin Mode:</b> You can see unverified shops.</span>
+      <span><i class="fas fa-shield-alt mr-1"></i> <b>Admin Mode</b> Active</span>
   </div>
 
-  <!-- Offers Section -->
   <div id="offersSection" class="hidden">
       <div class="flex items-center justify-between mb-2 px-1">
           <h2 class="text-base font-bold text-slate-800 flex items-center gap-2"><i class="fas fa-gift text-pink-500 animate-bounce"></i> Offers Near You</h2>
@@ -68,7 +51,6 @@
       <div id="offersList" class="flex gap-3 overflow-x-auto pb-4 snap-x hide-scrollbar" style="scrollbar-width: none;"></div>
   </div>
 
-  <!-- Search & Filters -->
   <div class="sticky top-[68px] z-40 bg-[#f1f5f9] -mx-4 px-4 pb-2 pt-1">
       <div class="flex gap-2">
           <div class="relative flex-1 shadow-sm">
@@ -82,7 +64,6 @@
       </div>
   </div>
 
-  <!-- Main List -->
   <div id="mainList" class="space-y-4">
       <div class="animate-pulse space-y-4">
           <div class="h-32 bg-slate-200 rounded-2xl"></div>
@@ -90,11 +71,9 @@
       </div>
   </div>
 
-  <!-- Add Button -->
   <button onclick="openAddModal()" class="fixed bottom-6 right-6 w-14 h-14 bg-blue-600 text-white rounded-full shadow-2xl shadow-blue-400 flex items-center justify-center text-2xl z-40 active:scale-90 transition border-4 border-slate-100">
       <i class="fas fa-plus"></i>
   </button>
-
 </main>
 
 <!-- OTP MODAL -->
@@ -116,16 +95,16 @@
         <div class="flex items-center justify-center gap-2 text-xs font-mono text-red-500 bg-red-50 py-2 rounded-lg mb-4">
             <i class="far fa-clock"></i> Expires in <span id="timer" class="font-bold">05:00</span>
         </div>
-        <p class="text-[10px] text-slate-400 leading-relaxed px-4">Show this screen to the shopkeeper. They will verify it using their merchant tool.</p>
+        <p class="text-[10px] text-slate-400 leading-relaxed px-4">Show this to the shopkeeper.</p>
     </div>
 </div>
 
-<!-- ADD WORKER MODAL -->
+<!-- ADD MODAL -->
 <div id="addModal" class="hidden fixed inset-0 bg-slate-900/60 z-[60] flex items-end sm:items-center justify-center sm:p-4 backdrop-blur-sm">
     <div class="bg-white w-full sm:max-w-md h-[85vh] sm:h-auto sm:rounded-3xl rounded-t-3xl p-6 relative flex flex-col shadow-2xl">
         <button onclick="document.getElementById('addModal').classList.add('hidden')" class="absolute top-4 right-4 w-8 h-8 bg-slate-100 rounded-full"><i class="fas fa-times"></i></button>
         <h2 class="text-xl font-bold mb-4">Add Service</h2>
-        <p class="text-xs text-slate-500 mb-4 bg-yellow-50 p-2 rounded border border-yellow-100"><i class="fas fa-shield-alt"></i> Note: To prevent spam, new listings will be <b>Pending</b> until Admin verifies them via call.</p>
+        <p class="text-xs text-slate-500 mb-4 bg-yellow-50 p-2 rounded border border-yellow-100"><i class="fas fa-shield-alt"></i> Listings require Admin verification.</p>
         <form id="addForm" class="space-y-4 overflow-y-auto flex-1 pb-10">
             <input id="iName" class="w-full p-3 bg-slate-50 border rounded-xl font-bold" placeholder="Shop/Person Name" required>
             <input id="iJob" class="w-full p-3 bg-slate-50 border rounded-xl" placeholder="Category (e.g. Mechanic)" required>
@@ -140,18 +119,16 @@
                     <input id="iOfferText" class="w-full p-2 text-sm border border-blue-200 rounded-lg" placeholder="Ex: 10% Off for villagers">
                 </div>
             </div>
-            <button type="submit" class="w-full bg-blue-600 text-white py-3.5 rounded-xl font-bold text-lg shadow-lg shadow-blue-200">Submit for Verification</button>
+            <button type="submit" class="w-full bg-blue-600 text-white py-3.5 rounded-xl font-bold text-lg shadow-lg shadow-blue-200">Submit</button>
         </form>
     </div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, where, getDocs, limit, updateDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, where, getDocs, limit, updateDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
     import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-    // --- ADMIN CONFIG ---
-    // మావా, ఇక్కడ నీ నిజమైన Gmail ID పెట్టు. అప్పుడు నీకు మాత్రమే 'Approve' బటన్ కనిపిస్తుంది.
     const ADMIN_EMAIL = "yesebubirudugadda37@gmail.com"; 
 
     const firebaseConfig = {
@@ -185,10 +162,9 @@
             document.getElementById('authBtn').innerHTML = "Login";
             document.getElementById('adminPanel').classList.add('hidden');
         }
-        renderApp(); // Re-render to show hidden items if admin
+        renderApp();
     });
 
-    // Fetch ALL items (Filtering happens in JS to allow Admin to see pending ones)
     const q = query(collection(db, "workers"), orderBy("name"));
     onSnapshot(q, (snap) => {
         allServices = snap.docs.map(d => ({id: d.id, ...d.data()}));
@@ -197,25 +173,14 @@
 
     function renderApp() {
         const term = document.getElementById('searchInput').value.toLowerCase();
-        
-        // --- SECURE FILTER LOGIC ---
         const filtered = allServices.filter(s => {
-            // 1. Search Logic
             const matchesSearch = s.name.toLowerCase().includes(term) || s.job.toLowerCase().includes(term);
-            // 2. Discount Filter Logic
             const matchesDiscount = filterDiscountOnly ? (s.hasDiscount === true) : true;
-            
-            // 3. SECURITY LOGIC (FIXED)
-            // పాత డేటాలో 'verified' ఉండదు, కాబట్టి undefined ఉన్నా కూడా చూపించు (Legacy Support)
-            // కొత్త డేటాలో 'verified: false' ఉంటే మాత్రం దాచేయ్ (Admin కి తప్ప)
             const isVerified = (s.verified === true) || (s.verified === undefined);
             const isVisible = isVerified || isAdmin;
-
             return matchesSearch && matchesDiscount && isVisible;
         });
 
-        // Update Offers List
-        // FIX: Offers లో కూడా ఇదే లాజిక్ వాడాలి
         const offers = allServices.filter(s => s.hasDiscount && ((s.verified === true || s.verified === undefined) || isAdmin));
         const offersSec = document.getElementById('offersSection');
         if(offers.length > 0 && !term && !filterDiscountOnly) {
@@ -236,20 +201,24 @@
         if(filtered.length === 0) { list.innerHTML = `<div class="text-center py-10 text-slate-400">No services found</div>`; return; }
 
         list.innerHTML = filtered.map(s => {
-            // FIX: Check verification using the safe logic
             const isVerified = (s.verified === true) || (s.verified === undefined);
             
-            // Admin Actions
+            // ADMIN DELETE BUTTON
             let adminActions = '';
-            if(isAdmin && !isVerified) {
-                adminActions = `
-                <div class="bg-red-50 border border-red-100 p-2 rounded-lg mt-2 flex justify-between items-center">
-                    <span class="text-xs text-red-600 font-bold"><i class="fas fa-lock"></i> Pending Approval</span>
-                    <button onclick="approveWorker('${s.id}')" class="bg-green-600 text-white text-xs px-3 py-1.5 rounded-lg font-bold shadow-md hover:bg-green-700">Approve Now</button>
-                </div>`;
+            let deleteBtn = '';
+            if(isAdmin) {
+                // Delete button for ALL cards if admin
+                deleteBtn = `<button onclick="deleteWorker('${s.id}')" class="absolute top-2 left-2 w-8 h-8 bg-white/90 text-red-600 rounded-full shadow-lg z-20 flex items-center justify-center hover:bg-red-50"><i class="fas fa-trash-alt"></i></button>`;
+                
+                if(!isVerified) {
+                    adminActions = `
+                    <div class="bg-red-50 border border-red-100 p-2 rounded-lg mt-2 flex justify-between items-center">
+                        <span class="text-xs text-red-600 font-bold"><i class="fas fa-lock"></i> Pending</span>
+                        <button onclick="approveWorker('${s.id}')" class="bg-green-600 text-white text-xs px-3 py-1.5 rounded-lg font-bold shadow-md hover:bg-green-700">Approve</button>
+                    </div>`;
+                }
             }
 
-            // Normal UI
             const badge = s.hasDiscount ? `<div class="absolute -top-3 -right-2 bg-yellow-400 text-slate-900 text-[10px] px-2 py-1 rounded shadow-md font-bold border border-white z-10">OFFER</div>` : '';
             const actionBtn = s.hasDiscount
                 ? `<button onclick="generateOTP('${s.id}', '${s.name}')" class="flex-1 bg-slate-900 text-white py-3 rounded-xl font-bold text-sm shadow-lg shadow-slate-200 active:scale-95 transition">Get Discount Code</button>`
@@ -258,6 +227,7 @@
             return `
             <div class="relative ${s.hasDiscount ? 'discount-card shadow-md' : 'bg-white border-slate-100 shadow-sm'} ${!isVerified ? 'grayscale-card' : ''} p-4 rounded-2xl border flex flex-col gap-3">
                 ${badge}
+                ${deleteBtn}
                 <div class="flex gap-4 items-center">
                     <div class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-xl text-slate-400 shrink-0"><i class="fas fa-store"></i></div>
                     <div class="min-w-0">
@@ -270,12 +240,20 @@
         }).join('');
     }
 
-    // --- ADMIN FUNCTION ---
+    // --- ADMIN FUNCTIONS ---
     window.approveWorker = async (id) => {
         if(!isAdmin) return;
-        if(confirm("Verify: Did you call this person and confirm their details?")) {
+        if(confirm("Verify: Approve this listing?")) {
             await updateDoc(doc(db, "workers", id), { verified: true });
-            toast("✅ Worker Approved!");
+            toast("✅ Approved!");
+        }
+    }
+
+    window.deleteWorker = async (id) => {
+        if(!isAdmin) return;
+        if(confirm("⚠ ALERT: Delete this offer permanently? This cannot be undone.")) {
+            await deleteDoc(doc(db, "workers", id));
+            toast("🗑 Deleted!");
         }
     }
 
@@ -297,7 +275,15 @@
                 const data = snap.docs[0].data(); code = data.code; createdTime = data.timestamp ? data.timestamp.toMillis() : Date.now();
             } else {
                 code = Math.floor(1000 + Math.random() * 9000).toString(); createdTime = Date.now();
-                await addDoc(collection(db, "otpCodes"), { code: code, shopId: shopId, userId: currentUser.uid, userName: currentUser.displayName, timestamp: serverTimestamp(), status: 'active' });
+                await addDoc(collection(db, "otpCodes"), { 
+                    code: code, 
+                    shopId: shopId, 
+                    shopName: shopName, // SAVING SHOP NAME HERE
+                    userId: currentUser.uid, 
+                    userName: currentUser.displayName, 
+                    timestamp: serverTimestamp(), 
+                    status: 'active' 
+                });
             }
             document.getElementById('otpShopName').innerText = shopName; document.getElementById('otpDisplay').innerText = code; document.getElementById('otpModal').classList.remove('hidden');
             const timePassed = Date.now() - createdTime; let timeLeft = Math.max(0, Math.floor((300000 - timePassed) / 1000));
@@ -314,21 +300,16 @@
     document.getElementById('addForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const btn = e.target.querySelector('button'); btn.disabled=true; btn.innerText="Submitting...";
-        
-        // DEFAULT: verified = false (Requires Admin Approval)
         await addDoc(collection(db, "workers"), {
             name: document.getElementById('iName').value, job: document.getElementById('iJob').value,
             area: document.getElementById('iArea').value, phone: document.getElementById('iPhone').value,
             hasDiscount: document.getElementById('iHasDiscount').checked, offerText: document.getElementById('iOfferText').value,
-            addedBy: currentUser.uid, createdAt: serverTimestamp(),
-            verified: false // <--- VITAL CHANGE
+            addedBy: currentUser.uid, createdAt: serverTimestamp(), verified: false
         });
-        document.getElementById('addModal').classList.add('hidden'); e.target.reset(); btn.disabled=false; btn.innerText="Submit for Verification";
-        
-        // Show success message
-        alert("Thanks! Your service is submitted. Admin will call you to verify, after which it will be visible in the app.");
+        document.getElementById('addModal').classList.add('hidden'); e.target.reset(); btn.disabled=false; btn.innerText="Submit";
+        alert("Submitted for Admin Verification.");
     });
     window.toast = (msg) => { const t = document.getElementById('toast'); t.querySelector('span').innerText = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2000); }
 </script>
 </body>
-</html>
+              </html>
